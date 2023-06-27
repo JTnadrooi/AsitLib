@@ -1,0 +1,8 @@
+﻿[title](desc - should be compactible)
+[.paragraph1]({syncfs:ms:100}some desc)
+this is showed after 100 ms if everything goes right.
+//"sync" states its a syncing paragraph.
+//"fs" states its shown 100ms after start. options; fs(from start)/fpp(from parent paragraph)/fp(from previous)/
+//"ms" states the time unit used to detemine the delay. options; ms(millisecond)/s(second)/minute)/h(hour)/d(day)
+//"100" time it takes to show, in the time unit stated. (ms in this case.)
+[:subof1](sync:)

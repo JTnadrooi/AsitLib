@@ -1,0 +1,4 @@
+[.syncy]({syncos:ms:100})
+none
+[:syncyy]({syncos:sc:10})
+hello there

@@ -1,0 +1,13 @@
+[Title](The Title.)
+General Content.
+[.Paragraph](Paragraph Description)
+Some Content..
+<enum::a_enum!>
+>First..
+>Second..
+>Third
+multiline??
+</enum>
+Oh wow fully embedded!!! :D
+[:Next](Paragraph in Paragraph!)
+And its not ANSIÃ!

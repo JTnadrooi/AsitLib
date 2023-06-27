@@ -1,0 +1,2313 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AsitLib</name>
+    </assembly>
+    <members>
+        <member name="T:AsitLib.IO.AsitArchiveFile">
+            <summary>
+            A object pointing to a file amaglamation.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitArchiveFile.Version">
+            <summary>
+            Version of this <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitArchiveFile.Attribute">
+            <summary>
+            User defined attribule set tot this <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitArchiveFile.Path">
+            <summary>
+            Path of the file this <see cref="T:AsitLib.IO.AsitArchiveFile"/> points to.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitArchiveFile.Size">
+            <summary>
+            Size of the file.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitArchiveFile.#ctor(System.IO.FileInfo)">
+            <summary>
+            Point to a <see cref="T:AsitLib.IO.AsitArchiveFile"/> located at the given <paramref name="fileInfo"/>.
+            </summary>
+            <param name="fileInfo">Path to the file.</param>
+        </member>
+        <member name="M:AsitLib.IO.AsitArchiveFile.#ctor(System.String)">
+            <summary>
+            Point to a <see cref="T:AsitLib.IO.AsitArchiveFile"/> located at the given <paramref name="path"/>.
+            </summary>
+            <param name="path">Location of the file.</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitArchiveFile.Extract(System.String,AsitLib.IO.AsitFileExtractConfig)">
+            <summary>
+            Extract this <see cref="T:AsitLib.IO.AsitArchiveFile"/> to a folder.
+            </summary>
+            <param name="extractTo">Folder to extract this <see cref="T:AsitLib.IO.AsitArchiveFile"/> to.</param>
+            <param name="config"><see cref="T:AsitLib.IO.AsitFileConfig"/> used to extract.</param>
+        </member>
+        <member name="M:AsitLib.IO.AsitArchiveFile.Validate">
+            <summary>
+            Validate the interity(?) of this <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+            <returns>A value indicating if the <see cref="T:AsitLib.IO.AsitArchiveFile"/> is valid.</returns>
+        </member>
+        <member name="T:AsitLib.IO.AsitFileExtractConfig">
+            <summary>
+            Configuration for the extraction of <see cref="T:AsitLib.IO.AsitArchiveFile"/> objects.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFileExtractConfig.Seperator">
+            <summary>
+            A <see cref="T:System.String"/> that seperates the filename and the filespace.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFileExtractConfig.Starter">
+            <summary>
+            A <see cref="T:System.String"/> that indicates a (new)filespace has started.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFileExtractConfig.Finisher">
+            <summary>
+            A <see cref="T:System.String"/> that indicates a filespace has ended.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFileExtractConfig.ExtractMethod">
+            <summary>
+            Method used to extract a <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitFileExtractConfig.#ctor(System.String,System.String,System.String,AsitLib.IO.AsitArchiveUtils.ExtractMethod)">
+            <summary>
+            Create a new <see cref="T:AsitLib.IO.AsitFileExtractConfig"/> with all values set.
+            </summary>
+            <param name="seperator"><see cref="P:AsitLib.IO.AsitFileExtractConfig.Seperator"/>.</param>
+            <param name="starter"><see cref="P:AsitLib.IO.AsitFileExtractConfig.Starter"/>.</param>
+            <param name="finisher"><see cref="P:AsitLib.IO.AsitFileExtractConfig.Finisher"/>.</param>
+            <param name="extractMethod"><see cref="P:AsitLib.IO.AsitFileExtractConfig.ExtractMethod"/>.</param>
+        </member>
+        <member name="T:AsitLib.IO.AsitFilePackageConfig">
+            <summary>
+            Configuration for the creation of <see cref="T:AsitLib.IO.AsitArchiveFile"/> objects.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFilePackageConfig.Seperator">
+            <summary>
+            A <see cref="T:System.String"/> that seperates the filename and the filespace.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFilePackageConfig.Starter">
+            <summary>
+            A <see cref="T:System.String"/> that indicates a (new)filespace has started.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFilePackageConfig.Finisher">
+            <summary>
+            A <see cref="T:System.String"/> that indicates a filespace has ended.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFilePackageConfig.Version">
+            <summary>
+            The version of the <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitFilePackageConfig.Attribute">
+            <summary>
+            A custom <see cref="P:AsitLib.IO.AsitArchiveFile.Attribute"/> added to the <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.AsitArchiveUtils">
+            <summary>
+            A collection of utils used for the <see cref="T:AsitLib.IO.AsitArchiveFile"/> object.
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.AsitArchiveUtils.ExtractMethod">
+            <summary>
+            Method used to extract a <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+        </member>
+        <member name="F:AsitLib.IO.AsitArchiveUtils.ExtractMethod.RamBased">
+            <summary>
+            Extract a <see cref="T:AsitLib.IO.AsitArchiveFile"/> via a method thats <see langword="RAM"/> dependent.<br/>
+            <i>This method is often slower than the alternate <see cref="F:AsitLib.IO.AsitArchiveUtils.ExtractMethod.CpuBased"/> option.</i>
+            </summary>
+        </member>
+        <member name="F:AsitLib.IO.AsitArchiveUtils.ExtractMethod.CpuBased">
+            <summary>
+            Extract a <see cref="T:AsitLib.IO.AsitArchiveFile"/> via a method thats <see langword="CPU"/> dependent. <br/>
+            <i>This method is often faster than the alternate <see cref="F:AsitLib.IO.AsitArchiveUtils.ExtractMethod.RamBased"/> option.</i>
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitArchiveUtils.Validate(System.String)">
+            <summary>
+            Validate a <see cref="T:AsitLib.IO.AsitArchiveFile"/>.
+            </summary>
+            <param name="path">Path to the <see cref="T:AsitLib.IO.AsitArchiveFile"/>.</param>
+            <returns>A value indicating if the <see cref="T:AsitLib.IO.AsitArchiveFile"/> is valid.</returns>
+        </member>
+        <member name="T:AsitLib.IO.AsitDataEnumerator">
+            <summary>
+            A class that implements <see cref="T:System.Collections.Generic.IEnumerator`1"/>. This is for the <see cref="T:AsitLib.IO.AsitDataStream"/> class.
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.AsitDataStream">
+            <summary>
+            Fast and optimized way of storing <see cref="T:System.Array"/> objects.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Path">
+            <summary>
+            Path of the document with the stored <see cref="T:System.Array"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Stream">
+            <summary>
+            <see cref="T:System.IO.FileStream"/> used for this <see cref="T:AsitLib.IO.AsitDataStream"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.DataCount">
+            <summary>
+            Gets the lenght of the stored <see cref="T:System.Array"/> without buffering.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Initialized">
+            <summary>
+            Gets if this object is initialized. ( -\updated) 
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Size">
+            <summary>
+            Size of the document <strong>Not this object</strong>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.BufferLength">
+            <summary>
+            Lenght of the lenght of the buffer.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.ReadPosition">
+            <summary>
+            Current position.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Buffer">
+            <summary>
+            Lenght of the buffer.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.IsClosed">
+            <summary>
+            Gets if this <see cref="T:AsitLib.IO.AsitDataStream"/> has been <see langword="closed"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Item(System.Range)">
+            <summary>
+            Gets a <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects at the specified <see cref="T:System.Range"/>.
+            </summary>
+            <param name="range"><see cref="T:System.Range"/> to get the <see cref="T:System.String"/> objects from.</param>
+            <returns>The <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects in the specified <see cref="T:System.Range"/>.</returns>
+        </member>
+        <member name="P:AsitLib.IO.AsitDataStream.Item(System.Index)">
+            <summary>
+            Gets <see cref="T:System.String"/> at the specified <paramref name="index"/>
+            </summary>
+            <param name="index"><see cref="T:System.Index"/> to get data from.</param>
+            <returns>The <see cref="T:System.String"/> at the specified <paramref name="index"/>.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.#ctor(System.String)">
+            <summary>
+            Point to a file that effectively holds an <see cref="T:System.String"/> <see cref="T:System.Array"/>.
+            </summary>
+            <param name="path">Path to the file.</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.#ctor(System.Collections.Generic.IEnumerable{System.String},System.String,System.Int32)">
+            <summary>
+            Point to a file that effectively holds an <see cref="T:System.String"/> <see cref="T:System.Array"/>.
+            </summary>
+            <param name="strArr"><see cref="T:System.Array"/> of <see cref="T:System.String"/> objects.</param>
+            <param name="path">Path to the file that gets created.</param>
+            <param name="buffer">Lenght of the <see cref="P:AsitLib.IO.AsitDataStream.Buffer"/>. <strong>Can't be shorter than the shortest value in the given <see cref="T:System.Array"/>.</strong></param>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.#ctor(System.IO.FileInfo)">
+            <summary>
+            Point to a file that effectively holds an <see cref="T:System.String"/> <see cref="T:System.Array"/>.
+            </summary>
+            <param name="file"><see cref="T:System.IO.FileInfo"/> of the file.</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.Dispose">
+            <summary>
+            Dispose the containing <see cref="T:System.IO.FileStream"/>. (<see cref="P:AsitLib.IO.AsitDataStream.Stream"/>
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.GetData(System.Index)">
+            <summary>
+            Gets <see cref="T:System.String"/> at the specified <paramref name="index"/>
+            </summary>
+            <param name="index"><see cref="T:System.Index"/> to get data from.</param>
+            <returns>The <see cref="T:System.String"/> at the specified <paramref name="index"/>.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.GetData(System.Range)">
+            <summary>
+            Gets a <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects at the specified <see cref="T:System.Range"/>.
+            </summary>
+            <param name="range"><see cref="T:System.Range"/> to get the <see cref="T:System.String"/> objects from.</param>
+            <returns>The <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects in the specified <see cref="T:System.Range"/>.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.GetFull">
+            <summary>
+            Get this <see cref="T:AsitLib.IO.AsitDataStream"/> as a <see cref="T:System.Collections.IEnumerable"/>.
+            </summary>
+            <returns>This <see cref="T:AsitLib.IO.AsitDataStream"/> as a <see cref="T:System.Collections.IEnumerable"/>.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.Append(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Append a <see cref="T:System.String"/> to this <see cref="T:AsitLib.IO.AsitDataStream"/>. <br/>
+            <i>This only works if the max lenght of the largest <see cref="T:System.String"/> in the <paramref name="strArr"/> is shorter or equal to the
+            lenght of the largest <see cref="T:System.String"/> in the <see cref="T:AsitLib.IO.AsitDataStream"/>. <br/>
+            If this isn't the case, a <see cref="T:System.ArgumentException"/> is thrown.</i>
+            </summary>
+            <param name="strArr"><see cref="T:System.Array"/> of <see cref="T:System.String"/> objects.</param>
+            <exception cref="T:System.ArgumentException">New Buffer is bigger than old Buffer.</exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.SetBuffer(System.Int32)">
+            <summary>
+            Set a new buffer.<br/><strong>Rewites the entire file.</strong>
+            </summary>
+            <param name="buffer">New buffer.</param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.Validate">
+            <summary>
+            Validate the integrity of this <see cref="T:AsitLib.IO.AsitDataStream"/>.
+            </summary>
+            <returns>A value inticating if this <see cref="T:AsitLib.IO.AsitDataStream"/> is valid.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.SetPosition(System.Int32)">
+            <summary>
+            Set the position of the reader. This method is relevant for the <see cref="M:AsitLib.IO.AsitDataStream.Next"/> method
+            </summary>
+            <param name="position"></param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.Next">
+            <summary>
+            Reads the next <see cref="T:System.String"/> and advances the <see cref="P:AsitLib.IO.AsitDataStream.ReadPosition"/> by one.
+            Returns <see langword="null"/> when end of file has been reached.
+            </summary>
+            <returns>Read <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataStream.GetEnumerator">
+            <summary>
+            Get the <see cref="T:System.Collections.IEnumerator"/> of this <see cref="T:AsitLib.IO.AsitDataStream"/>.
+            </summary>
+            <returns>The <see cref="T:System.Collections.IEnumerator"/> of this <see cref="T:AsitLib.IO.AsitDataStream"/>.</returns>
+        </member>
+        <member name="T:AsitLib.IO.AsitDataUtils">
+            <summary>
+            A set of static utils for a <see cref="T:AsitLib.IO.AsitDataStream"/> object.
+            </summary>
+        </member>
+        <member name="F:AsitLib.IO.AsitDataUtils.Splitter">
+            <summary>
+            Splitter to seperate the values when creating a new <see cref="T:AsitLib.IO.AsitDataStream"/>
+            </summary>
+        </member>
+        <member name="F:AsitLib.IO.AsitDataUtils.Filler">
+            <summary>
+            Filler that is used to fill strings that are shorter than the buffer when creating a new <see cref="T:AsitLib.IO.AsitDataStream"/>
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataUtils.ToAsitDataStream(System.Collections.Generic.IEnumerable{System.String},System.String,System.Int32)">
+            <summary>
+            Create a <see cref="T:AsitLib.IO.AsitDataStream"/> from a <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
+            </summary>
+            <param name="strArr"><see cref="T:System.Array"/> of <see cref="T:System.String"/> objects.</param>
+            <param name="path">Path to the file that gets created.</param>
+            <param name="buffer">Lenght of the <see cref="P:AsitLib.IO.AsitDataStream.Buffer"/>.<br/><strong>Can't be shorter than the shortest value in the <paramref name="strArr"/>.</strong></param>
+            <returns>A new <see cref="T:AsitLib.IO.AsitDataStream"/> made from the specified <paramref name="strArr"/>.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataUtils.GetAsitData(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Gets pre-defined values from an <see cref="T:System.Array"/> without creating a new <see cref="T:AsitLib.IO.AsitDataStream"/> from it.
+            </summary>
+            <param name="strArr"><see cref="T:System.Array"/> to get the data from.</param>
+            <returns>A <see cref="T:System.Tuple`3"/> containing specifics of this <see cref="T:System.Array"/> as seen from the <see cref="T:AsitLib.IO.AsitDataStream"/>  initializers.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDataUtils.GetAsitData(System.String)">
+            <summary>
+            Gets pre-defined values from an <see cref="T:System.Array"/> from a <see cref="T:System.String"/>.<br/>
+            <i>Why would one need this?</i>
+            </summary>
+            <param name="str"><see cref="T:System.String"/> to get the data from.</param>
+            <returns>A <see cref="T:System.Tuple`3"/> containing specifics of this <see cref="T:System.Array"/> as seen from the <see cref="T:AsitLib.IO.AsitDataStream"/>  initializers.</returns>
+        </member>
+        <member name="T:AsitLib.IO.DocReader">
+            <summary>
+            A Stream to read string organized.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocReader.Path">
+            <summary>
+            If created from file this returns a Path to that file, else this returns String.Empty.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.DocReader.#ctor(System.IO.FileInfo)">
+            <summary>
+            Create a DocStream from a file.
+            </summary>
+            <param name="file"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="P:AsitLib.IO.IDocReader`3.Keys">
+            <summary>
+            All the <see cref="T:AsitLib.IO.DocKeyBase"/> implementing objects this AsitDocParagraph holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocReader`3.Statements">
+            <summary>
+            All the <see cref="T:AsitLib.IO.DocStatementBase"/> implementing objects this AsitDocParagraph holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocReader`3.Paragraphs">
+            <summary>
+            All the <see cref="T:AsitLib.IO.DocParagraphBase`3"/> implementing objects this AsitDocParagraph holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocReader`3.Attribute">
+            <summary>
+            The <see cref="P:AsitLib.IO.IDocReader`3.Attribute"/> of this <see cref="T:AsitLib.IO.IDocReader`3"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocReader`3.Title">
+            <summary>
+            The <see cref="P:AsitLib.IO.IDocReader`3.Title"/> of this <see cref="T:AsitLib.IO.IDocReader`3"/>.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.IDocReader`3.GetSize">
+            <summary>
+            Get the size of this Paragraph in
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.IO.DocReaderBase`3.GetParagraphFromPath(System.String)">
+            <summary>
+            Searches this Documents paragraph hierachy for a Sub Paragraph given a path.
+            </summary>
+            <param name="path">Path to the Paragraph.</param>
+            <returns>A Paragraph with the designied path.</returns>
+        </member>
+        <member name="T:AsitLib.IO.DocWriterBase">
+            <summary>
+            Write to a AsitDocument.
+            Reads file into memory. 
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocWriterBase.Paragraphs">
+            <summary>
+            All the paragraphs in this Document.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocWriterBase.Title">
+            <summary>
+            Title of the AsitDocument.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocWriterBase.Path">
+            <summary>
+            If this writer originates from a File, this will return a path.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.DocWriterBase.SetTitle(System.String,System.String,System.String)">
+            <summary>
+            Set the Title of this document without changing the file name.
+            </summary>
+            <param name="title"></param>
+            <param name="attribute"></param>
+            <param name="general_text"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.DocWriterBase.Annex(AsitLib.IO.DocParagraph,System.String)">
+            <summary>
+            Add a pararaph to the path with values ripped from a existing paragraph.
+            </summary>
+            <param name="paragraph">DocParagraph to get values from.</param>
+            <param name="paragraphPath"></param>
+            <returns>The path of the newly created paragraph.</returns>
+        </member>
+        <member name="M:AsitLib.IO.DocWriterBase.Annex(System.String,System.String,System.String,System.String)">
+            <summary>
+            Add a pararaph to the path.
+            </summary>
+            <param name="title">Title of the paragraph to add.</param>
+            <param name="content">Content of the paragraph to add.</param>
+            <param name="attribute"></param>
+            <param name="paragraphPath">Path for the paragraph to be nestled into.</param>
+            <returns>The path of the newly created paragraph.</returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:AsitLib.IO.DocKeyBase">
+            <summary>
+            A technique to hold data in a readable <see cref="T:System.String"/> object, preferably readen from a <see cref="T:AsitLib.IO.DocReaderBase`3"/>. <br/>
+            General <see cref="T:AsitLib.IO.DocKeyBase"/> layout: &lt;[<see cref="P:AsitLib.IO.DocKeyBase.Key"/>]&gt;[<see cref="P:AsitLib.IO.DocKeyBase.Value"/>]&lt;/[<see cref="P:AsitLib.IO.DocKeyBase.Key"/>]&gt;<br/>
+            <i>These object can also be obtained via the <see cref="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.String)"/> method.</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.NestledInDoc">
+            <summary>
+            <see cref="P:AsitLib.IO.DocReaderBase`3.Title"/> of the AsitDocument that holds this <see cref="T:AsitLib.IO.DocKeyBase"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.NestledInPar">
+            <summary>
+            <see cref="P:AsitLib.IO.DocReaderBase`3.Title"/> of the <see cref="T:AsitLib.IO.DocParagraph"/> that holds this <see cref="T:AsitLib.IO.DocKeyBase"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.Key">
+            <summary>
+            The name of this <see cref="T:AsitLib.IO.DocKeyBase"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.Value">
+            <summary>
+            The <see cref="P:AsitLib.IO.DocKeyBase.Value"/> this <see cref="T:AsitLib.IO.DocKeyBase"/> holds as a <see cref="T:System.String"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.SecondaryKey">
+            <summary>
+            The <see cref="P:AsitLib.IO.DocKeyBase.SecondaryKey"/> of this <see cref="T:AsitLib.IO.DocKeyBase"/>. 
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.Range">
+            <summary>
+            <see cref="T:System.Range"/> of the this <see cref="T:AsitLib.IO.DocKeyBase"/> refrencing the <see cref="T:System.String"/> object this <see cref="T:AsitLib.IO.DocKeyBase"/> originates from.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.Start">
+            <summary>
+            The start char of this <see cref="T:AsitLib.IO.DocKeyBase"/> relevant to the <see cref="T:System.String"/> this originates from.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.ValueRange">
+            <summary>
+            <see cref="T:System.Range"/> of the contained <see cref="P:AsitLib.IO.DocKeyBase.Value"/> refrencing the <see cref="T:System.String"/> object this <see cref="T:AsitLib.IO.DocKeyBase"/> originates from.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.DocKeyBase.FullKey">
+            <summary>
+            The full <see cref="T:AsitLib.IO.DocKeyBase"/> as seen in the <see cref="T:System.String"/> this <see cref="T:AsitLib.IO.DocKeyBase"/> originates from. <br/>
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.DocKeyBase.GetSize">
+            <summary>
+            Gets the size of this <see cref="T:AsitLib.IO.DocKey"/> in <see cref="T:System.Byte"/> count.
+            </summary>
+            <returns>The size of this <see cref="T:AsitLib.IO.DocKey"/> in <see cref="T:System.Byte"/> count.</returns>
+        </member>
+        <member name="M:AsitLib.IO.DocKeyBase.ToStatement``1">
+            <summary>
+            Get this <see cref="T:AsitLib.IO.DocKey"/> as a <see cref="T:AsitLib.IO.DocStatement"/>. <br/>
+            <i>Some properties will get lost in the conversion.</i>
+            </summary>
+            <returns>This <see cref="T:AsitLib.IO.DocKey"/> as a <see cref="T:AsitLib.IO.DocStatement"/>.</returns>
+        </member>
+        <member name="T:AsitLib.IO.DocStatementBase">
+            <summary>
+            A technique to hold data in a readable <see cref="T:System.String"/> object, preferably readen from a <see cref="T:AsitLib.IO.DocReader"/>. <br/>
+            General <see cref="T:AsitLib.IO.DocStatementBase"/> layout: &lt;//[<see cref="P:AsitLib.IO.DocStatementBase.Statement"/>]&gt;<br/>
+            <i>These object can also be obtained via the <see cref="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.String)"/> method.</i> <br/>
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.DocParagraph">
+            <summary>
+            A Class containing text, and Keys. Optional part of a AsitDocument. 
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.IDocParagraph">
+            <summary>
+            Interface for Paragraphs located in a <see cref="T:AsitLib.IO.DocReader"/>.<br/>
+            <i>Seealso; <see cref="T:AsitLib.IO.DocParagraphBase`3"/>.</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.Title">
+            <summary>
+            Title of this <see cref="T:AsitLib.IO.IDocParagraph"/>.<br/>
+            <i>Between the "[" and "]" next to the (optional) <see cref="P:AsitLib.IO.IDocParagraph.Attribute"/>('s).</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.NestedInTop">
+            <summary>
+            The Title of the <see cref="T:AsitLib.IO.DocReader"/> this <see cref="T:AsitLib.IO.IDocParagraph"/> is nested in.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.Path">
+            <summary>
+            Path of this <see cref="T:AsitLib.IO.IDocParagraph"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.NestedInParagraph">
+            <summary>
+            The Title of the <see cref="T:AsitLib.IO.IDocParagraph"/> this <see cref="T:AsitLib.IO.IDocParagraph"/> is nested in.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.Attribute">
+            <summary>
+            The attributes of this <see cref="T:AsitLib.IO.DocParagraph"/>. When classes implement this <see cref="T:AsitLib.IO.IDocParagraph"/> interface it should be common practice
+            to store all the added data here.<br/>
+            <i>Between the "(" and ")" next to the <see cref="P:AsitLib.IO.IDocParagraph.Title"/>.</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.FilePath">
+            <summary>
+            Path of the file this <see cref="T:AsitLib.IO.IDocParagraph"/> is nested in.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph.Level">
+            <summary>
+            The depth of this <see cref="T:AsitLib.IO.IDocParagraph"/>. A value of "1" is the top, "0" being the <see cref="P:AsitLib.IO.IDocParagraph.Title"/>.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.IDocParagraph.ToRepresentativeString">
+            <summary>
+            Gets this <see cref="T:AsitLib.IO.IDocParagraph"/> as a represetative <see cref="T:System.String"/> object. <br/>
+            It genneraly is disadvised to override this method because it may break other (external) content dependent methods.<br/>
+            <i>This isnt the same as <see cref="M:System.Object.ToString"/> because this method includes the content resulting in a much less depug-friendly result.</i>
+            </summary>
+            <returns>The (multiline, debug unfriendly) representive <see cref="T:System.String"/> of this <see cref="T:AsitLib.IO.DocParagraphBase`3"/>.</returns>
+        </member>
+        <member name="T:AsitLib.IO.IDocParagraph`3">
+            <summary>
+            A extended version of the <see cref="T:AsitLib.IO.IDocParagraph"/> interface.
+            </summary>
+            <typeparam name="ParagraphType">Type of the <see cref="T:AsitLib.IO.IDocParagraph"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+            <typeparam name="KeyType">Type of the <see cref="T:AsitLib.IO.DocKeyBase"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+            <typeparam name="StatementType">Type of the <see cref="T:AsitLib.IO.DocStatementBase"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph`3.Keys">
+            <summary>
+            All the <see cref="T:AsitLib.IO.DocKeyBase"/> implementing objects this <see cref="T:AsitLib.IO.IDocParagraph"/> holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph`3.Statements">
+            <summary>
+            All the <see cref="T:AsitLib.IO.DocStatementBase"/> implementing objects this <see cref="T:AsitLib.IO.IDocParagraph"/> holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.IDocParagraph`3.Subs">
+            <summary>
+            All the nested sub-Paragraphs this <see cref="T:AsitLib.IO.IDocParagraph"/> holds.
+            </summary>
+        </member>
+        <member name="T:AsitLib.IO.DocParagraphBase`3">
+            <summary>
+            A base class for adding DocParagraphs for the <see cref="T:AsitLib.IO.DocReader"/>.
+            </summary>
+            <typeparam name="ParagraphType">Type of the <see cref="T:AsitLib.IO.IDocParagraph"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+            <typeparam name="KeyType">Type of the <see cref="T:AsitLib.IO.DocKeyBase"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+            <typeparam name="StatementType">Type of the <see cref="T:AsitLib.IO.DocStatementBase"/> objects this <see cref="T:AsitLib.IO.IDocParagraph"/> contains.</typeparam>
+        </member>
+        <member name="F:AsitLib.IO.DocParagraphBase`3.fullContent">
+            <summary>
+            The full content of this <see cref="T:AsitLib.IO.DocParagraphBase`3"/>, including headline. 
+            (:<see cref="P:AsitLib.IO.DocParagraphBase`3.Title"/> and <see cref="P:AsitLib.IO.DocParagraphBase`3.Attribute"/>)<br/>
+            <i>This value gets returned with the base implementation of <see cref="M:AsitLib.IO.DocParagraphBase`3.ToRepresentativeString"/>. (Gets set at <see cref="M:AsitLib.IO.DocParagraphBase`3.Initialize(System.String,System.String,System.String,System.String,System.String)"/>).</i>
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.DocParagraphBase`3.Initialize(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initialize this <see cref="T:AsitLib.IO.DocParagraphBase`3"/>.<br/>
+            This method gets called with all base contructors, it is recommended to also refrer to this method for Initialization.<br/>
+            <br/>
+            <i>ToDo when overriding without calling the base method;<br/>
+            -Setup the <see cref="P:AsitLib.IO.DocParagraphBase`3.Keys"/> and <see cref="P:AsitLib.IO.DocParagraphBase`3.Statements"/>.<br/>
+             See <see cref="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.String)"/> for the default method.<br/>
+            -Assign <see cref="P:AsitLib.IO.DocParagraphBase`3.NestedInTop"/>, <see cref="P:AsitLib.IO.DocParagraphBase`3.FilePath"/>, <see cref="P:AsitLib.IO.DocParagraphBase`3.NestedInParagraph"/> and <see cref="P:AsitLib.IO.DocParagraphBase`3.Path"/> according to the method parameters.<br/>
+            -Use <paramref name="content"/> to set the <see cref="P:AsitLib.IO.DocParagraphBase`3.Title"/> and (optional) <see cref="P:AsitLib.IO.DocParagraphBase`3.Attribute"/> properties.<br/>
+            -Cast <paramref name="content"/> to <see cref="F:AsitLib.IO.DocParagraphBase`3.fullContent"/> for the <see cref="M:AsitLib.IO.DocParagraphBase`3.ToRepresentativeString"/> method.<br/>
+            -Set the <see cref="P:AsitLib.IO.DocParagraphBase`3.Level"/> property according to the given <paramref name="path"/> parameter.
+            </i><br/>
+            <strong>Dont forget to assign <see cref="P:AsitLib.IO.DocKeyBase.NestledInDoc"/> and <see cref="P:AsitLib.IO.DocKeyBase.NestledInPar"/> as <see cref="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.String)"/> doesn't do that for you!</strong><br/>
+            Good luck.
+            </summary>
+            <param name="path"><see cref="P:AsitLib.IO.DocParagraphBase`3.Path"/> of this <see cref="T:AsitLib.IO.DocParagraphBase`3"/></param>
+            <param name="nestedInParagraph"></param>
+            <param name="content">All the content of this and nested paragraphs.</param>
+            <param name="nestedInTop">Name of the <see cref="T:AsitLib.IO.DocReader"/> this <see cref="T:AsitLib.IO.DocParagraphBase`3"/> is nested in.</param>
+            <param name="filePath">Path of the file this paragraph is nested in; <see cref="P:AsitLib.IO.DocParagraphBase`3.FilePath"/>.</param>
+        </member>
+        <member name="T:AsitLib.IO.Header">
+            <summary>
+            Header used for <see cref="T:AsitLib.IO.IDocParagraph"/> inheriting classes and Titles.
+            <br/>Build of a <see cref="T:AsitLib.IO.Header"/> string: 
+            [<i><see cref="P:AsitLib.IO.Header.Depth"/>(in punc) <see cref="P:AsitLib.IO.Header.Title"/>(no space needed)</i>](<i><see cref="P:AsitLib.IO.Header.Attribute"/></i>)<br/>
+            (At the moment a header can only contain one of each for the following characters; "(",")","]","]".
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.Header.Title">
+            <summary>
+            The containing <see cref="P:AsitLib.IO.Header.Title"/>.
+            <br/>Build of a <see cref="T:AsitLib.IO.Header"/> string: 
+            [<i><see cref="P:AsitLib.IO.Header.Depth"/>(in punc) <see cref="P:AsitLib.IO.Header.Title"/>(no space needed)</i>](<i><see cref="P:AsitLib.IO.Header.Attribute"/></i>)<br/>
+            (At the moment a header can only contain one of each for the following characters; "(",")","]","]".
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.Header.Depth">
+            <summary>
+            Depth of the <see cref="T:AsitLib.IO.IDocParagraph"/> this <see cref="T:AsitLib.IO.Header"/> object holds. 
+            This is null if the <see cref="T:AsitLib.IO.Header"/> originates from a Title.
+            <br/>Build of a <see cref="T:AsitLib.IO.Header"/> string: 
+            [<i><see cref="P:AsitLib.IO.Header.Depth"/>(in punc) <see cref="P:AsitLib.IO.Header.Title"/>(no space needed)</i>](<i><see cref="P:AsitLib.IO.Header.Attribute"/></i>)<br/>
+            (At the moment a header can only contain one of each for the following characters; "(",")","]","]".
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.Header.Attribute">
+            <summary>
+            Attributes of a <see cref="T:AsitLib.IO.Header"/>, mostly usefull for classes that inherit <see cref="T:AsitLib.IO.IDocParagraph"/>.
+            <br/>Build of a <see cref="T:AsitLib.IO.Header"/> string: 
+            [<i><see cref="P:AsitLib.IO.Header.Depth"/>(in punc) <see cref="P:AsitLib.IO.Header.Title"/>(no space needed)</i>](<i><see cref="P:AsitLib.IO.Header.Attribute"/></i>)<br/>
+            (At the moment a header can only contain one of each for the following characters; "(",")","]","]".
+            </summary>
+        </member>
+        <member name="P:AsitLib.IO.Header.Full">
+            <summary>
+            Get the full reprecentative string if this <see cref="T:AsitLib.IO.Header"/>.<br/>
+            <i>This property returns the same value as <see cref="M:AsitLib.IO.Header.ToString"/>.</i>
+            <br/>Build of a <see cref="T:AsitLib.IO.Header"/> string: 
+            [<i><see cref="P:AsitLib.IO.Header.Depth"/>(in punc) <see cref="P:AsitLib.IO.Header.Title"/>(no space needed)</i>](<i><see cref="P:AsitLib.IO.Header.Attribute"/></i>)<br/>
+            (At the moment a header can only contain one of each for the following characters; "(",")","]","]".
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.Header.#ctor(System.String)">
+            <summary>
+            Contruct a <see cref="T:AsitLib.IO.Header"/> from a string 
+            </summary>
+            <param name="source"></param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.Header.#ctor(AsitLib.IO.Header)">
+            <summary>
+            Generate a new <see cref="T:AsitLib.IO.Header"/> with values from another <see cref="T:AsitLib.IO.Header"/>.
+            </summary>
+            <param name="source">Source <see cref="T:AsitLib.IO.Header"/>.</param>
+        </member>
+        <member name="M:AsitLib.IO.Header.#ctor(System.Int32,System.String,System.String)">
+            <summary>
+            Generate a new <see cref="T:AsitLib.IO.Header"/> with set values.
+            </summary>
+            <param name="depth"><see cref="P:AsitLib.IO.Header.Depth"/> of the new <see cref="T:AsitLib.IO.Header"/>. (0 if this would be a title.)</param>
+            <param name="title"><see cref="P:AsitLib.IO.Header.Title"/> of the new <see cref="T:AsitLib.IO.Header"/>.</param>
+            <param name="attribute"><see cref="P:AsitLib.IO.Header.Attribute"/> of the new <see cref="T:AsitLib.IO.Header"/>.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.Header.#ctor(System.Int32,System.String)">
+            <summary>
+            Generate a new <see cref="T:AsitLib.IO.Header"/> with set values.
+            </summary>
+            <param name="depth"><see cref="P:AsitLib.IO.Header.Depth"/> of the new <see cref="T:AsitLib.IO.Header"/>.</param>
+            <param name="title"><see cref="P:AsitLib.IO.Header.Title"/> of the new <see cref="T:AsitLib.IO.Header"/>.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.Header.ToTitleable">
+            <summary>
+            Convert this <see cref="T:AsitLib.IO.Header"/> to a <see cref="T:AsitLib.IO.Header"/> that can be used as the title of a DocFile. 
+            (See also; <see cref="P:AsitLib.IO.DocReaderBase`3.Title"/>.)
+            </summary>
+            <returns>This <see cref="T:AsitLib.IO.Header"/> but with <see cref="P:AsitLib.IO.Header.Depth"/> set to zero.</returns>
+        </member>
+        <member name="M:AsitLib.IO.Header.ToParagraphable(System.Int32)">
+            <summary>
+            Convert this <see cref="T:AsitLib.IO.Header"/> to a <see cref="T:AsitLib.IO.Header"/> that can be used as the title of a <see cref="T:AsitLib.IO.IDocParagraph"/> iheriting object.
+            (See also; <see cref="P:AsitLib.IO.IDocParagraph.Title"/>.)
+            </summary>
+            <returns>This <see cref="T:AsitLib.IO.Header"/> but with <see cref="P:AsitLib.IO.Header.Depth"/> set to a custom value(<paramref name="depth"/>).</returns>
+        </member>
+        <member name="T:AsitLib.IO.AsitDocUtils">
+            <summary>
+            Static class to provide some basic DocUtils.
+            </summary>
+        </member>
+        <member name="M:AsitLib.IO.AsitDocUtils.IntToPunc(System.Int32)">
+            <summary>
+            Convert a integer to a <see cref="T:System.String"/> object consisting of ':' and '.'.
+            </summary>
+            <param name="i">Integer to convert.</param>
+            <returns>A string consisting of ':' and '.' representing the specified integer.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDocUtils.DepthToString(System.String)">
+            <summary>
+            Convert Dot string to Int32.
+            </summary>
+            <param name="str">String to convert.</param>
+            <returns>A Integer representing this string. (Dot count; '.' and ':')</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.String)">
+            <summary>
+            Gets the keys and statements from a string.
+            </summary>
+            <param name="str">String to get keys and statements from.</param>
+            <returns>Keys and Statements of the string.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.Byte[],System.Text.Encoding)">
+            <summary>
+            Gets the keys and statements from a byte array given a encoding.
+            </summary>
+            <param name="bytes">Byte array representing a string.</param>
+            <param name="e"></param>
+            <returns>Keys and Statements of the string.</returns>
+        </member>
+        <member name="M:AsitLib.IO.AsitDocUtils.GetKeysAndStatements``2(System.IO.StreamReader,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="thisReader"></param>
+            <param name="dispose"></param>
+            <returns>Keys and Statements of the string.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:AsitLib.SpellScript.ISpellInterpeter">
+            <summary>
+            Interface for implementing a method that can execute SpellScripts. <br/>
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.ISpellInterpeter.Run(AsitLib.SpellScript.SpellRunArgs)">
+            <summary>
+            Run a command from a SpellScript.
+            </summary>
+            <param name="args">
+            Arguments needed to run a command. A <see cref="T:AsitLib.SpellScript.SpellRunArgs"/> <see langword="struct"/> contains a 
+            <see cref="T:AsitLib.SpellScript.SpellCommand"/> that this class will run and a reference to the parent <see cref="T:AsitLib.SpellScript.SpellReader"/>.
+            </param>
+            <returns>The return value of the command corresponding to the given <see cref="T:AsitLib.SpellScript.SpellCommand"/>. 
+            Should return <see langword="null"/> when the processed command doesn't return a value.</returns>
+        </member>
+        <member name="P:AsitLib.SpellScript.ISpellInterpeter.Namespace">
+            <summary>
+            Namepace of this <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/>. 
+            Return <see langword="null"/> to get all commands instead of only the ones that target this <see cref="P:AsitLib.SpellScript.ISpellInterpeter.Namespace"/>.
+            </summary>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellReturnArgs">
+            <summary>
+            A collection of return arguments for the <see cref="M:AsitLib.SpellScript.ISpellInterpeter.Run(AsitLib.SpellScript.SpellRunArgs)"/> method.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue">
+            <summary>
+            The returned value, <see langword="null"/> when there is no value returned.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.HasReturned">
+            <summary>
+            A <see cref="T:System.Boolean"/> value indicating if there is a value returned.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.HasExecuted">
+            <summary>
+            A <see cref="T:System.Boolean"/> value indicating if there has been a operation.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.ExitCode">
+            <summary>
+            The exitcode of the <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> object's action.<br/>
+            <i>Negative: succes, Zero: succes, Positive: failure.</i>
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReturnArgs.#ctor(System.Object)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/> with set return value.
+            </summary>
+            <param name="returnValue">The returned value. Seealso: <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue"/>.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReturnArgs.#ctor(System.Boolean)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/> with a set <see cref="P:AsitLib.SpellScript.SpellReturnArgs.HasExecuted"/> parameter.
+            </summary>
+            <param name="hasExecuted"></param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReturnArgs.#ctor(System.Int32)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/> with set <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ExitCode"/>.
+            </summary>
+            <param name="exitCode"></param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReturnArgs.GetReturnValue``1">
+            <summary>
+            Get the <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue"/> pre-casted to the specified type.
+            </summary>
+            <typeparam name="T">The type to cast the <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue"/> to.</typeparam>
+            <returns>The <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue"/> pre-casted to type <typeparamref name="T"/>.</returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.Empty">
+            <summary>
+            A empty <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.NullSucces">
+            <summary>
+            A <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/> with the returned object set to <see langword="null"/> and <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ExitCode"/> set to 0. (Succes)
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReturnArgs.NullFailure">
+            <summary>
+            A <see cref="T:AsitLib.SpellScript.SpellReturnArgs"/> with the returned object set to <see langword="null"/> and <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ExitCode"/> set to 1. (Failure)
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReturnArgs.GetFromObject(System.Object)">
+            <summary>
+            "User-defined conversions to values of a base class are not allowed! You do not need such an operator."
+            </summary>
+            <param name="o">The object to create a new <see cref="T:AsitLib.SpellScript.SpellRunArgs"/> object from.</param>
+            <returns>A new <see cref="T:AsitLib.SpellScript.SpellRunArgs"/> created from the object with set <see cref="P:AsitLib.SpellScript.SpellReturnArgs.ReturnValue"/>.</returns>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellRunArgs">
+            <summary>
+            A collection of arguments for the <see cref="M:AsitLib.SpellScript.ISpellInterpeter.Run(AsitLib.SpellScript.SpellRunArgs)"/> method.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellRunArgs.Command">
+            <summary>
+            The command that will be executed.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellRunArgs.Reader">
+            <summary>
+            The parent reader. (Often the one creating this <see cref="T:AsitLib.SpellScript.SpellRunArgs"/>.)
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellRunArgs.#ctor(AsitLib.SpellScript.SpellCommand)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellRunArgs"/> with set command. (<see cref="P:AsitLib.SpellScript.SpellRunArgs.Reader"/> will be set to <see langword="null"/>.)
+            </summary>
+            <param name="cmd">The <see cref="P:AsitLib.SpellScript.SpellRunArgs.Command"/> property.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellRunArgs.#ctor(AsitLib.SpellScript.SpellCommand,AsitLib.SpellScript.SpellReader)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellRunArgs"/> with set values.
+            </summary>
+            <param name="cmd">The <see cref="P:AsitLib.SpellScript.SpellRunArgs.Command"/> property.</param>
+            <param name="parentReader">The <see cref="P:AsitLib.SpellScript.SpellRunArgs.Reader"/> property. This <strong>must</strong> be a reference, not a copy.</param>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellCatagory">
+            <summary>
+            A spellscript catagory.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Name">
+            <summary>
+            Name of this <see cref="T:AsitLib.SpellScript.SpellCatagory"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Arguments">
+            <summary>
+            <see cref="T:System.Array"/> of arguments passed to this <see cref="T:AsitLib.SpellScript.SpellCatagory"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.TargetNamespace">
+            <summary>
+            Namespace this <see cref="T:AsitLib.SpellScript.SpellCatagory"/> tagets.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Blocks">
+            <summary>
+            <see cref="T:System.Array"/> of blocks this <see cref="T:AsitLib.SpellScript.SpellCatagory"/> contains. <br/>
+            <strong>Includes the initial <see cref="P:AsitLib.SpellScript.SpellCatagory.Header"/>.</strong>
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.CodeBlocks">
+            <summary>
+            <see cref="T:System.Array"/> of codeblocks this <see cref="T:AsitLib.SpellScript.SpellCatagory"/> contains.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Prefix">
+            <summary>
+            <see cref="T:AsitLib.SpellScript.SpellCatagory"/> prefix.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Content">
+            <summary>
+            Full content.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Header">
+            <summary>
+            The header of the <see cref="T:AsitLib.SpellScript.SpellCatagory"/>. (First <see cref="T:AsitLib.SpellScript.SpellBlock"/>)
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellCatagory.#ctor(System.String)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellCatagory"/> with set content.
+            </summary>
+            <param name="content">Content this <see cref="T:AsitLib.SpellScript.SpellCatagory"/> will use to set all its values.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellCatagory.ToString">
+            <summary>
+            Returns the <see cref="P:AsitLib.SpellScript.SpellCatagory.Header"/> of this initialization.
+            </summary>
+            <returns>The <see cref="P:AsitLib.SpellScript.SpellCatagory.Header"/>initialization.</returns>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCatagory.Empty">
+            <summary>
+            A <see cref="T:AsitLib.SpellScript.SpellCatagory"/> with all values set to their defaults.
+            </summary>
+        </member>
+        <member name="T:AsitLib.SpellScript.CatagoryParameterInput">
+            <summary>
+            Represents one input parameter of a catagory.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.CatagoryParameterInput.Name">
+            <summary>
+            Name of the input parameter.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.CatagoryParameterInput.Type">
+            <summary>
+            <see cref="T:System.Type"/> of the input paramter.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.CatagoryParameterInput.Index">
+            <summary>
+            Index of the input parameter relative to the others.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.CatagoryParameterInput.#ctor(System.String,System.Int32)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.CatagoryParameterInput"/> from a string with set <see cref="P:AsitLib.SpellScript.CatagoryParameterInput.Index"/>.
+            </summary>
+            <param name="parameter">The string to contruct a new <see cref="T:AsitLib.SpellScript.CatagoryParameterInput"/> struct from.</param>
+            <param name="index">The <see cref="P:AsitLib.SpellScript.CatagoryParameterInput.Index"/> of the input parameter relative to the others.</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.SpellScript.CatagoryParameterInput.#ctor(System.String,System.Type,System.Int32)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.CatagoryParameterInput"/> with set values.
+            </summary>
+            <param name="name">Name of the input parameter.</param>
+            <param name="type"><see cref="T:System.Type"/> of the input paramter.</param>
+            <param name="index">Index of the input parameter relative to the others.</param>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellBlock">
+            <summary>
+            "Lines" used to read spellscripts.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellBlock.Value">
+            <summary>
+            The full value this <see cref="T:AsitLib.SpellScript.SpellBlock"/> holds.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellBlock.#ctor(System.String)">
+            <summary>
+            Construct a new <see cref="T:AsitLib.SpellScript.SpellBlock"/> with set values.
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellBlock.IsCatagoryHeader">
+            <summary>
+            Check if this <see cref="T:AsitLib.SpellScript.SpellBlock"/> is the header of a <see cref="T:AsitLib.SpellScript.SpellCatagory"/>.
+            </summary>
+            <returns>A value indicating if the given <see cref="T:AsitLib.SpellScript.SpellBlock"/> is a <see cref="T:AsitLib.SpellScript.SpellCatagory"/> header.</returns>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellBlock.Empty">
+            <summary>
+            A <see cref="T:AsitLib.SpellScript.SpellBlock"/> with all values set to their defaults.
+            </summary>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellCommand">
+            <summary>
+            A command that can be read by any class implementing <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> using <see cref="!:ISpellInterpeter.Run(SpellCommand)"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.Value">
+            <summary>
+            The full value this <see cref="T:AsitLib.SpellScript.SpellCommand"/> holds.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.Arguments">
+            <summary>
+            A <see cref="T:System.Array"/> of arguments inserted.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.HasInputArguments">
+            <summary>
+            A <see cref="T:System.Boolean"/> value indicating if the containing command has input arguments.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.ShouldReturnValue">
+            <summary>
+            Gets a <see cref="T:System.Boolean"/> value indicating if the containg command is expected to return a value.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.OutPointer">
+            <summary>
+            Gets the location this <see cref="T:AsitLib.SpellScript.SpellCommand"/> objects return value will be written to.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.CommandName">
+            <summary>
+            Gets the name of the containing command.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.Target">
+            <summary>
+            The <see cref="T:AsitLib.SpellScript.Target"/> this command targets.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.Namespace">
+            <summary>
+            Gets the namespace this command references.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellCommand.#ctor(System.String,System.Object[],System.Object[])">
+            <summary>
+            Construct a new <see cref="T:AsitLib.SpellScript.SpellCommand"/> with set values and allow commands with arguments.
+            </summary>
+            <param name="value">String used to create a <see cref="T:AsitLib.SpellScript.SpellCommand"/>.</param>
+            <param name="lineMemory">LineMemory used to extract pointers.</param>
+            <param name="funcMemory">FucntionMemory used to extract pointers.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellCommand.#ctor(System.String)">
+            <summary>
+            Construct a new <see cref="T:AsitLib.SpellScript.SpellCommand"/> with set value.<br/>
+            <i>If any of the <see cref="P:AsitLib.SpellScript.SpellCommand.Arguments"/> detected has a pointer, a <see cref="T:System.ArgumentException"/> is thrown.</i>
+            </summary>
+            <param name="value">String used to create a <see cref="T:AsitLib.SpellScript.SpellCommand"/>.</param>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellCommand.Empty">
+            <summary>
+            A <see cref="T:AsitLib.SpellScript.SpellCommand"/> with all values set to their defaults.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellCommand.ToString">
+            <summary>
+            Returns the <see cref="P:AsitLib.SpellScript.SpellCommand.Value"/> of this <see cref="T:AsitLib.SpellScript.SpellCommand"/>.
+            </summary>
+            <returns>The <see cref="P:AsitLib.SpellScript.SpellCommand.Value"/> of this <see cref="T:AsitLib.SpellScript.SpellCommand"/>.</returns>
+        </member>
+        <member name="T:AsitLib.SpellScript.Target">
+            <summary>
+            All the target options for a <see cref="T:AsitLib.SpellScript.SpellCommand"/>.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.Target.Intern">
+            <summary>
+            Target the functions of the spellscript.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.Target.Extern">
+            <summary>
+            Target a external function.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.Target.Stack">
+            <summary>
+            Target a function associated with the stack.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.Target.Any">
+            <summary>
+            Target all exept <see cref="F:AsitLib.SpellScript.Target.Stack"/>.
+            </summary>
+        </member>
+        <member name="T:AsitLib.SpellScript.MemoryAddress">
+            <summary>
+            All different locations in the memory used to run a spellscript.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.MemoryAddress.StackMemoryAdr">
+            <summary>
+            The memory where global variables are stored.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.MemoryAddress.FunctionMemoryAdr">
+            <summary>
+            The memory where function paramters are stored.
+            </summary>
+        </member>
+        <member name="F:AsitLib.SpellScript.MemoryAddress.LineMemoryAdr">
+            <summary>
+            The memory where variables are stored that will be forgotten when the next line starts.
+            </summary>
+        </member>
+        <member name="T:AsitLib.SpellScript.MemoryPointer">
+            <summary>
+            A struct containig information about a location in memory. 
+            (Seealso: <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/>, <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> and <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/>)
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.MemoryPointer.TargetMemory">
+            <summary>
+            The memory space this <see cref="T:AsitLib.SpellScript.MemoryPointer"/> targets.<br/>
+            <i>Seealso <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> and <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/>.</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.MemoryPointer.Adress">
+            <summary>
+            The location in memory this pointer points to.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.MemoryPointer.IsEmpty">
+            <summary>
+            A value indicating if this <see cref="T:AsitLib.SpellScript.MemoryPointer"/> is empty.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.MemoryPointer.#ctor(System.Int32,AsitLib.SpellScript.PointerTargetMemory)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.MemoryPointer"/> with a set adress. If a <paramref name="_adress"/> of zero or below is given, a <see cref="P:AsitLib.SpellScript.MemoryPointer.Empty"/> pointer is created.
+            </summary>
+            <param name="_adress">The <see cref="P:AsitLib.SpellScript.MemoryPointer.Adress"/> property of the new <see cref="T:AsitLib.SpellScript.MemoryPointer"/>.</param>
+            <param name="targetMemory">
+            The memory space this <see cref="T:AsitLib.SpellScript.MemoryPointer"/> targets.<br/>
+            <i>Seealso <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> and <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/>.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.MemoryPointer.#ctor(System.Object)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.MemoryPointer"/> from a boxed <see cref="T:System.Object"/>. The object must be of <see cref="T:AsitLib.SpellScript.MemoryPointer"/> type.<br/>
+            <i>Seealso: <see cref="M:AsitLib.SpellScript.SpellUtils.SpellCast(System.String)"/></i>
+            </summary>
+            <param name="boxedpointer">A boxed object of <see cref="T:AsitLib.SpellScript.MemoryPointer"/> type to extract the <see cref="P:AsitLib.SpellScript.MemoryPointer.Adress"/> from.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.SpellScript.MemoryPointer.#ctor(System.String)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.MemoryPointer"/> from a string. Accepted syntax: <strong>"***"</strong> or alternate; <strong>"*3"</strong>.
+            </summary>
+            <param name="pointer">The string to extract a <see cref="T:AsitLib.SpellScript.MemoryPointer"/> from.</param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:AsitLib.SpellScript.MemoryPointer.#ctor(AsitLib.SpellScript.SpellCommand)">
+            <summary>
+            Extract the <see cref="T:AsitLib.SpellScript.MemoryPointer"/> from a <see cref="T:AsitLib.SpellScript.SpellCommand"/>. <br/>
+            <i>You could also use <see cref="P:AsitLib.SpellScript.SpellCommand.OutPointer"/> to get the same return value.</i>
+            </summary>
+            <param name="command">The <see cref="T:AsitLib.SpellScript.SpellCommand"/> to extract a <see cref="T:AsitLib.SpellScript.MemoryPointer"/> from.</param>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="P:AsitLib.SpellScript.MemoryPointer.Empty">
+            <summary>
+            A empty <see cref="T:AsitLib.SpellScript.MemoryPointer"/> with the adress set to -1. The returned pointer objects <see cref="P:AsitLib.SpellScript.MemoryPointer.IsEmpty"/> propert will always return <see langword="false"/>.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.MemoryPointer.ToString">
+            <summary>
+            Returns the <see cref="P:AsitLib.SpellScript.MemoryPointer.Adress"/> property as a <see cref="T:System.String"/> or "Null" if the adress is <see langword="null"/>.
+            </summary>
+            <returns>The <see cref="P:AsitLib.SpellScript.MemoryPointer.Adress"/> property as a <see cref="T:System.String"/> or "Null" if the adress is <see langword="null"/>.</returns>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellStackManager">
+            <summary>
+            Default manager of the stack. Commands added; <br/><br/><i>
+            set([index], [value]) : sets a value at the specified index.<br/>
+            get([index]) : gets a value at the specified index.<br/>
+            getsize() : gets the size of the stack as a 32Int<br/>
+            </i>
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellUtils.GetCatagories(System.String)">
+            <summary>
+            Extract a <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.SpellCatagory"/> objects from a <see cref="T:System.String"/>.
+            </summary>
+            <param name="input">Input <see cref="T:System.String"/>.</param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.SpellCatagory"/> objects gotten from a <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellUtils.GetBlocks(System.String)">
+            <summary>
+            Base of most <see cref="T:AsitLib.SpellScript.SpellUtils"/> methods. Made public because it may be usefull.
+            </summary>
+            <param name="input">Input <see cref="T:System.String"/>.</param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects representing blocks read by a spellscipt reader.</returns>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellUtils.SpellCast(System.String)">
+            <summary>
+            Cast a string to a spellscipt designated <see cref="T:System.Object"/>.
+            </summary>
+            <param name="input">Input <see cref="T:System.String"/>.</param>
+            <returns>A spellscipt designated <see cref="T:System.Object"/>.</returns>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellReaderIndex">
+            <summary>
+            A struct reprecenting the current index of a <see cref="T:AsitLib.SpellScript.SpellReader"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReaderIndex.CatagoryIndex">
+            <summary>
+            The index of the <see cref="T:AsitLib.SpellScript.SpellCatagory"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReaderIndex.BlockIndex">
+            <summary>
+            The index of the <see cref="T:AsitLib.SpellScript.SpellBlock"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReaderIndex.CmdIndex">
+            <summary>
+            The index of the <see cref="T:AsitLib.SpellScript.SpellCommand"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReaderIndex.IsFinished">
+            <summary>
+            Get if this <see cref="T:AsitLib.SpellScript.SpellReaderIndex"/> is finished.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReaderIndex.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReaderIndex"/> with set values.
+            </summary>
+            <param name="catagoryIndex"> The index of the <see cref="T:AsitLib.SpellScript.SpellCatagory"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.</param>
+            <param name="blockIndex">The index of the <see cref="T:AsitLib.SpellScript.SpellBlock"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.</param>
+            <param name="cmdIndex">The index of the <see cref="T:AsitLib.SpellScript.SpellCommand"/> the <see cref="T:AsitLib.SpellScript.SpellReader"/> has last read.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReaderIndex.Next(AsitLib.SpellScript.SpellCatagory[])">
+            <summary>
+            Increase the global index by one. This accounts for all variables.
+            </summary>
+            <param name="catagories">The <see cref="T:AsitLib.SpellScript.SpellCatagory"/> objects this <see cref="T:AsitLib.SpellScript.SpellReaderIndex"/> uses to increment the position.</param>
+            <returns>A value indicating if this <see cref="T:AsitLib.SpellScript.SpellReaderIndex"/> is finished. (<see cref="P:AsitLib.SpellScript.SpellReaderIndex.IsFinished"/>)</returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:AsitLib.SpellScript.SpellReader">
+            <summary>
+            A class that reads spellscrips and .spl files. This class cannot be inherited.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.StackMemory">
+            <summary>
+            Get the stack memory <see cref="T:System.Array"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.FuncMemory">
+            <summary>
+            Get the function memory <see cref="T:System.Array"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.LineMemory">
+            <summary>
+            Get the line memory <see cref="T:System.Array"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.Index">
+            <summary>
+            Current reader location.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.Catagories">
+            <summary>
+            The <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.SpellCatagory"/> objects this <see cref="T:AsitLib.SpellScript.SpellReader"/> uses to operate.
+            </summary>
+        </member>
+        <member name="P:AsitLib.SpellScript.SpellReader.Interpeters">
+            <summary>
+            The <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects this <see cref="T:AsitLib.SpellScript.SpellReader"/> uses to operate.
+            </summary>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.Next">
+            <summary>
+            Execure next command with the set <see cref="P:AsitLib.SpellScript.SpellReader.Interpeters"/>.
+            </summary>
+            <returns><see langword="false"/> if the end has been reached; else, <see langword="true"/>.</returns>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.Run(System.Int32)">
+            <summary>
+            Execute this <see cref="T:AsitLib.SpellScript.SpellReader"/> until the end has been reached with set <paramref name="commandsPerSecond"/> using the set <see cref="P:AsitLib.SpellScript.SpellReader.Interpeters"/>.
+            </summary>
+            <param name="commandsPerSecond">How many <see cref="T:AsitLib.SpellScript.SpellCommand"/> objects will be executed every second.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.Run(System.TimeSpan)">
+            <summary>
+            Execute this <see cref="T:AsitLib.SpellScript.SpellReader"/> until the end has been reached with a set <paramref name="pauze"/> between every <see cref="T:AsitLib.SpellScript.SpellCommand"/> execution using the set <see cref="P:AsitLib.SpellScript.SpellReader.Interpeters"/>.
+            </summary>
+            <param name="pauze">The pauze between the execution of <see cref="T:AsitLib.SpellScript.SpellCommand"/> objects.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.RunAsync(System.Int32)">
+            <summary>
+            Execute this <see cref="T:AsitLib.SpellScript.SpellReader"/> asyncly until the end has been reached with set <paramref name="commandsPerSecond"/> using the set <see cref="P:AsitLib.SpellScript.SpellReader.Interpeters"/>.
+            </summary>
+            <param name="commandsPerSecond">How many <see cref="T:AsitLib.SpellScript.SpellCommand"/> objects will be executed every second.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.RunAsync(System.TimeSpan)">
+            <summary>
+            Execute this <see cref="T:AsitLib.SpellScript.SpellReader"/> asyncly until the end has been reached with a set <paramref name="pauze"/> between every <see cref="T:AsitLib.SpellScript.SpellCommand"/> execution using the set <see cref="P:AsitLib.SpellScript.SpellReader.Interpeters"/>.
+            </summary>
+            <param name="pauze">The pauze between the execution of <see cref="T:AsitLib.SpellScript.SpellCommand"/> objects.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.#ctor(System.IO.Stream,System.Text.Encoding,System.Int32,System.Int32,System.Int32,AsitLib.SpellScript.ISpellInterpeter[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReader"/> from a specified <paramref name="source"/> <see cref="T:System.IO.Stream"/> and with set values.
+            </summary>
+            <param name="source">The <see cref="T:System.IO.Stream"/> used to read the spellscript in the specified <paramref name="encoding"/>.</param>
+            <param name="encoding">The encoding used to read the given <paramref name="source"/> <see cref="T:System.IO.Stream"/>.</param>
+            <param name="stacksize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="funcmemsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="linememsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="interpeters">
+            An <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects used for execution.<br/>
+            <i>If there are no given, a <see cref="T:System.InvalidOperationException"/> is thrown.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.#ctor(System.IO.Stream,System.Int32,System.Int32,System.Int32,AsitLib.SpellScript.ISpellInterpeter[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReader"/> from a specified <paramref name="source"/> <see cref="T:System.IO.Stream"/> and with set values.
+            </summary>
+            <param name="source">The <see cref="T:System.IO.Stream"/> used to read the spellscript in <see cref="P:System.Text.Encoding.UTF8"/> encoding.</param>
+            <param name="stacksize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="funcmemsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="linememsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="interpeters">
+            An <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects used for execution.<br/>
+            <i>If there are no given, a <see cref="T:System.InvalidOperationException"/> is thrown.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.#ctor(System.String,System.Int32,System.Int32,System.Int32,AsitLib.SpellScript.ISpellInterpeter[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReader"/> from a specified <paramref name="sourceString"/> <see cref="T:System.String"/> and with set values.
+            </summary>
+            <param name="sourceString">The full <see cref="T:System.String"/> object this <see cref="T:AsitLib.SpellScript.SpellReader"/> uses to operate.</param>
+            <param name="stacksize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="funcmemsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="linememsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="interpeters">
+            An <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects used for execution.<br/>
+            <i>If there are no given, a <see cref="T:System.InvalidOperationException"/> is thrown.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.#ctor(System.IO.FileInfo,System.Int32,System.Int32,System.Int32,AsitLib.SpellScript.ISpellInterpeter[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReader"/> from a specified <paramref name="file"/> and with set values.
+            </summary>
+            <param name="file">The <see cref="T:System.IO.FileInfo"/> this <see cref="T:AsitLib.SpellScript.SpellReader"/> reads to operate.</param>
+            <param name="stacksize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="funcmemsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="linememsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="interpeters">
+            An <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects used for execution.<br/>
+            <i>If there are no given, a <see cref="T:System.InvalidOperationException"/> is thrown.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.#ctor(System.IO.TextReader,System.Int32,System.Int32,System.Int32,AsitLib.SpellScript.ISpellInterpeter[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.SpellScript.SpellReader"/> from a specified <paramref name="reader"/> and with set values.
+            </summary>
+            <param name="reader">The <see cref="T:System.IO.TextReader"/> this <see cref="T:AsitLib.SpellScript.SpellReader"/> reads to operate.</param>
+            <param name="stacksize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.StackMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="funcmemsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.FuncMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="linememsize">The size of the <see cref="P:AsitLib.SpellScript.SpellReader.LineMemory"/> <see cref="T:System.Array"/>.</param>
+            <param name="interpeters">
+            An <see cref="T:System.Array"/> of <see cref="T:AsitLib.SpellScript.ISpellInterpeter"/> implementing objects used for execution.<br/>
+            <i>If there are no given, a <see cref="T:System.InvalidOperationException"/> is thrown.</i>
+            </param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.SetMemory(AsitLib.SpellScript.MemoryAddress,System.Int32,System.Object)">
+            <summary>
+            Set the a value of a index in memory externaly.
+            </summary>
+            <param name="address">The adress indicating in what memory space the value will be set.</param>
+            <param name="index">The index of the value; Follows the same rules as a c# array where 0 will be the first.)</param>
+            <param name="value">The new value.</param>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.GetMemory(AsitLib.SpellScript.MemoryAddress)">
+            <summary>
+            Doesnt return a refrence but a copy of the target memory in its current state.
+            </summary>
+            <param name="address">The adress of the memory to get.</param>
+            <returns>A copy of the target memory in its current state. (Unlike the the other getters.)</returns>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.GetFromMemory(AsitLib.SpellScript.MemoryAddress,System.Index)">
+            <summary>
+            Get a value from memory.
+            </summary>
+            <param name="address">The memory space this value lives in.</param>
+            <param name="index">The index of the value.</param>
+            <returns>The value at the specified index.</returns>
+        </member>
+        <member name="M:AsitLib.SpellScript.SpellReader.GetFromMemory``1(AsitLib.SpellScript.MemoryAddress,System.Index)">
+            <summary>
+            Get a value from memory and cast it to the specified <see cref="T:System.Type"/>. (<typeparamref name="T"/>)<br/>
+            If this fails, a <see cref="T:System.ArgumentException"/> is thrown.
+            </summary>
+            <param name="address">The memory space this value lives in.</param>
+            <param name="index">The index of the value.</param>
+            <typeparam name="T">The type of the value.</typeparam>
+            <returns>The value at the specified index.</returns>
+        </member>
+        <member name="T:AsitLib.StringContructor.Defaults.ContructorArrays">
+            <summary>
+            Collection of <see cref="T:AsitLib.StringContructor.GString"/> arrays that are often used in the construction of <see cref="T:System.String"/> objects through the
+            <see cref="M:AsitLib.StringContructor.StringConstructorUtils.Generate(AsitLib.StringContructor.AsitContructorConfig)"/> method.
+            <seealso cref="T:AsitLib.StringContructor.AsitContructorConfig"/>
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.Defaults.ContructorArrays.Alphabet">
+            <summary>
+            The Latin Alphabet.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.Defaults.ContructorArrays.Consonants">
+            <summary>
+            All the consonants of the <see cref="P:AsitLib.StringContructor.Defaults.ContructorArrays.Alphabet"/>.<br/>
+            <i>B, C, D..</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.Defaults.ContructorArrays.Vowels">
+            <summary>
+            All the vowels of the <see cref="P:AsitLib.StringContructor.Defaults.ContructorArrays.Alphabet"/>.<br/>
+            <i>A, E, I..</i>
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.Defaults.ContructorArrays.Materials">
+            <summary>
+            List of <see cref="T:AsitLib.StringContructor.GString"/> structs that are often found in materials.
+            <br/>The global <see cref="P:AsitLib.StringContructor.GString.Weight"/> property is set to 0.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.Defaults.ContructorArrays.MiddleAges">
+            <summary>
+            List of <see cref="T:AsitLib.StringContructor.GString"/> structs that are often found in middle-age-ish names.
+            <br/>The global <see cref="P:AsitLib.StringContructor.GString.Weight"/> property is set to 0.
+            </summary>
+        </member>
+        <member name="T:AsitLib.StringContructor.Defaults.Validators">
+            <summary>
+            A default set of Validators usefull for the creaton of <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/>s.
+            </summary>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.MaxInSequence(System.Int32,System.Boolean,System.Char[])">
+            <summary>
+            Returns a <see cref="T:System.Func`2"/> that cancels the build if the <paramref name="max"/>(-imum) of specified <see cref="T:System.Char"/> objects in a sequence is exceeded.
+            </summary>
+            <param name="max">Mamimum of <see cref="T:System.Char"/> objects allowed in a sequence.</param>
+            <param name="exact">If <see langword="true"/>, a sequence has to consist of same characters.</param>
+            <param name="whitelist">Whitelist of characters.</param>
+            <returns>A <see cref="T:System.Func`2"/> that cancels the build if the <paramref name="max"/>(-imum) of specified <see cref="T:System.Char"/> objects in a sequence is exceeded.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.MaxInSequence(System.Int32,System.Boolean)">
+            <summary>
+            Returns a <see cref="T:System.Func`2"/> that cancels the build if the <paramref name="max"/>(-imum) of specified <see cref="T:System.Char"/> objects in a sequence is exceeded.
+            </summary>
+            <param name="max">Mamimum of <see cref="T:System.Char"/> objects allowed in a sequence.</param>
+            <param name="exact">If <see langword="true"/>, a sequence has to consist of same characters.</param>
+            <returns>A <see cref="T:System.Func`2"/> that cancels the build if the <paramref name="max"/>(-imum) of specified <see cref="T:System.Char"/> objects in a sequence is exceeded.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.Blacklist(System.Char[])">
+            <summary>
+            Blacklist a <see cref="T:System.Array"/> of <see cref="T:System.Char"/> objects from occuring in the contructed string. <br/>
+            If any of the <see cref="T:System.Char"/> objects occure in the generated <see cref="T:System.String"/>, the build is canceled.
+            </summary>
+            <param name="blacklist"></param>
+            <returns>A <see cref="T:System.Func`2"/> that blacklists certain <see cref="T:System.Char"/> objects from occuring in the generated <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.Blacklist(System.String[])">
+            <summary>
+            Blacklist a <see cref="T:System.Array"/> of <see cref="T:System.String"/> objects from occuring in the generated name. <br/>
+            If any of the <see cref="T:System.String"/> objects occure in the generated <see cref="T:System.String"/>, the build is canceled.
+            </summary>
+            <param name="blacklist"></param>
+            <returns>A <see cref="T:System.Func`2"/> that blacklists certain <see cref="T:System.String"/> objects from occuring in the generated <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.NotEndWith(System.String[])">
+            <summary>
+            Returns a <see cref="T:System.Func`2"/> that checks if the generated <see cref="T:System.String"/> ends with any of the blacklisted <see cref="T:System.String"/>s.
+            </summary>
+            <param name="blacklist"></param>
+            <returns>A <see cref="T:System.Func`2"/> that cancels the build if the generated <see cref="T:System.String"/> endswith any from the <paramref name="blacklist"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Validators.ToValidator(System.Func{System.String,System.String})">
+            <summary>
+            Returns a <see cref="T:System.Func`2"/> that checks if the input and output differ after manipulation by the <paramref name="manipulator"/>. <br/>
+            If <see langword="true"/>, cancels the build.
+            </summary>
+            <param name="manipulator">Manipulator to convert.</param>
+            <returns>
+            A <see cref="T:System.Func`2"/> that checks if the input and output differ after manipulation by the <paramref name="manipulator"/>. <br/>
+            If <see langword="true"/>, cancels the build.
+            </returns>
+        </member>
+        <member name="T:AsitLib.StringContructor.Defaults.Manipulators">
+            <summary>
+            A set of default Manipulators usefull for the creaton of <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/> objects.
+            </summary>
+        </member>
+        <member name="T:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle">
+            <summary>
+            <see cref="T:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle"/> for the <see cref="M:AsitLib.StringContructor.Defaults.Manipulators.Duplicate(System.Int32,AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle,System.String)"/> method.
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle.Edit">
+            <summary>
+            |<see cref="T:System.String"/>_x||connector||<see cref="T:System.String"/>_x_with_major_edit|
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle.None">
+            <summary>
+            |<see cref="T:System.String"/>_x||connector||<see cref="T:System.String"/>_x|
+            </summary>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Manipulators.RemoveDuplicates(System.Int32,System.Int32,System.Char[])">
+            <summary>
+            Removes duplicates from the generated <see cref="T:System.String"/>.
+            </summary>
+            <param name="count"><strong>If count is <see langword="1"/> the whole string will be removed.</strong><br/>Be carefull with high values.</param>
+            <param name="tries">Sometimes when duplicates values are removed, they create new ones.<br/>Specify here how many times this function will loop.</param>
+            <param name="blacklist"><see cref="T:System.Array"/> of <see cref="T:System.Char"/> objects to exclude from the search.</param>
+            <returns>A <see cref="T:System.Func`2"/> that removes duplicates from the generated <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Manipulators.Duplicate(System.Int32,AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle,System.String)">
+            <summary>
+            Duplicate the <see cref="T:System.String"/> following a specified <see cref="T:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle"/>.
+            </summary>
+            <param name="count">How many times the <see cref="T:System.String"/> will be duplicated.</param>
+            <param name="style">Duplication style.</param>
+            <param name="connector">A <see cref="T:System.String"/> that connects the duplicated <see cref="T:System.String"/> objects.</param>
+            <returns>A <see cref="T:System.Func`2"/> that duplicates the input <see cref="T:System.String"/> following any of the default <see cref="T:AsitLib.StringContructor.Defaults.Manipulators.DuplicateStyle"/>s.</returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Manipulators.Duplicate(System.Int32,System.Func{System.String,System.String},System.String)">
+            <summary>
+            Duplicate the <see cref="T:System.String"/> following a specified manipulator.
+            </summary>
+            <param name="count">How many times the <see cref="T:System.String"/> will be duplicated.</param>
+            <param name="manipulator">Manipulator that manipulates the appended <see cref="T:System.String"/> objects.</param>
+            <param name="connector">A <see cref="T:System.String"/> that connects the duplicated <see cref="T:System.String"/> objects.</param>
+            <returns>A <see cref="T:System.Func`2"/> that duplicates the input <see cref="T:System.String"/> and manipulates it with the given <paramref name="manipulator"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Manipulators.AddRandom(System.String,System.Int32,System.Int32)">
+            <summary>
+            Returns a <see cref="T:System.Func`2"/> that adds random occurences in the input <see cref="T:System.String"/>.
+            </summary>
+            <param name="occurence">A <see cref="T:System.String"/> that gets randomly inserted in the input <see cref="T:System.String"/>. <br/>
+            <i>This may happen multiple times.</i></param>
+            <param name="chance">Chance the <paramref name="occurence"/> gets inserted after each character in the input <see cref="T:System.String"/>.</param>
+            <param name="seed">Seed of the <see cref="T:System.Random"/> deciding if the <paramref name="occurence"/> gets inserted.</param>
+            <returns>A <see cref="T:System.Func`2"/> that adds random occurences in the input <see cref="T:System.String"/>.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.Defaults.Manipulators.AddExtra(System.String[],AsitLib.StringContructor.AsitContructorConfig[])">
+            <summary>
+            Adds a extra name with a random merger from <paramref name="mergers"/> in between.<br/>
+            The <see cref="T:System.Random"/> used to pick a merger will be created using the <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Seed"/> property from the first <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/> given.<br/>
+            <i>If the <see cref="T:AsitLib.StringContructor.StringConstructorUtils"/> class is used for the creation of names, this Manipulator could be usefull for
+            adding last names.</i>
+            </summary>
+            <param name="mergers">A <see cref="T:System.Array"/> of mergers that could be used to merge the constructed <see cref="T:System.String"/> objects.</param>
+            <param name="configs">
+            <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/>(s) used when creating the next <see cref="T:System.String"/> to merge. <br/>
+            If any of the <paramref name="configs"/> also contain the <see cref="M:AsitLib.StringContructor.Defaults.Manipulators.AddExtra(System.String[],AsitLib.StringContructor.AsitContructorConfig[])"/> manipulator, a
+            <see cref="T:System.StackOverflowException"/> could be thrown.
+            </param>
+            <returns>A manipulator(<see cref="T:System.Func`2"/>) that merges one or multiple constructed <see cref="T:System.String"/> objects.</returns>
+        </member>
+        <member name="T:AsitLib.StringContructor.StringContructSearchMode">
+            <summary>
+            Different ways of searching through a <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects. <br/>
+            <see cref="T:System.Enum"/> used for the <see cref="M:AsitLib.StringContructor.StringConstructorUtils.GetFromGSArray(AsitLib.StringContructor.GString[],System.Int32,System.Random,AsitLib.StringContructor.StringContructSearchMode)"/> method.
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.StringContructSearchMode.FromStart">
+            <summary>
+            Get only <see cref="T:System.String"/>s that have the <see cref="P:AsitLib.StringContructor.GString.FromStart"/> property set to true.
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.StringContructSearchMode.FromEnd">
+            <summary>
+            Get only <see cref="T:System.String"/>s that have the <see cref="P:AsitLib.StringContructor.GString.FromEnd"/> property set to true.
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.StringContructSearchMode.All">
+            <summary>
+            Get only any <see cref="T:System.String"/>s.
+            </summary>
+        </member>
+        <member name="F:AsitLib.StringContructor.StringContructSearchMode.Normal">
+            <summary>
+            Get only <see cref="T:System.String"/>s that have both the <see cref="P:AsitLib.StringContructor.GString.FromEnd"/> and <see cref="P:AsitLib.StringContructor.GString.FromEnd"/> property set to false.
+            </summary>
+        </member>
+        <member name="T:AsitLib.StringContructor.StringConstructorUtils">
+            <summary>
+            Utils for the <see langword="classes"/> and <see langword="structs"/> in the <see cref="N:AsitLib.StringContructor"/> namespace.
+            </summary>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.Generate(AsitLib.StringContructor.AsitContructorConfig)">
+            <summary>
+            Construct a <see cref="T:System.String"/> using a given <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/>.
+            </summary>
+            <param name="config"><see cref="T:AsitLib.StringContructor.AsitContructorConfig"/> to construct a <see cref="T:System.String"/> from.</param>
+            <returns>
+            A <see cref="T:System.String"/> made from the <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Occurrences"/> in the given <paramref name="config"/>
+            after being edited by the given <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Manipulator"/> and verified by the contained <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Validator"/>.
+            </returns>
+            <exception cref="T:AsitLib.StringContructor.InvalidRequestException"></exception>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.CountSequence(System.String,System.Boolean,System.Char[])">
+            <summary>
+            Counts the maximum number of <see cref="T:System.Char"/> objects occuring in a sequence in the given <see cref="T:System.String"/>.
+            </summary>
+            <param name="str">The <see cref="T:System.String"/> to count the largest sequence from.</param>
+            <param name="exact">If <see langword="true"/>, sequences may only exist of duplicates.</param>
+            <param name="chars">Sole characters a sequence must consist of.</param>
+            <returns>The lenght of the largest sequence in the given <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.CountSequence(System.String)">
+            <summary>
+            Counts the maximum number of <see cref="T:System.Char"/> objects occuring in a sequence in the given <see cref="T:System.String"/>.
+            </summary>
+            <param name="str">The <see cref="T:System.String"/> to count the largest duplicate sequence from.</param>
+            <returns>The lenght of the largest sequence in the given <see cref="T:System.String"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.CountSequence(System.String,System.Boolean,System.String[])">
+            <summary>
+            Not implemented.
+            </summary>
+            <param name="str"></param>
+            <param name="exact"></param>
+            <param name="occurences"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.GetFromGSArray(AsitLib.StringContructor.GString[],System.Int32,System.Random,AsitLib.StringContructor.StringContructSearchMode)">
+            <summary>
+            Incorporates the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property to get a <see cref="T:System.String"/> from the <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects.
+            </summary>
+            <returns>A random <see cref="T:System.String"/> from the <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/> influenced by the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.Stack(AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[])">
+            <summary>
+            Stack the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of the captured Arrays.
+            </summary>
+            <param name="strs1">1st <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs2">2nd <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs3">3rd <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs4">4th <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <returns>A GString array with the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all <see cref="T:AsitLib.StringContructor.GString"/> objects added to equals.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.Stack(AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[])">
+            <summary>
+            Stack the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of the captured Arrays.
+            </summary>
+            <param name="strs1">1st <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs2">2nd <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs3">3rd <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <returns>A GString array with the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all <see cref="T:AsitLib.StringContructor.GString"/> objects added to equals.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.Stack(AsitLib.StringContructor.GString[],AsitLib.StringContructor.GString[])">
+            <summary>
+            Stack the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of the captured Arrays.
+            </summary>
+            <param name="strs1">1st <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <param name="strs2">2nd <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/>.</param>
+            <returns>A GString array with the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all <see cref="T:AsitLib.StringContructor.GString"/> objects added to equals.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGSArray(System.Char[],System.Func{System.Int32,System.Int32})">
+            <summary>
+            Cast every <see cref="T:System.Char"/> in this <see cref="T:System.Array"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with <see cref="P:AsitLib.StringContructor.GString.Weight"/> set according to the <paramref name="seletor"/>.
+            </summary>
+            <param name="chars"><see cref="T:System.Array"/> of <see cref="T:System.Char"/> objects to convert.</param>
+            <param name="seletor"></param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects casted from this array.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGSArray(System.Char[])">
+            <summary>
+            Cast every <see cref="T:System.Char"/> in this <see cref="T:System.Array"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with <see cref="P:AsitLib.StringContructor.GString.Weight"/> set to <see langword="0"/>.
+            </summary>
+            <param name="chars"></param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects casted from this array.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGSArray(System.String[])">
+            <summary>
+            Cast every <see cref="T:System.String"/> in this <see cref="T:System.Array"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with <see cref="P:AsitLib.StringContructor.GString.Weight"/> set to <see langword="0"/>.
+            </summary>
+            <param name="strings"><see cref="T:System.Array"/> of <see cref="T:System.String"/> objects to convert.</param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects casted from this array.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGSArray(System.String[],System.Func{System.Int32,System.Int32})">
+            <summary>
+            Cast every <see cref="T:System.String"/> in this <see cref="T:System.Array"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with <see cref="P:AsitLib.StringContructor.GString.Weight"/> set according to the <paramref name="seletor"/>.
+            </summary>
+            <param name="strings"><see cref="T:System.Array"/> of <see cref="T:System.String"/> objects to convert.</param>
+            <param name="seletor"></param>
+            <returns>A <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects casted from this array.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToStringArray(AsitLib.StringContructor.GString[])">
+            <summary>
+            Cast every <see cref="T:AsitLib.StringContructor.GString"/> in this <see cref="T:System.Array"/> to a <see cref="T:System.String"/>. <br/>
+            <i>Casted from the <see cref="P:AsitLib.StringContructor.GString.Value"/> Property.</i>
+            </summary>
+            <param name="gStrings"><see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects.</param>
+            <returns>A <see cref="T:System.String"/> <see cref="T:System.Array"/> made from casted <see cref="T:AsitLib.StringContructor.GString"/> objects.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGString(System.String,System.Int32)">
+            <summary>
+            Convert this <see cref="T:System.String"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with set weight.
+            </summary>
+            <param name="str">A <see cref="T:System.String"/> to construct a <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <param name="weight">Set the <see cref="P:AsitLib.StringContructor.GString.Weight"/> Property of the constructed <see cref="T:AsitLib.StringContructor.GString"/>.</param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ToGString(System.Char,System.Int32)">
+            <summary>
+            Convert this <see cref="T:System.Char"/> to a <see cref="T:AsitLib.StringContructor.GString"/> with set weight.
+            </summary>
+            <param name="c">A <see cref="T:System.Char"/> to construct a <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <param name="weight">Set the <see cref="P:AsitLib.StringContructor.GString.Weight"/> Property of the constructed <see cref="T:AsitLib.StringContructor.GString"/>.</param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.ChangeValues(AsitLib.StringContructor.GString[],System.Func{System.Int32,System.Int32})">
+            <summary>
+            Change the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all <see cref="T:AsitLib.StringContructor.GString"/> objects provided.
+            </summary>
+            <param name="strings">A <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects.</param>
+            <param name="seletor">A <see cref="T:System.Func`2"/> that changes the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all provided <see cref="T:AsitLib.StringContructor.GString"/> objects.</param>
+            <returns>A <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/> where all <see cref="P:AsitLib.StringContructor.GString.Weight"/> property values have been changed according to the given <paramref name="seletor"/>.</returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.DiscardIndicators(AsitLib.StringContructor.GString[])">
+            <summary>
+            Create a new <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/> where all the <see cref="P:AsitLib.StringContructor.GString.FromStart"/> and <see cref="P:AsitLib.StringContructor.GString.FromEnd"/>
+            properties are both set to their default value. (<see langword="false"/>)
+            </summary>
+            <param name="strings"><see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/>s</param>
+            <returns>
+            A new <see cref="T:AsitLib.StringContructor.GString"/> <see cref="T:System.Array"/> where all the <see cref="P:AsitLib.StringContructor.GString.FromStart"/> and <see cref="P:AsitLib.StringContructor.GString.FromEnd"/>
+            properties are both set to their default value. (<see langword="false"/>)
+            </returns>
+        </member>
+        <member name="M:AsitLib.StringContructor.StringConstructorUtils.Clean(AsitLib.StringContructor.GString[])">
+            <summary>
+            Removes duplicates and stacks the holden <see cref="P:AsitLib.StringContructor.GString.Weight"/> properties.
+            </summary>
+            <param name="strings"><see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/></param>
+            <returns>The <paramref name="strings"/> <see cref="T:System.Array"/> with all duplicate <see cref="P:AsitLib.StringContructor.GString.Weight"/> properties cleaned.</returns>
+        </member>
+        <member name="T:AsitLib.StringContructor.GString">
+            <summary>
+            A <see langword="struct"/> that modifies a <see cref="T:System.String"/> to suit the <see cref="N:AsitLib.StringContructor"/> namespace.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.GString.FromEnd">
+            <summary>
+            May this <see cref="T:AsitLib.StringContructor.GString"/> only exist on the end of a <see cref="T:System.String"/>?
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.GString.FromStart">
+            <summary>
+            May this <see cref="T:AsitLib.StringContructor.GString"/> only exist on the start of a <see cref="T:System.String"/>?
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.GString.Value">
+            <summary>
+            Value this <see cref="T:AsitLib.StringContructor.GString"/> holds, excludes indicators.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.GString.Weight">
+            <summary>
+            Weight of this <see cref="T:AsitLib.StringContructor.GString"/>, more weight equals more chance of this being roled when picking a random <see cref="T:AsitLib.StringContructor.GString"/>
+            in the <see cref="M:AsitLib.StringContructor.StringConstructorUtils.GetFromGSArray(AsitLib.StringContructor.GString[],System.Int32,System.Random,AsitLib.StringContructor.StringContructSearchMode)"/> method.
+            </summary>
+        </member>
+        <member name="M:AsitLib.StringContructor.GString.#ctor(System.Char,System.Int32)">
+            <summary>
+            Contruct a <see cref="T:AsitLib.StringContructor.GString"/> from a <see cref="T:System.Char"/> and add specified <paramref name="weight"/>.
+            </summary>
+            <param name="c">A <see cref="T:System.Char"/> to contruct a new <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <param name="weight">Set the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.GString.#ctor(System.Char)">
+            <summary>
+            Contruct a <see cref="T:AsitLib.StringContructor.GString"/> from a <see cref="T:System.Char"/>.
+            </summary>
+            <param name="c">A <see cref="T:System.Char"/> to contruct a new <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.GString.#ctor(System.String)">
+            <summary>
+            Contruct a <see cref="T:AsitLib.StringContructor.GString"/> from a <see cref="T:System.String"/>.
+            </summary>
+            <param name="s">A <see cref="T:System.String"/> to contruct a new <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="M:AsitLib.StringContructor.GString.#ctor(System.String,System.Int32)">
+            <summary>
+            Contruct a <see cref="T:AsitLib.StringContructor.GString"/> from a <see cref="T:System.String"/> and add specified <paramref name="weight"/>.
+            </summary>
+            <param name="s">A <see cref="T:System.String"/> to contruct a new <see cref="T:AsitLib.StringContructor.GString"/> from.</param>
+            <param name="weight">Set the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property.</param>
+            <exception cref="T:System.InvalidCastException"></exception>
+        </member>
+        <member name="T:AsitLib.StringContructor.AsitContructorConfig">
+            <summary>
+            Configuration used when creating <see cref="T:System.String"/> objects in the <see cref="M:AsitLib.StringContructor.StringConstructorUtils.Generate(AsitLib.StringContructor.AsitContructorConfig)"/> method.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Accuracy">
+            <summary>
+            How accurate the procces of finding the random <see cref="T:AsitLib.StringContructor.GString"/> will be. <br/><strong>2 is ~10 times as slow as 1.</strong>
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Lenght">
+            <summary>
+            Lenght of the constructed <see cref="T:System.String"/> in <see cref="T:AsitLib.StringContructor.GString"/> objects.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Attempts">
+            <summary>
+            How many attemps will be taken to find a suitable constructed <see cref="T:System.String"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Manipulator">
+            <summary>
+            <see cref="T:System.Func`2"/> that edits the generated <see cref="T:System.String"/> before it gets passed throught the <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Validator"/>.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Validator">
+            <summary>
+            <see cref="T:System.Func`2"/> that checks if the generated <see cref="T:System.String"/> suits the user's needs.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Seed">
+            <summary>
+            Seed for the <see cref="T:System.Random"/> used by the <see cref="M:AsitLib.StringContructor.StringConstructorUtils.Generate(AsitLib.StringContructor.AsitContructorConfig)"/> method.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.DiscardWeight">
+            <summary>
+            If <see langword="true"/>, the <see cref="P:AsitLib.StringContructor.GString.Weight"/> property of all the <see cref="T:AsitLib.StringContructor.GString"/> objects used to construct the string gets ignored.
+            </summary>
+        </member>
+        <member name="P:AsitLib.StringContructor.AsitContructorConfig.Occurrences">
+            <summary>
+            <see cref="T:System.Array"/> of <see cref="T:AsitLib.StringContructor.GString"/> objects that are used for the contruction.
+            </summary>w
+        </member>
+        <member name="T:AsitLib.StringContructor.InvalidRequestException">
+            <summary>
+            Thrown when values given to contruct a <see cref="T:System.String"/> are invalid. <br/>
+            More exact reasons can be of the following;<br/>
+            <i>-The <see cref="T:AsitLib.StringContructor.AsitContructorConfig"/> is invalid.</i><br/>
+            <i>-The <see cref="P:AsitLib.StringContructor.AsitContructorConfig.Attempts"/> is to low resulting in a timeout.</i><br/>
+            </summary>
+        </member>
+        <member name="T:AsitLib.Used">
+            <summary>
+            Thanks stack! (Not for all)
+            </summary>
+        </member>
+        <member name="M:AsitLib.Used.SafeIntParse(System.String)">
+            <summary>
+            Returns -1 if Parsing failed.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.Used.SafeNullIntParse(System.String)">
+            <summary>
+            Returns null if Parsing failed.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.Used.SafeNullBoolParse(System.String)">
+            <summary>
+            Returns null if Parsing failed.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.Used.GetCharCount(System.String,System.String)">
+            <summary>
+            Gets the count of strinf sequence in the specified string.
+            </summary>
+            <param name="str"></param>
+            <param name="c"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AsitLib.Used.NullToEmptyString(System.String)">
+            <summary>
+            Returns String.Empty if the string is null.
+            </summary>
+            <param name="possibleNull">The string that *could* be null.</param>
+            <returns>String.Empty if the string is null, else the input.</returns>
+        </member>
+        <member name="M:AsitLib.Used.InvokeEx``1(``0,System.Action{``0})">
+            <summary>
+            Allows thread safe updates of UI components
+            </summary>
+        </member>
+        <member name="T:AsitConsole.AsitConsole`1">
+            <summary>
+            A class to help with converting <see cref="T:System.Console"/> Applications to a <see cref="T:System.Windows.Forms.Form"/> enviorment.
+            </summary>
+            <typeparam name="Tbase">A type that implements TextBoxBase.</typeparam>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Base">
+            <summary>
+            Base <see cref="T:System.Windows.Forms.TextBox"/>.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Frequency">
+            <summary>
+            How many ms it will take for the Reading methods to check for input.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.#ctor(`0)">
+            <summary>
+            Create a new <see cref="T:AsitConsole.AsitConsole`1"/> from a <see cref="T:System.Windows.Forms.TextBox"/>.
+            </summary>
+            <param name="_base"><see cref="T:System.Windows.Forms.TextBox"/> to convert to a <see cref="T:AsitConsole.AsitConsole`1"/>.</param>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.TreatControlCAsInput">
+            <summary>
+            Gets or sets a value indicating whether the combination of the Control modifier key and C console key (Ctrl+C) is treated as ordinary input or as an interruption that is handled by the operating system.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.CapsLock">
+            <summary>
+            Gets a value indicating if the CAPSLOCK toggle is turned on or off.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.BackgroundColor">
+            <summary>
+            Background color of the AsitConsole. (<see cref="T:System.ConsoleColor"/>)
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.ForegroundColor">
+            <summary>
+            Foreground color of the AsitConsole. (<see cref="T:System.ConsoleColor"/>)
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.NumberLock">
+            <summary>
+            Gets a value indicating if the NUMLOCK toggle is turned on or off.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.CursorVisible">
+            <summary>
+            Gets a value indicating if the cursor is visible.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.IsWarningRedirected">
+            <summary>
+            Gets a value that indicates whether warning has been redirected from the standard <see cref="P:AsitConsole.AsitConsole`1.Warning"/> stream.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Warning">
+            <summary>
+            The warning <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetWarning(System.IO.TextWriter)">
+            <summary>
+            Set the <see cref="P:AsitConsole.AsitConsole`1.Warning"/> stream to a new <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+            <param name="newWarning">The new <see cref="T:System.IO.TextWriter"/>.</param>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.IsErrorRedirected">
+            <summary>
+            Gets a value that indicates whether error has been redirected from the standard <see cref="P:AsitConsole.AsitConsole`1.Error"/> stream.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Error">
+            <summary>
+            The error textwriter.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetError(System.IO.TextWriter)">
+            <summary>
+            Set the <see cref="P:AsitConsole.AsitConsole`1.Error"/> stream to a new <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+            <param name="newError">The new <see cref="P:AsitConsole.AsitConsole`1.Error"/> <see cref="T:System.IO.TextWriter"/>.</param>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.IsInputRedirected">
+            <summary>
+            Gets a value that indicates whether input has been redirected from the standard <see cref="P:AsitConsole.AsitConsole`1.In"/> stream.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.In">
+            <summary>
+            The <see cref="P:AsitConsole.AsitConsole`1.In"/> <see cref="T:System.IO.TextReader"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetIn(System.IO.TextReader)">
+            <summary>
+            Set the <see cref="P:AsitConsole.AsitConsole`1.In"/> stream to a new <see cref="T:System.IO.TextReader"/>.
+            </summary>
+            <param name="newIn">The new <see cref="P:AsitConsole.AsitConsole`1.In"/> <see cref="T:System.IO.TextReader"/>.</param>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.IsOutputRedirected">
+            <summary>
+            Gets a value that indicates whether <see cref="P:AsitConsole.AsitConsole`1.Out"/> has been redirected from the standard <see cref="P:AsitConsole.AsitConsole`1.Out"/> stream.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Out">
+            <summary>
+            The output <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetOut(System.IO.TextWriter)">
+            <summary>
+            Set the <see cref="P:AsitConsole.AsitConsole`1.Out"/> stream to a new <see cref="T:System.IO.TextWriter"/>..
+            </summary>
+            <param name="newOut">The new <see cref="P:AsitConsole.AsitConsole`1.Out"/> <see cref="T:System.IO.TextWriter"/>.</param>
+        </member>
+        <member name="P:AsitConsole.AsitConsole`1.Title">
+            <summary>
+            <see cref="P:System.Console.Title"/> of this <see cref="T:AsitConsole.AsitConsole`1"/>. Gets and Sets the <see cref="P:System.Windows.Forms.Form.Text"/> value of the parent <see cref="T:System.Windows.Forms.Form"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.GetTheme">
+            <summary>
+            Export the <see cref="T:AsitConsole.Theme"/> of this <see cref="T:AsitConsole.AsitConsole`1"/>>.
+            </summary>
+            <returns>The <see cref="T:AsitConsole.Theme"/> of this <see cref="T:AsitConsole.AsitConsole`1"/></returns>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetTheme(AsitConsole.Theme)">
+            <summary>
+            Import a <see cref="T:AsitConsole.Theme"/> to this <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <param name="theme">The <see cref="T:AsitConsole.Theme"/> to import.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetTheme">
+            <summary>
+            Reset the <see cref="T:AsitConsole.Theme"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Write``1(``0)">
+            <summary>
+            Write a value to this <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <typeparam name="T">Value type.</typeparam>
+            <param name="value">Value to write.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.WriteLine">
+            <summary>
+            Write a lineending to the AsitConsole.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.WriteLine``1(``0)">
+            <summary>
+            Write a value to the <see cref="T:AsitConsole.AsitConsole`1"/>. and end it with a line ending (<see langword="\n"/>).
+            </summary>
+            <typeparam name="T">Value type.</typeparam>
+            <param name="value">Value to write.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.ReadLine">
+            <summary>
+            Read user input.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.ReadLine(System.Windows.Forms.TextBoxBase)">
+            <summary>
+            Read user input from a <see langword="class"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.
+            </summary>
+            <param name="base">A <see langword="class"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.</param>
+            <returns>User input.</returns>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Clear">
+            <summary>
+            Clear the <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Clear(System.Index)">
+            <summary>
+            Clear a line from the <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <param name="linenum">The line to remove.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Clear(System.Range)">
+            <summary>
+            Remove the lines in the <see cref="T:System.Range"/> from the <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <param name="range"><see cref="T:System.Range"/> of lines.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.ReadKey">
+            <summary>
+            Read <see cref="T:System.ConsoleKeyInfo"/> from the user input.
+            </summary>
+            <returns>A <see cref="T:System.ConsoleKeyInfo"/> read from the input.</returns>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.ReadFormsKey">
+            <summary>
+            Read a <see cref="T:System.Windows.Forms.Keys"/> from the user input.
+            </summary>
+            <returns>A <see cref="T:System.Windows.Forms.Keys"/> read from the input.</returns>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetToDefault">
+            <summary>
+            Set all <see cref="T:System.IO.TextWriter"/> and <see cref="T:System.IO.TextReader"/> objects to default.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetColor(System.Drawing.Color,System.Drawing.Color)">
+            <summary>
+            Set <see cref="P:AsitConsole.AsitConsole`1.ForegroundColor"/> and <see cref="P:AsitConsole.AsitConsole`1.BackgroundColor"/> color of the <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <param name="backColor">New <see cref="P:AsitConsole.AsitConsole`1.ForegroundColor"/>.</param>
+            <param name="foreColor">New <see cref="P:AsitConsole.AsitConsole`1.BackgroundColor"/>.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.SetColor(System.ConsoleColor,System.ConsoleColor)">
+            <summary>
+            Set <see cref="P:AsitConsole.AsitConsole`1.ForegroundColor"/> and <see cref="P:AsitConsole.AsitConsole`1.BackgroundColor"/> color of the <see cref="T:AsitConsole.AsitConsole`1"/>.
+            </summary>
+            <param name="backColor">New <see cref="P:AsitConsole.AsitConsole`1.ForegroundColor"/>.</param>
+            <param name="foreColor">New <see cref="P:AsitConsole.AsitConsole`1.BackgroundColor"/>.</param>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Beep">
+            <summary>
+            Play a beep sound.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Beep(System.Int32,System.Int32)">
+            <summary>
+            Play a beep sound with custom values.
+            </summary>
+            <param name="frequency">Frequency of the beep.</param>
+            <param name="duration">Duration of the beep.</param>
+        </member>
+        <member name="E:AsitConsole.AsitConsole`1.CancelKeyPress">
+            <summary>
+            Occurs when the Control modifier key (Ctrl) and either the C console key (C) or the Break key are pressed simultaneously (Ctrl+C or Ctrl+Break).
+            </summary>
+        </member>
+        <member name="M:AsitConsole.AsitConsole`1.Finalize">
+            <summary>
+            Finalizer.
+            </summary>
+        </member>
+        <member name="T:AsitConsole.AsitConsoleCancelEventArgs`1">
+            <summary>
+            Provides data for the CancelKeyPress event. This class cannot be inherited.
+            </summary>
+            <typeparam name="CBase"></typeparam>
+        </member>
+        <member name="T:AsitConsole.AsitConsoleCancelEventHandler`1">
+            <summary>
+            Represents the method that will handle the CancelKeyPress event of a AsitConsole.
+            </summary>
+            <typeparam name="CBase">Type of the parent AsitConsole.</typeparam>
+            <param name="sender">The source of the event.</param>
+            <param name="e">A AsitConsoleCancelEventArgs object that contains the event data.</param>
+        </member>
+        <member name="T:AsitConsole.Theme">
+            <summary>
+            Define <see cref="T:System.Drawing.Font"/> and color pallete.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.Theme.ForeColor">
+            <summary>
+            Foreground <see cref="T:System.Drawing.Color"/> set by this <see cref="T:AsitConsole.Theme"/>.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.Theme.BackColor">
+            <summary>
+            Background <see cref="T:System.Drawing.Color"/> set by this <see cref="T:AsitConsole.Theme"/>.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.Theme.Font">
+            <summary>
+            <see cref="T:System.Drawing.Font"/> set by this <see cref="T:AsitConsole.Theme"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.Theme.#ctor(System.Drawing.Color,System.Drawing.Color,System.Drawing.Font)">
+            <summary>
+            Create a new <see cref="T:AsitConsole.Theme"/> with set values.
+            </summary>
+            <param name="forecolor">Foreground <see cref="T:System.Drawing.Color"/>.</param>
+            <param name="backcolor">Background <see cref="T:System.Drawing.Color"/>.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> of the new <see cref="T:AsitConsole.Theme"/>.</param>
+        </member>
+        <member name="F:AsitConsole.Theme.Empty">
+            <summary>
+            A empty <see cref="T:AsitConsole.Theme"/>.
+            </summary>
+        </member>
+        <member name="T:AsitConsole.TextBoxTextWriter`1">
+            <summary>
+            A <see cref="T:System.IO.TextWriter"/> that writes to a <see cref="T:System.Windows.Forms.TextBox"/>.
+            </summary>
+            <typeparam name="TBase">Type of the <see cref="T:System.Windows.Forms.TextBox"/>.</typeparam>
+        </member>
+        <member name="P:AsitConsole.TextBoxTextWriter`1.Base">
+            <summary>
+            Base <see cref="T:System.Windows.Forms.TextBoxBase"/>.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.TextBoxTextWriter`1.#ctor(`0)">
+            <summary>
+            Create a new <see cref="T:AsitConsole.TextBoxTextWriter`1"/> that points to a <see cref="T:System.Windows.Forms.TextBox"/>.
+            </summary>
+            <param name="base"><see cref="T:System.Windows.Forms.TextBox"/> for this <see cref="T:System.IO.TextWriter"/></param>
+        </member>
+        <member name="T:AsitConsole.TextBoxTextReader`1">
+            <summary>
+            A <see cref="T:System.IO.TextReader"/> that reads from a <see cref="T:System.Windows.Forms.TextBox"/>.<br/><strong>Locks Thread until user input has been provided.</strong>
+            </summary>
+            <typeparam name="TBase">Type of the Textbox.</typeparam>
+        </member>
+        <member name="P:AsitConsole.TextBoxTextReader`1.Frequency">
+            <summary>
+            How many Miliseconds the <see cref="T:AsitConsole.TextBoxTextReader`1"/> will wait before checking for input. <i>This loops.</i> 
+            </summary>
+        </member>
+        <member name="P:AsitConsole.TextBoxTextReader`1.Base">
+            <summary>
+            The <see cref="T:System.Windows.Forms.TextBox"/> this <see cref="T:System.IO.TextReader"/> reads from.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.TextBoxTextReader`1.#ctor(`0,System.Int32)">
+            <summary>
+            Construct a new <see cref="T:AsitConsole.TextBoxTextReader`1"/> with set <see cref="P:AsitConsole.TextBoxTextReader`1.Frequency"/>.
+            </summary>
+            <param name="base">The <see cref="T:System.Windows.Forms.TextBox"/> this <see cref="T:System.IO.TextReader"/> reads from.</param>
+            <param name="frequency">How many Miliseconds the <see cref="T:AsitConsole.TextBoxTextReader`1"/> will wait before checking for input. <i>This loops.</i> </param>
+        </member>
+        <member name="M:AsitConsole.TextBoxTextReader`1.#ctor(`0)">
+            <summary>
+            Construct a new <see cref="T:AsitConsole.TextBoxTextReader`1"/> with set <see cref="P:AsitConsole.TextBoxTextReader`1.Frequency"/>.
+            </summary>
+            <param name="base">The <see cref="T:System.Windows.Forms.TextBox"/> this <see cref="T:System.IO.TextReader"/> reads from.</param>
+        </member>
+        <member name="T:AsitConsole.Static.Console">
+            <summary>
+            Provides a Static way of communicating with a AsitFormsConsole. Not done.
+            </summary>
+        </member>
+        <member name="P:AsitConsole.Static.Console.CapsLock">
+            <summary>
+            Gets a value indicating if the CAPSLOCK toggle is turned on or off.
+            </summary>
+        </member>
+        <member name="T:AsitConsole.ConsoleUtils">
+            <summary>
+            A <see langword="static"/> <see langword="class"/> containing multiple utils for the <see cref="N:AsitConsole"/> namespace.
+            </summary>
+        </member>
+        <member name="M:AsitConsole.ConsoleUtils.ExportTheme``1(``0)">
+            <summary>
+            Export a <see cref="T:AsitConsole.Theme"/> from a <see langword="class"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.
+            </summary>
+            <typeparam name="T">A <see cref="T:System.Type"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.</typeparam>
+            <param name="base"><see cref="T:System.Windows.Forms.TextBox"/> to get a <see cref="T:AsitConsole.Theme"/> from.</param>
+            <returns>A <see cref="T:AsitConsole.Theme"/> exported from the <see cref="T:System.Windows.Forms.TextBox"/></returns>
+        </member>
+        <member name="M:AsitConsole.ConsoleUtils.ImportTheme``1(AsitConsole.Theme,``0)">
+            <summary>
+            Import a <see cref="T:AsitConsole.Theme"/> to the <see langword="class"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.
+            </summary>
+            <typeparam name="T">A <see cref="T:System.Type"/> that implements <see cref="T:System.Windows.Forms.TextBoxBase"/>.</typeparam>
+            <param name="theme"><see cref="T:AsitConsole.Theme"/> to import.</param>
+            <param name="base"><see cref="T:System.Windows.Forms.TextBox"/> to import the <see cref="T:AsitConsole.Theme"/> to.</param>
+        </member>
+    </members>
+</doc>
