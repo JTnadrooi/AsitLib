@@ -22,7 +22,7 @@ namespace AsitLib.SpellScript
             {
                 case "cmd":
                     if (!SSpell.Debug.ValidateArgs<string>(args, true))
-                        throw new SpellScriptException("Invalid command build: " + args);
+                        throw new SpellScriptException("Invalid command composition: " + args);
                     else
                     {
                         ProcessStartInfo ProcessInfo = new ProcessStartInfo("cmd.exe", "/C " + args.Command.Arguments![0])

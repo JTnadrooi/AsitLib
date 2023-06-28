@@ -9,10 +9,10 @@ namespace AsitLib
 {
     public static class AsitTupleExtensions
     {
-        public static object[] GetItems(this ITuple tuple)
+        public static object?[] GetItems(this ITuple tuple)
         {
             //if (!(tuple is ITuple)) throw new Exception();
-            List<object> toret = new List<object>();
+            List<object?> toret = new List<object?>();
             Type t = tuple.GetType();
             if (t.IsValueType)
             {

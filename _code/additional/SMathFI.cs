@@ -184,7 +184,8 @@ namespace AsitLib.Math
                     value *= f;
             return negative ? -value : value;
         }
-        public static int Fit(float value, float divider) => (int)((value - (value % divider)) / divider);
+        //this can be done alot better i guess... (still, this is more precise... i think.. hmm. more testing required.)
+        public static int Fit(float value, float divider) => (int)((value - (value % divider)) / divider); 
         /// <summary>
         /// no one cares about gradiants so i can just float values here yay (i could use a enum but again, no one cares about gradiants)
         /// </summary>

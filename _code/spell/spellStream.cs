@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 #nullable enable
 namespace AsitLib.SpellScript
 {
+    /// <summary>
+    /// a
+    /// </summary>
     public class SpellStream : ISpellExecutor
     {
         private object[]? stackmem;
@@ -58,6 +61,8 @@ namespace AsitLib.SpellScript
         public void SetAtMemory(SpellMemoryAddress address, int index, object value)
             => GetMemory(address)[index] = value;
         public void Next(string command) => Next(new SpellCommand(command, linemem, funcmem));
+        public void Next(string command, IUniManipulator manipulator, object? manipulatorArgs) 
+            => Next(new SpellCommand(command, manipulator, manipulatorArgs, linemem, funcmem));
         public void Next(SpellCommand command) 
         {
             foreach (ISpellInterpeter interpeter in interpeters)

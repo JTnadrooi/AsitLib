@@ -30,16 +30,16 @@ namespace AsitLib.SpellScript
             {
                 case "set":
                     if (!SSpell.Debug.ValidateArgs<int, object>(args, true))
-                        throw new SpellScriptException("Invalid command argument count.");
+                        throw new SpellScriptException("Invalid command composition.");
                     memory[(int)args.Command.Arguments![0]] = args.Command.Arguments[1];
                     return SpellReturnArgs.NullSucces;
                 case "get":
                     if (!SSpell.Debug.ValidateArgs<int>(args, true))
-                        throw new SpellScriptException("Invalid command argument count.");
+                        throw new SpellScriptException("Invalid command composition.");
                     return SpellReturnArgs.GetFromObject(memory[(int)args.Command.Arguments![0]]);
                 case "getsize":
                     if (!SSpell.Debug.ValidateArgs(args, true))
-                        throw new SpellScriptException("Invalid command argument count.");
+                        throw new SpellScriptException("Invalid command composition.");
                     return SpellReturnArgs.GetFromObject(memory.Length);
                 //case "setsize":
                 //    if (!SSpell.Debug.ValidateArgs<int>(args, true))
@@ -48,7 +48,7 @@ namespace AsitLib.SpellScript
                 //    return SpellReturnArgs.NullSucces;
                 case "clear":
                     if (!SSpell.Debug.ValidateArgs(args, true))
-                        throw new SpellScriptException("Invalid command argument count.");
+                        throw new SpellScriptException("Invalid command composition.");
                     memory = new object[memory.Length];
                     return SpellReturnArgs.NullSucces;
                 default: throw new SpellScriptException(args.Command);

@@ -49,9 +49,12 @@ namespace AsitLib.SpellScript
         /// <param name="value">String used to create a <see cref="SpellCommand"/>.</param>
         /// <param name="lineMemory">LineMemory used to extract pointers.</param>
         /// <param name="funcMemory">FucntionMemory used to extract pointers.</param>
-        public SpellCommand(string value, object[]? lineMemory, object[]? funcMemory)
+        public SpellCommand(string value, object[]? lineMemory, object[]? funcMemory) : this(value, null, null, lineMemory, funcMemory) { }
+        public SpellCommand(string value, IUniManipulator? manipulator, object? manipulatorArgs, object[]? lineMemory, object[]? funcMemory)
         {
-            Value = value;
+            // if method returns null all hell breaks loose.
+            Value = manipulator?.Maniputate(value, manipulatorArgs) == null ? value : manipulator.Maniputate(value, manipulatorArgs); 
+
             //One line magic! (Scrapped because waaay to unreadable for the quick reader)
             //Arguments = Value.Contains("()") ? null : (Value.Between("(", ")").Contains(',') ? ProccesPointers(Value.Between("(", ")")
             //    .Split(",", StringSplitOptions.RemoveEmptyEntries)

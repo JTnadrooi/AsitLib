@@ -106,5 +106,18 @@ namespace AsitLib
                 return false;
             }
         }
+        public static int ArrayAdd<T>(this T[] array, T value)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == null)
+                {
+                    array[i] = value;
+                    return i;
+                }
+            }
+            throw new ArgumentException("Array has no empty spots.");
+        }
+
     }
 }
