@@ -50,7 +50,7 @@ namespace AsitLib.Math
         /// equal to <see langword="0f"/> and <see cref="float.PositiveInfinity"/> if <paramref name="value"/> is greater than <see langword="0f"/>.</returns>
         public static float InAbs(float value)
         {
-            if (value == float.NegativeInfinity || value == float.PositiveInfinity || value == float.NaN) return value;
+            if (value == float.NegativeInfinity || value == float.PositiveInfinity || float.IsNaN(value)) return value;
             if (value == 0f) return value;
             return value > 0f ? float.PositiveInfinity : float.NegativeInfinity;
         }
@@ -65,7 +65,7 @@ namespace AsitLib.Math
         /// equal to <see langword="0f"/> and <see langword="1f"/> if <paramref name="value"/> is greater than <see langword="0f"/>.</returns>
         public static float AdAbs(float value)
         {
-            if (value == float.NegativeInfinity || value == float.PositiveInfinity || value == float.NaN) return value;
+            if (value == float.NegativeInfinity || value == float.PositiveInfinity || float.IsNaN(value)) return value;
             if (value == 0f) return value;
             return value > 0f ? 1f : -1f;
         }
@@ -80,7 +80,7 @@ namespace AsitLib.Math
         /// equal to <see langword="0f"/> and <see cref="float.MaxValue"/> if <paramref name="value"/> is greater than <see langword="0f"/>.</returns>
         public static float MaxAbs(float value)
         {
-            if (value == float.NegativeInfinity || value == float.PositiveInfinity || value == float.NaN) return value;
+            if (value == float.NegativeInfinity || value == float.PositiveInfinity || float.IsNaN(value)) return value;
             if (value == 0f) return value;
             return value > 0f ? 1f : -1f;
         }
@@ -108,7 +108,7 @@ namespace AsitLib.Math
         /// <exception cref="InvalidOperationException"></exception>
         public static bool ToBoolPosNeg(float value, bool caseZero = false)
         {
-            if (value == float.NaN) throw new InvalidOperationException("Value is not a number.");
+            if (float.IsNaN(value)) throw new InvalidOperationException("Value is not a number.");
             if(value == float.NegativeInfinity) return false;
             if (value == float.PositiveInfinity) return true;
             if (value == 0) return caseZero;
@@ -122,7 +122,7 @@ namespace AsitLib.Math
         /// <exception cref="InvalidOperationException"></exception>
         public static bool ToBoolZero(float value)
         {
-            if (value == float.NaN) throw new InvalidOperationException("Value is not a number.");
+            if (float.IsNaN(value)) throw new InvalidOperationException("Value is not a number.");
             if (value == 0) return false;
             else return true;
         }
@@ -136,7 +136,7 @@ namespace AsitLib.Math
         /// <exception cref="InvalidOperationException"></exception>
         public static float Inv(float value, float pointZero = 0f)
         {
-            if (value == float.NegativeInfinity || value == float.PositiveInfinity || value == float.NaN)
+            if (value == float.NegativeInfinity || value == float.PositiveInfinity || float.IsNaN(value))
                 throw new InvalidOperationException("Value is not a normal number.");
             if (value == pointZero) return value;
             float dif = MathF.Abs(pointZero - value);
@@ -147,18 +147,18 @@ namespace AsitLib.Math
         }
         public static float PowZero(float value)
         {
-            if (value == float.NaN) throw new InvalidOperationException("Value is not a number.");
+            if (float.IsNaN(value)) throw new InvalidOperationException("Value is not a number.");
             else return 1f;
         }
         public static float PowOne(float value)
         {
-            if (value == float.NaN) throw new InvalidOperationException("Value is not a number.");
+            if (float.IsNaN(value)) throw new InvalidOperationException("Value is not a number.");
             else return value;
         }
         public static float Average(params float[] values)
         {
             float toret = values.Sum();
-            if (toret == float.NegativeInfinity || toret == float.PositiveInfinity || toret == float.NaN)
+            if (toret == float.NegativeInfinity || toret == float.PositiveInfinity || float.IsNaN(toret))
                 throw new InvalidOperationException("Value is not a normal number; average failed");
             return toret / values.Length;
         }

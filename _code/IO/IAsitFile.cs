@@ -11,7 +11,7 @@ namespace AsitLib.IO
         public string FileType { get; }
         public int Version { get; } //Maybe custom formatter would be nice.. BUT I SHALL STAY FOCUSSED!
         public string CoreExtension { get; }
-        public object[] Other {  get; }
+        public object[]? Other {  get; }
         public FileInfo FileInfo { get; }
     }
 }

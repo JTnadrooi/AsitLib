@@ -10,7 +10,7 @@ using static AsitLib.SpellScript.SSpell;
 namespace AsitLib.SpellScript
 {
     /// <summary>
-    /// A command that can be read by any class implementing <see cref="ISpellInterpeter"/> using <see cref="ISpellInterpeter.Run(SpellCommand)"/>.
+    /// A command that can be read by any class implementing <see cref="ISpellInterpeter"/> using <see cref="ISpellInterpeter.Run(SpellRunArgs)"/>.
     /// </summary>
     public readonly struct SpellCommand
     {
@@ -50,7 +50,7 @@ namespace AsitLib.SpellScript
         /// <param name="lineMemory">LineMemory used to extract pointers.</param>
         /// <param name="funcMemory">FucntionMemory used to extract pointers.</param>
         public SpellCommand(string value, object[]? lineMemory, object[]? funcMemory) : this(value, null, null, lineMemory, funcMemory) { }
-        public SpellCommand(string value, IUniManipulator? manipulator, object? manipulatorArgs, object[]? lineMemory, object[]? funcMemory)
+        public SpellCommand(string value, IUniManipulator<string, string>? manipulator, string? manipulatorArgs, object[]? lineMemory, object[]? funcMemory)
         {
             // if method returns null all hell breaks loose.
             Value = manipulator?.Maniputate(value, manipulatorArgs) == null ? value : manipulator.Maniputate(value, manipulatorArgs); 

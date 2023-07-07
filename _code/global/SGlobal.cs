@@ -100,9 +100,10 @@ namespace AsitLib
             }
             catch(Exception ex)
             {
+                if (exceptions == null) throw;
                 if (exceptions.Contains(ex))
                     action2.Invoke();
-                else throw ex;
+                else throw;
                 return false;
             }
         }
@@ -117,7 +118,19 @@ namespace AsitLib
                 }
             }
             throw new ArgumentException("Array has no empty spots.");
+        } 
+        public static bool EasyTryOut<TFunc, TOut>(TFunc func, out TOut output) where TFunc : Delegate
+        {
+            try
+            {
+                output = (TOut)func.DynamicInvoke()!;
+                return true;
+            }
+            catch (Exception)
+            {
+                output = default!;
+                return false;
+            }
         }
-
     }
 }

@@ -87,23 +87,23 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 17) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
-                if (!(args.Command.Arguments[12] is P13)) return false;
-                if (!(args.Command.Arguments[13] is P14)) return false;
-                if (!(args.Command.Arguments[14] is P15)) return false;
-                if (!(args.Command.Arguments[15] is P16)) return false;
-                if (!(args.Command.Arguments[16] is P17)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
+                if (args.Command.Arguments[12] is not P13) return false;
+                if (args.Command.Arguments[13] is not P14) return false;
+                if (args.Command.Arguments[14] is not P15) return false;
+                if (args.Command.Arguments[15] is not P16) return false;
+                if (args.Command.Arguments[16] is not P17) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -112,22 +112,22 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 16) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
-                if (!(args.Command.Arguments[12] is P13)) return false;
-                if (!(args.Command.Arguments[13] is P14)) return false;
-                if (!(args.Command.Arguments[14] is P15)) return false;
-                if (!(args.Command.Arguments[15] is P16)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
+                if (args.Command.Arguments[12] is not P13) return false;
+                if (args.Command.Arguments[13] is not P14) return false;
+                if (args.Command.Arguments[14] is not P15) return false;
+                if (args.Command.Arguments[15] is not P16) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -136,21 +136,21 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 15) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
-                if (!(args.Command.Arguments[12] is P13)) return false;
-                if (!(args.Command.Arguments[13] is P14)) return false;
-                if (!(args.Command.Arguments[14] is P15)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
+                if (args.Command.Arguments[12] is not P13) return false;
+                if (args.Command.Arguments[13] is not P14) return false;
+                if (args.Command.Arguments[14] is not P15) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -159,20 +159,20 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 14) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
-                if (!(args.Command.Arguments[12] is P13)) return false;
-                if (!(args.Command.Arguments[13] is P14)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
+                if (args.Command.Arguments[12] is not P13) return false;
+                if (args.Command.Arguments[13] is not P14) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -181,19 +181,19 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 13) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
-                if (!(args.Command.Arguments[12] is P13)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
+                if (args.Command.Arguments[12] is not P13) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -202,18 +202,18 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 12) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
-                if (!(args.Command.Arguments[11] is P12)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
+                if (args.Command.Arguments[11] is not P12) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
@@ -222,17 +222,17 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 11) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
-                if (!(args.Command.Arguments[10] is P11)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
+                if (args.Command.Arguments[10] is not P11) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(SpellRunArgs args, bool mustHaveReader)
@@ -240,16 +240,16 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 10) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
-                if (!(args.Command.Arguments[9] is P10)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
+                if (args.Command.Arguments[9] is not P10) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8, P9>(SpellRunArgs args, bool mustHaveReader)
@@ -257,15 +257,15 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 9) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
-                if (!(args.Command.Arguments[8] is P9)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
+                if (args.Command.Arguments[8] is not P9) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7, P8>(SpellRunArgs args, bool mustHaveReader)
@@ -273,14 +273,14 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 8) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
-                if (!(args.Command.Arguments[7] is P8)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
+                if (args.Command.Arguments[7] is not P8) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6, P7>(SpellRunArgs args, bool mustHaveReader)
@@ -288,13 +288,13 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 7) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
-                if (!(args.Command.Arguments[6] is P7)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
+                if (args.Command.Arguments[6] is not P7) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5, P6>(SpellRunArgs args, bool mustHaveReader)
@@ -302,12 +302,12 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 6) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
-                if (!(args.Command.Arguments[5] is P6)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
+                if (args.Command.Arguments[5] is not P6) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4, P5>(SpellRunArgs args, bool mustHaveReader)
@@ -315,11 +315,11 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 5) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
-                if (!(args.Command.Arguments[4] is P5)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
+                if (args.Command.Arguments[4] is not P5) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3, P4>(SpellRunArgs args, bool mustHaveReader)
@@ -327,10 +327,10 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 4) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
-                if (!(args.Command.Arguments[3] is P4)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
+                if (args.Command.Arguments[3] is not P4) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2, P3>(SpellRunArgs args, bool mustHaveReader)
@@ -338,9 +338,9 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 3) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
-                if (!(args.Command.Arguments[2] is P3)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
+                if (args.Command.Arguments[2] is not P3) return false;
                 return true;
             }
             public static bool ValidateArgs<P1, P2>(SpellRunArgs args, bool mustHaveReader)
@@ -348,8 +348,8 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 2) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
-                if (!(args.Command.Arguments[1] is P2)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
+                if (args.Command.Arguments[1] is not P2) return false;
                 return true;
             }
             public static bool ValidateArgs<P1>(SpellRunArgs args, bool mustHaveReader)
@@ -357,7 +357,7 @@ namespace AsitLib.SpellScript
                 if (mustHaveReader && args.Executor == null) return false;
                 if (args.Command.Arguments == null) return false;
                 if (args.Command.Arguments.Length != 1) return false;
-                if (!(args.Command.Arguments[0] is P1)) return false;
+                if (args.Command.Arguments[0] is not P1) return false;
                 return true;
             }
             public static bool ValidateArgs(SpellRunArgs args, bool mustHaveReader)

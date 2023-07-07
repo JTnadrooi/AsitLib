@@ -31,8 +31,6 @@ namespace AsitLib
         public static string Inverse(this string str) => string.Join("", str.ToArray().Reverse());
         public static int AlphabeticalConvert(this char c) => Alphabet.ToList().FindIndex(cc => cc == c);
         public static string ReEncode(this string str, Encoding encoding) => encoding.GetString(encoding.GetBytes(str));
-        public static string Between(this string STR, string FirstString, string LastString) =>
-             STR[(STR.IndexOf(FirstString) + FirstString.Length)..STR.IndexOf(LastString)];
 
         public static string NummicalInverse(this string str)
         {
@@ -98,7 +96,7 @@ namespace AsitLib
 
                 result += "}";
             }
-            return result.Replace(",}", "}").Substring(1);
+            return result.Replace(",}", "}")[1..];
         }
         public static string VisualizeNewLine(this string str) => str.Replace("\n", "\n<n>").Replace("\r", "\r<r>");
         /*a*/
@@ -146,5 +144,51 @@ namespace AsitLib
         public static string NormalizeLE(this string input, string to = "\n") => Regex.Replace(input, @"\r\n|\n\r|\n|\r", to);
         public static bool Contains(this string input, string str, int maxcount) => Regex.Matches(input, str).Count <= maxcount;
         public static bool Contains(this string input, char c, int maxcount) => input.Where(cc => c == cc).Count() <= maxcount;
+
+        public static string Between(this string str, string FirstString, string LastString, BetweenMethod method = BetweenMethod.FirstFirst)
+        {
+            //Console.WriteLine("BTW: -" + str + "- " + FirstString + " " + LastString);
+            return method switch
+            {
+                BetweenMethod.FirstFirst => str[(str.IndexOf(FirstString) + FirstString.Length)..str.IndexOf(LastString)],
+                BetweenMethod.FirstLast => str[(str.IndexOf(FirstString) + FirstString.Length)..str.LastIndexOf(LastString)],
+                BetweenMethod.LastLast => str[(str.LastIndexOf(FirstString) + FirstString.Length)..str.LastIndexOf(LastString)],
+                _ => throw new Exception(str),
+            };
+        }
+            
+        public static string[] Betweens(this string str, string FirstString, string LastString)
+        {
+            List<string> toret = new List<string>();
+            while (true)
+            {
+                if (!str.Contains(FirstString) || !str.Contains(LastString) || str.IndexOf(FirstString) >= str.IndexOf(LastString)) break; 
+
+
+
+                string betw = str.Between(FirstString, LastString);
+                toret.Add(betw); //add
+                //if (Regex.Matches(str, FirstString + betw + LastString).Count == 0) break;
+
+                //Console.WriteLine("LOOP: -" + str + "- " + FirstString + " " + LastString + " " + Regex.Matches(str, FirstString + betw + LastString).Count);
+                
+                str = str.ReplaceFirst(FirstString + betw + LastString, string.Empty); //remove
+                
+            }
+            return toret.ToArray();
+        }
+        public static string ReplaceFirst(this string str, string oldStr, string newString)
+        {
+            int pos = str.IndexOf(oldStr);
+            if (pos < 0) return str;
+            return str[..pos] + newString + str[(pos + oldStr.Length)..];
+        }
+
+    }
+    public enum BetweenMethod
+    {
+        FirstFirst,
+        FirstLast,
+        LastLast,
     }
 }

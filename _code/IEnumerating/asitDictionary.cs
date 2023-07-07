@@ -116,7 +116,7 @@ namespace AsitLib.Collections
         public T this[int index] { get; set; }
     }
     /// <summary>
-    /// Provides a way to manage a set dictiory with advanced add- get- methods and segmentation support. See also <see cref="ArrayReferenceEnumerator{TIn, TOut}"/>.
+    /// Provides a way to manage a set dictiory with advanced add- get- methods and segmentation support.
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> that gets stored.</typeparam>
     public class AsitDictionary<T> : IAsitDictionary<T>

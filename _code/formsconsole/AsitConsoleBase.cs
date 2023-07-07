@@ -14,7 +14,7 @@ using AsitLib;
 namespace AsitLib.FormConsole
 {
     /// <summary>
-    /// A class to help with converting <see cref="FConsole"/> Applications to a <see cref="Form"/> enviorment.
+    /// A class to help with converting <see cref="Console"/> Applications to a <see cref="Form"/> enviorment.
     /// </summary>
     /// <typeparam name="Tbase">A type that implements TextBoxBase.</typeparam>
     public class AsitConsole<Tbase> : IDisposable where Tbase : TextBoxBase
@@ -70,6 +70,7 @@ namespace AsitLib.FormConsole
         /// <summary>
         /// Gets a value indicating if the CAPSLOCK toggle is turned on or off.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Mirroring default behavior.")]
         public bool CapsLock => Console.CapsLock;
         /// <summary>
         /// Background color of the AsitConsole. (<see cref="ConsoleColor"/>)
@@ -90,6 +91,7 @@ namespace AsitLib.FormConsole
         /// <summary>
         /// Gets a value indicating if the NUMLOCK toggle is turned on or off.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Mirroring default behavior.")]
         public bool NumberLock => Console.NumberLock;
         /// <summary>
         /// Gets a value indicating if the cursor is visible.
@@ -380,6 +382,7 @@ namespace AsitLib.FormConsole
         /// </summary>
         /// <param name="frequency">Frequency of the beep.</param>
         /// <param name="duration">Duration of the beep.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Mirroring default behavior.")]
         public void Beep(int frequency, int duration) => Console.Beep(frequency, duration);
         /// <summary>
         /// Occurs when the Control modifier key (Ctrl) and either the C console key (C) or the Break key are pressed simultaneously (Ctrl+C or Ctrl+Break).

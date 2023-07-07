@@ -62,6 +62,7 @@ namespace AsitLib
         //public static byte[] ToByteArray(this string str) => str.ToCharArray().Select(c => (byte)c).ToArray();
         public static byte[] ToByteArray(this string str) => Encoding.UTF8.GetBytes(str);
         public static string FromByteToString(this byte[] by) => string.Join("", by.Select(b => (char)b).ToArray());
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Mirroring default behavior.")]
         public static void CreateRegistryKeys(string fileExtension, string master, string desc, string imageIcoPath)
         {
             if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
@@ -225,7 +226,7 @@ namespace AsitLib
             double rr = r, gg = g, bb = b, delta = double.MaxValue;
             foreach (ConsoleColor? cc in Enum.GetValues(typeof(ConsoleColor)))
             {
-                string? n = Enum.GetName(typeof(ConsoleColor), cc ?? throw new ArgumentNullException("Consolecolornull"));
+                string n = Enum.GetName(typeof(ConsoleColor), cc ?? throw new ArgumentNullException("Consolecolornull"))!;
                 Color c = System.Drawing.Color.FromName(n == "DarkYellow" ? "Orange" : n); // bug fix
                 double t = System.Math.Pow(c.R - rr, 2.0) + System.Math.Pow(c.G - gg, 2.0) + System.Math.Pow(c.B - bb, 2.0);
                 if (t == 0.0) return cc.Value;
@@ -303,7 +304,7 @@ namespace AsitLib
                 pos = m?.Index ?? default(int) + (m?.Length ?? default);
                 res.Append((char)Convert.ToInt32((m ?? throw new Exception("Invalid match.")).Groups[1].ToString(), 16));
             }
-            res.Append(src.Substring(pos));
+            res.Append(src[pos..]);
             return res.ToString();
         }
         public static Form? GetParentForm(Control parent)
@@ -378,7 +379,7 @@ namespace AsitLib
                     int id = 0, total = 0;
                     while ((id = text.IndexOf(delimiter, id)) >= 0)
                     {
-                        var line = text.Substring(total, id - total);
+                        var line = text[total..id];
                         id += delimiter.Length;
                         if (options != StringSplitOptions.RemoveEmptyEntries || line != string.Empty)
                             yield return line;

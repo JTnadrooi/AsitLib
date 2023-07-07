@@ -61,7 +61,7 @@ namespace AsitLib.SpellScript
         public void SetAtMemory(SpellMemoryAddress address, int index, object value)
             => GetMemory(address)[index] = value;
         public void Next(string command) => Next(new SpellCommand(command, linemem, funcmem));
-        public void Next(string command, IUniManipulator manipulator, object? manipulatorArgs) 
+        public void Next(string command, IUniManipulator<string, string> manipulator, string? manipulatorArgs) 
             => Next(new SpellCommand(command, manipulator, manipulatorArgs, linemem, funcmem));
         public void Next(SpellCommand command) 
         {

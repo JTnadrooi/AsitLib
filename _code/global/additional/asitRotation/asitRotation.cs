@@ -38,38 +38,38 @@ namespace AsitLib
         public bool Equals([AllowNull] AsitRotationF other)
             => other != null && rotation == other.rotation;
         double GetDoubleValue() => rotation;
-        byte IConvertible.ToByte(IFormatProvider provider)
+        byte IConvertible.ToByte(IFormatProvider? provider)
             => Convert.ToByte(GetDoubleValue());
-        char IConvertible.ToChar(IFormatProvider provider)
+        char IConvertible.ToChar(IFormatProvider? provider)
             => Convert.ToChar(GetDoubleValue());
-        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        DateTime IConvertible.ToDateTime(IFormatProvider? provider)
             => Convert.ToDateTime(GetDoubleValue());
-        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        decimal IConvertible.ToDecimal(IFormatProvider? provider)
            => Convert.ToDecimal(GetDoubleValue());
-        double IConvertible.ToDouble(IFormatProvider provider)
+        double IConvertible.ToDouble(IFormatProvider?    provider)
             => GetDoubleValue();
-        short IConvertible.ToInt16(IFormatProvider provider)
+        short IConvertible.ToInt16(IFormatProvider? provider)
             => Convert.ToInt16(GetDoubleValue());
-        int IConvertible.ToInt32(IFormatProvider provider)
+        int IConvertible.ToInt32(IFormatProvider? provider)
             => Convert.ToInt32(GetDoubleValue());
-        long IConvertible.ToInt64(IFormatProvider provider)
+        long IConvertible.ToInt64(IFormatProvider? provider)
             => Convert.ToInt64(GetDoubleValue());
-        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        sbyte IConvertible.ToSByte(IFormatProvider? provider)
             => Convert.ToSByte(GetDoubleValue());
-        float IConvertible.ToSingle(IFormatProvider provider)
+        float IConvertible.ToSingle(IFormatProvider? provider)
             => Convert.ToSingle(GetDoubleValue());
-        string IConvertible.ToString(IFormatProvider provider) => "deg:{" + Degrees + "} rad:{" + Radiants + "}";
-        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        string IConvertible.ToString(IFormatProvider? provider) => "deg:{" + Degrees + "} rad:{" + Radiants + "}";
+        object IConvertible.ToType(Type conversionType, IFormatProvider? provider)
             => Convert.ChangeType(GetDoubleValue(), conversionType);
-        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        ushort IConvertible.ToUInt16(IFormatProvider? provider)
             => Convert.ToUInt16(GetDoubleValue());
-        uint IConvertible.ToUInt32(IFormatProvider provider)
+        uint IConvertible.ToUInt32(IFormatProvider? provider)
             => Convert.ToUInt32(GetDoubleValue());
-        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        ulong IConvertible.ToUInt64(IFormatProvider? provider)
             => Convert.ToUInt64(GetDoubleValue());
         public TypeCode GetTypeCode()
             => TypeCode.Object;
-        public bool ToBoolean(IFormatProvider provider)
+        public bool ToBoolean(IFormatProvider? provider)
             => rotation <= 0;
     }
 }
