@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static AsitLib.SpellScript.SSpell;
+using static AsitLib.SpellScript.SpellUtils;
 #nullable enable
 
 namespace AsitLib.SpellScript
@@ -44,7 +44,7 @@ namespace AsitLib.SpellScript
         }
         /// <summary>
         /// Create a new <see cref="MemoryPointer"/> from a boxed <see cref="object"/>. The object must be of <see cref="MemoryPointer"/> type.<br/>
-        /// <i>Seealso: <see cref="SSpell.SpellCast(string)"/></i>
+        /// <i>Seealso: <see cref="SpellUtils.SpellCast(string)"/></i>
         /// </summary>
         /// <param name="boxedpointer">A boxed object of <see cref="MemoryPointer"/> type to extract the <see cref="Adress"/> from.</param>
         /// <exception cref="InvalidCastException"></exception>

@@ -14,6 +14,8 @@ namespace AsitLib.SpellScript
     /// </summary>
     public class SpellStream : ISpellExecutor
     {
+        public const string AllNamespace = "`";
+
         private object[]? stackmem;
         private object[]? funcmem;
         private object[]? linemem;
@@ -60,20 +62,23 @@ namespace AsitLib.SpellScript
         }
         public void SetAtMemory(SpellMemoryAddress address, int index, object value)
             => GetMemory(address)[index] = value;
-        public void Next(string command) => Next(new SpellCommand(command, linemem, funcmem));
-        public void Next(string command, IUniManipulator<string, string> manipulator, string? manipulatorArgs) 
+        public int Next(string command) => Next(new SpellCommand(command, lineMemory: linemem, funcMemory: funcmem));
+        public int Next(string command, IUniManipulator<string, string> manipulator, string? manipulatorArgs) 
             => Next(new SpellCommand(command, manipulator, manipulatorArgs, linemem, funcmem));
-        public void Next(SpellCommand command) 
+        public int Next(SpellCommand command) 
         {
+            int executed = 0;
             foreach (ISpellInterpeter interpeter in interpeters)
             {
-                if (interpeter.Namespace == command.Namespace)
+                if (interpeter.Namespace == command.Namespace || interpeter.Namespace == AllNamespace || command.Namespace == AllNamespace)
                 {
-                    SpellReturnArgs returnArgs = interpeter.Run(new SpellRunArgs(command, this));
+                    ReturnArgs returnArgs = interpeter.Run(new SpellRunArgs(command, this));
                     if (returnArgs.HasReturned && command.ShouldReturnValue) SSpellMemory.ToMemory(returnArgs.ReturnValue!, command.OutPointer, linemem);
+                    if(returnArgs.HasExecuted) executed++;
                 }
                 //else if (current.Namespace == null) interpeter.Run(current, linemem);
             }
+            return executed;
         }
         public IReadOnlyCollection<object> GetReadOnlyMemory(SpellMemoryAddress address)
             => Array.AsReadOnly(GetMemory(address));

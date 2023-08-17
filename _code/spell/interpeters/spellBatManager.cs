@@ -16,12 +16,12 @@ namespace AsitLib.SpellScript
     {
         public string? Namespace => "bat";
 
-        public SpellReturnArgs Run([DisallowNull] SpellRunArgs args)
+        public ReturnArgs Run([DisallowNull] SpellRunArgs args)
         {
             switch (args.Command.Name)
             {
                 case "cmd":
-                    if (!SSpell.Debug.ValidateArgs<string>(args, true))
+                    if (!SpellUtils.Debug.ValidateArgs<string>(args, true))
                         throw new SpellScriptException("Invalid command composition: " + args);
                     else
                     {
@@ -38,7 +38,7 @@ namespace AsitLib.SpellScript
                         process.Start();
                         process.WaitForExit();
                         output.BaseStream.Position = 0;
-                        return SpellReturnArgs.GetFromObject(output.ReadToEnd());
+                        return ReturnArgs.GetFromObject(output.ReadToEnd());
                     }
                 //case "scriptstart":
                 //    if (!SpellUtils.Debug.ValidateArgs<string>(args, true))

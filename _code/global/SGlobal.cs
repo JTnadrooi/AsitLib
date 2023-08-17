@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using AsitLib;
+using System.IO;
+using AsitLib.SpellScript;
 #nullable enable
 
 namespace AsitLib
 {
-    public static class AsitLibStatic
+    public enum CastMethod
     {
+        CS,
+        SpellScript,
+    }
+    public static class AsitGlobal
+    {
+        
         /// <summary>
         /// basicaly same as <see cref="Enumerable.Zip{TFirst, TSecond}(IEnumerable{TFirst}, IEnumerable{TSecond})"/>.. needs some work.
         /// </summary>
@@ -60,6 +68,50 @@ namespace AsitLib
             return ret;
 
         }
+        /// <summary>
+        /// Cast a string to a designated <see cref="object"/>.
+        /// </summary>
+        /// <param name="input">Input <see cref="string"/>.</param>
+        /// <returns>The <paramref name="input"/> casted to a designated <see cref="object"/> via set.</returns>
+        /// <exception cref="InvalidCastException"></exception>
+        public static object Cast(string input, CastMethod castMethod)
+        {
+            switch (castMethod)
+            {
+                case CastMethod.CS:
+                    if (input.StartsWith("\"") && input.EndsWith("\"")) return ProccesEscapes(input[1..^1], DefaultEscapes);
+                    else if (Used.SafeNullIntParse(input) != null) return int.Parse(input);
+                    else if (Used.SafeNullBoolParse(input) != null) return Used.SafeNullBoolParse(input)!;
+                    else throw new InvalidCastException("invalid cast: <" + input + ">");
+                case CastMethod.SpellScript:
+                    if (input.StartsWith("\"") && input.EndsWith("\"")) return ProccesEscapes(input[1..^1], DefaultEscapes);
+                    else if (Used.SafeNullIntParse(input) != null) return int.Parse(input);
+                    else if (Used.SafeNullBoolParse(input) != null) return Used.SafeNullBoolParse(input)!;
+                    else if (input.All(c => c == '@') || input.All(c => c == '*') || input.TrimStart('*').All(c => char.IsDigit(c)) || input.TrimStart('@').All(c => char.IsDigit(c))) return new MemoryPointer(input);
+                    else throw new InvalidCastException("invalid cast: <" + input + ">");
+                default: throw new InvalidCastException("invalid castmethod: <" + castMethod.ToString() + ">");
+            }
+        }
+        public static string ProccesEscapes(string input, params KeyValuePair<string, string>[] escapes)
+            => ProccesEscapes(input, new Dictionary<string, string>(escapes));
+        public static string ProccesEscapes(string input, string escape, string replaceWith)
+            => ProccesEscapes(input, new KeyValuePair<string, string>(escape, replaceWith));
+        public static string ProccesEscapes(string input, KeyValuePair<string, string> escape)
+            => ProccesEscapes(input, new KeyValuePair<string, string>[] { escape, });
+        public static string ProccesEscapes(string input, Dictionary<string, string> escapes)
+        {
+            escapes.ToList().ForEach(kvp => input = input.Replace(kvp.Key, kvp.Value));
+            return input;
+        }
+        public static Dictionary<string, string> DefaultEscapes
+            => new Dictionary<string, string>(new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>(@"\s", " "),
+                    new KeyValuePair<string, string>(@"\n", "\n"),
+                    new KeyValuePair<string, string>(@"\t", "\t"),
+                    new KeyValuePair<string, string>(@"\dq", "\""),
+                    new KeyValuePair<string, string>(@"\q", "\'"),
+                });
         /// <summary>
         /// Get the first index where the set conditions are met. If none are found a <see cref="Exception"/> is thrown.
         /// </summary>
@@ -131,6 +183,34 @@ namespace AsitLib
                 output = default!;
                 return false;
             }
+        }
+        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range) // needs optimizing 
+        {
+            return values.ToArray()[range];
+        }
+        /// <summary>
+        /// Determines a text file's encoding by analyzing its byte order mark (BOM).
+        /// Defaults to ASCII when detection of the text file's endianness fails.
+        /// </summary>
+        /// <param name="filename">The text file to analyze.</param>
+        /// <returns>The detected encoding.</returns>
+        public static Encoding GetEncoding(string filename) //stack overflow (site)
+        {
+            // Read the BOM
+            var bom = new byte[4];
+            using (var file = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                file.Read(bom, 0, 4);
+
+            // Analyze the BOM
+            #pragma warning disable SYSLIB0001 // Type or member is obsolete
+            if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76) return Encoding.UTF7;
+            #pragma warning restore SYSLIB0001 // Type or member is obsolete
+            if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf) return Encoding.UTF8;
+            if (bom[0] == 0xff && bom[1] == 0xfe && bom[2] == 0 && bom[3] == 0) return Encoding.UTF32; //UTF-32LE
+            if (bom[0] == 0xff && bom[1] == 0xfe) return Encoding.Unicode; //UTF-16LE
+            if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
+            if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return new UTF32Encoding(true, true);  //UTF-32BE
+            return Encoding.ASCII;
         }
     }
 }

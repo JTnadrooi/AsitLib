@@ -5,6 +5,7 @@ using System.Linq;
 using AsitLib;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections;
+using System.IO;
 #nullable enable
 
 namespace AsitLib
@@ -53,4 +54,29 @@ namespace AsitLib
             => Source.Maniputate(input, arg);
         public void Dispose() { }
     }
+    //public sealed class TextWriterManipulator : TextWriter, IUniManipulator<char, string>
+    //{
+    //    public override Encoding Encoding => throw new NotImplementedException();
+
+    //    public string? Arg { get; }
+    //    public IUniManipulator<char, string> Source { get; }
+
+    //    public TextWriterManipulator(IUniManipulator<char, string> source, string? arg = null)
+    //    {
+    //        Source = source;
+    //        Arg = arg;
+    //    }
+    //    [return: NotNull]
+    //    public string Maniputate(char input, string? arg)
+    //        => Source.Maniputate(input, arg);
+    //    [return: NotNull]
+    //    public object Maniputate(object? input, string? arg)
+    //        => Source.Maniputate(input, arg);
+    //    public override void Write(char value)
+    //    {
+    //        if (Source.Maniputate(value, Arg).Length == 1) Write(Source.Maniputate(value, Arg)[0]);
+    //        else Write(Source.Maniputate(value, Arg));
+    //        base.Write(value);
+    //    }
+    //}
 }

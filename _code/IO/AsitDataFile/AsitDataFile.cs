@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 
@@ -43,7 +44,7 @@ namespace AsitLib.IO
     /// <summary>
     /// Fast and optimized way of storing <see cref="Array"/> objects.
     /// </summary>
-    public class AsitStreamFile : IEnumerable<string>, IDisposable, IAsitFile
+    public class AsitStreamFile : IEnumerable<string>, IDisposable
     {
         /// <summary>
         /// Path of the document with the stored <see cref="Array"/>.
@@ -57,7 +58,7 @@ namespace AsitLib.IO
         /// <summary>
         /// Gets the lenght of the stored <see cref="Array"/> without buffering.
         /// </summary>
-        public int DataCount { get; internal set; }
+        public int? DataCount { get; internal set; }
         /// <summary>
         /// Gets if this object is initialized. ( -\updated) 
         /// </summary>
@@ -82,16 +83,6 @@ namespace AsitLib.IO
         /// Gets if this <see cref="AsitStreamFile"/> has been <see langword="closed"/>.
         /// </summary>
         public bool IsClosed { get; internal set; }
-
-        public Encoding Encoding => Encoding.ASCII;
-
-        public string FileType => "asitStreamFile";
-
-        public int Version => 2;
-
-        public string CoreExtension => ".asits";
-
-        public object[] Other { get; internal set; }
 
         public FileInfo FileInfo => new FileInfo(this.Path);
 
@@ -121,6 +112,18 @@ namespace AsitLib.IO
         public AsitStreamFile(FileInfo file)
         {
             //do checks
+            Path = file.FullName;
+            Initialized = true;
+            ReadPosition = 0;
+            IsClosed = false;
+            _stream = new FileStream(file.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+
+            BufferLength = Convert.ToInt32(new string((char)(byte)_stream.ReadByte(), 1));
+            DataCount = null;
+            byte[] temp = new byte[BufferLength];
+            _stream.Read(temp, 0, temp.Length);
+            Buffer = Convert.ToInt32(Encoding.ASCII.GetString(temp));
+            SetPosition(0);
         }
         public AsitStreamFile(FileInfo file, int bufferSize, int arrayLenght)
         {
@@ -134,38 +137,6 @@ namespace AsitLib.IO
             IsClosed = false;
             _stream = new FileStream(file.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         }
-        ///// <summary>
-        ///// Point to a file that effectively holds an <see cref="string"/> <see cref="Array"/>.
-        ///// </summary>
-        ///// <param name="strArr"><see cref="Array"/> of <see cref="string"/> objects.</param>
-        ///// <param name="path">Path to the file that gets created.</param>
-        ///// <param name="buffer">Lenght of the <see cref="Buffer"/>. <strong>Can't be shorter than the shortest value in the given <see cref="Array"/>.</strong></param>
-        //public AsitDataFile(IEnumerable<string> strArr, string path, int buffer)
-        //{
-        //    if (buffer == 0) buffer = strArr.Min(s => s.Length);
-        //    Console.WriteLine("bb");
-
-
-
-        //    Setup(new FileInfo(path));
-        //}
-        //private void Setup(FileInfo file)
-        //{
-        //    ReadPosition = 0;
-        //    string path = file.FullName;
-        //    if (!File.Exists(path)) throw new ArgumentException("Path doesn't exist.");
-        //    Path = path;
-        //    _stream = File.Open(path, FileMode.Open);
-        //    for (int i = 0; i < 1 + BufferLength; i++) if (((char)_stream.ReadByte()).ToString().SafeIntParse() == -1)
-        //            throw new ArgumentException("Invalid Data File");
-        //    _stream.Position = 0;
-        //    BufferLength = int.Parse(Encoding.ASCII.GetString(new byte[] { (byte)_stream.ReadByte() }));
-        //    string bufferstr = string.Empty;
-        //    for (int i = 0; i < BufferLength; i++) bufferstr += (char)_stream.ReadByte();
-        //    Buffer = int.Parse(bufferstr);
-        //    _stream.Position = 0;
-        //    Initialized = true;
-        //}
         /// <summary>
         /// Dispose the containing <see cref="FileStream"/>. (<see cref="Stream"/>
         /// </summary>
@@ -175,6 +146,10 @@ namespace AsitLib.IO
             _stream.Dispose();
             GC.SuppressFinalize(this);
         }
+        public object GetData(Index index, CastMethod method = CastMethod.CS)
+        {
+            return AsitGlobal.Cast(GetData(index), method);
+        }
         /// <summary>
         /// Gets <see cref="string"/> at the specified <paramref name="index"/>
         /// </summary>
@@ -183,19 +158,19 @@ namespace AsitLib.IO
         /// <exception cref="ArgumentException"></exception>
         public string GetData(Index index)
         {
+            if (index.IsFromEnd && DataCount == null) throw new InvalidOperationException("datacount unknown");
+
             //Set postion.
             SetPosition(0);
-
-            //get index
-            uint iIndex = (uint)index.Value;
 
             //initialize buffer and reader.
             byte[] bufferData = new byte[Buffer];
             using BinaryReader reader = new BinaryReader(_stream, Encoding.ASCII, true);
 
             //why
-            if (index.IsFromEnd) reader.BaseStream.Position = 1 + BufferLength + (DataCount * (Buffer + 1)) - (index.Value * (Buffer + 1));
-            else reader.BaseStream.Position = 1 + BufferLength + iIndex * Buffer + iIndex;
+            if (index.IsFromEnd) SetPosition(DataCount!.Value - index.Value);
+            else SetPosition(index.Value);
+
             //1+
 
 
@@ -203,9 +178,9 @@ namespace AsitLib.IO
             reader.Read(bufferData, 0, bufferData.Length);
 
             //
-            string toReturn = Encoding.ASCII.GetString(bufferData).Replace(AsitDataUtils.Filler.ToString(), "");
-            _stream.Position = 0;
-            
+            string toReturn = Encoding.ASCII.GetString(bufferData).Replace(AsitDataUtils.Filler.ToString(), string.Empty);
+            SetPosition(0);
+
             //when does this even trigger????
             if (toReturn == string.Empty) throw new ArgumentException("Invalid Index: " + index);
             else return toReturn;
@@ -217,30 +192,35 @@ namespace AsitLib.IO
         /// <returns>The <see cref="Array"/> of <see cref="string"/> objects in the specified <see cref="Range"/>.</returns>
         public string[] GetData(Range range)
         {
+            if (DataCount == null) throw new InvalidOperationException("datacount unknown");
             SetPosition(range.Start.Value);
             List<string> toreturn = new List<string>();
-            int l = range.GetOffsetAndLength(this.DataCount).Length;
+            int l = range.GetOffsetAndLength(DataCount.Value).Length;
             for (int i = 0; i < l; i++)
             {
-                string ths = Next();
+                string ths = Next()!;
                 toreturn.Add(ths);
             }
             return toreturn.ToArray();
+        }
+        public IReadOnlyCollection<object> GetFull(CastMethod method)
+        {
+            return GetFull().Select(s => AsitGlobal.Cast(s, method)).ToList().AsReadOnly();
         }
         /// <summary>
         /// Get this <see cref="AsitStreamFile"/> as a <see cref="IEnumerable"/>.
         /// </summary>
         /// <returns>This <see cref="AsitStreamFile"/> as a <see cref="IEnumerable"/>.</returns>
-        public IEnumerable<string> GetFull()
+        public IReadOnlyCollection<string> GetFull()
         {
-            int mempos = this.ReadPosition;
+            int mempos = ReadPosition;
             SetPosition(0);
             List<string> toReturn = new List<string>();
-            byte[] bufferData = new byte[Buffer + 1];
-            for (; _stream.Read(bufferData, 0, bufferData.Length) > 0;)
-                toReturn.Add(Encoding.ASCII.GetString(bufferData[..Buffer]));
+            byte[] bufferData = new byte[Buffer];
+            while (_stream.Read(bufferData, 0, bufferData.Length) > 0)
+                toReturn.Add(Encoding.ASCII.GetString(bufferData).Replace(new string(AsitDataUtils.Filler, 1), string.Empty));
             SetPosition(mempos);
-            return toReturn;
+            return toReturn.AsReadOnly();
         }
         /// <summary>
         /// Append a <see cref="string"/> to this <see cref="AsitStreamFile"/>. <br/>
@@ -312,7 +292,7 @@ namespace AsitLib.IO
         public void SetPosition(int position)
         {
             if(position < 0 || position > DataCount) throw new ArgumentOutOfRangeException("Invalid Position");
-            _stream.Position = position * (Buffer + 1) + BufferLength + 1;
+            _stream.Position = (position * Buffer) + BufferLength + 1;
             ReadPosition = position;
         }
         /// <summary>
@@ -320,7 +300,7 @@ namespace AsitLib.IO
         /// Returns <see langword="null"/> when end of file has been reached.
         /// </summary>
         /// <returns>Read <see cref="string"/>.</returns>
-        public string Next()
+        public string? Next()
         {
             string toreturn = string.Empty;
             if (Stream.Position <= BufferLength + 1) this.SetPosition(0);
@@ -369,9 +349,9 @@ namespace AsitLib.IO
             if (buffer <= 0) buffer = getData.buffer;
             if (buffer > 999999999) throw new ArgumentException("To Long Buffer, may be autogenerated.");
 
-            Console.WriteLine(buffer);
-            Console.WriteLine(buffer.ToString().Length.ToString());
-            Console.WriteLine(getData.Count);
+            //Console.WriteLine(buffer);
+            //Console.WriteLine(buffer.ToString().Length.ToString());
+            //Console.WriteLine(getData.Count);
             //Create file.
             using (FileStream fs = File.Create(path))
             {

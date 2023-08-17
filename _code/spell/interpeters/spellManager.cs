@@ -17,7 +17,7 @@ namespace AsitLib.SpellScript
     public sealed class SpellMemoryManager : ISpellInterpeter
     {
         public string? Namespace => "&";
-        public SpellReturnArgs Run([DisallowNull] SpellRunArgs args)
+        public ReturnArgs Run([DisallowNull] SpellRunArgs args)
         {
             ref object[] memory = ref args.Executor!.GetMemory(args.Command.Name.Split('_')[0] switch
             {
@@ -29,28 +29,28 @@ namespace AsitLib.SpellScript
             switch (args.Command.Name.Split('_')[1])
             {
                 case "set":
-                    if (!SSpell.Debug.ValidateArgs<int, object>(args, true))
+                    if (!SpellUtils.Debug.ValidateArgs<int, object>(args, true))
                         throw new SpellScriptException("Invalid command composition.");
                     memory[(int)args.Command.Arguments![0]] = args.Command.Arguments[1];
-                    return SpellReturnArgs.NullSucces;
+                    return ReturnArgs.NullSucces;
                 case "get":
-                    if (!SSpell.Debug.ValidateArgs<int>(args, true))
+                    if (!SpellUtils.Debug.ValidateArgs<int>(args, true))
                         throw new SpellScriptException("Invalid command composition.");
-                    return SpellReturnArgs.GetFromObject(memory[(int)args.Command.Arguments![0]]);
+                    return ReturnArgs.GetFromObject(memory[(int)args.Command.Arguments![0]]);
                 case "getsize":
-                    if (!SSpell.Debug.ValidateArgs(args, true))
+                    if (!SpellUtils.Debug.ValidateArgs(args, true))
                         throw new SpellScriptException("Invalid command composition.");
-                    return SpellReturnArgs.GetFromObject(memory.Length);
+                    return ReturnArgs.GetFromObject(memory.Length);
                 //case "setsize":
                 //    if (!SSpell.Debug.ValidateArgs<int>(args, true))
                 //        throw new SpellScriptException("Invalid command argument count.");
                 //    memory = new object[(int)args.Command.Arguments![0]];
                 //    return SpellReturnArgs.NullSucces;
                 case "clear":
-                    if (!SSpell.Debug.ValidateArgs(args, true))
+                    if (!SpellUtils.Debug.ValidateArgs(args, true))
                         throw new SpellScriptException("Invalid command composition.");
                     memory = new object[memory.Length];
-                    return SpellReturnArgs.NullSucces;
+                    return ReturnArgs.NullSucces;
                 default: throw new SpellScriptException(args.Command);
             }
             

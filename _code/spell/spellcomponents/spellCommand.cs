@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static AsitLib.SpellScript.SSpell;
+using static AsitLib.SpellScript.SpellUtils;
 #nullable enable
 
 namespace AsitLib.SpellScript
@@ -43,48 +43,21 @@ namespace AsitLib.SpellScript
         /// </summary>
         public readonly string? Namespace => Value.Contains("::") && Value.Split("::", StringSplitOptions.RemoveEmptyEntries).Length == 2
              ? Value.Split("::", StringSplitOptions.RemoveEmptyEntries)[0] : null;
-        /// <summary>
-        /// Construct a new <see cref="SpellCommand"/> with set values and allow commands with arguments.
-        /// </summary>
-        /// <param name="value">String used to create a <see cref="SpellCommand"/>.</param>
-        /// <param name="lineMemory">LineMemory used to extract pointers.</param>
-        /// <param name="funcMemory">FucntionMemory used to extract pointers.</param>
-        public SpellCommand(string value, object[]? lineMemory, object[]? funcMemory) : this(value, null, null, lineMemory, funcMemory) { }
-        public SpellCommand(string value, IUniManipulator<string, string>? manipulator, string? manipulatorArgs, object[]? lineMemory, object[]? funcMemory)
+        public SpellCommand(string value, IUniManipulator<string, string>? manipulator = null, string? manipulatorArgs = null, object[]? lineMemory = null, object[]? funcMemory = null)
         {
             // if method returns null all hell breaks loose.
-            Value = manipulator?.Maniputate(value, manipulatorArgs) == null ? value : manipulator.Maniputate(value, manipulatorArgs); 
+            Value = manipulator?.Maniputate(value, manipulatorArgs) ?? value;
 
             //One line magic! (Scrapped because waaay to unreadable for the quick reader)
-            //Arguments = Value.Contains("()") ? null : (Value.Between("(", ")").Contains(',') ? ProccesPointers(Value.Between("(", ")")
-            //    .Split(",", StringSplitOptions.RemoveEmptyEntries)
-            //    .Select(s => SpellCast(s.Trim())), lineMemory, funcMemory) : new object[] { ProccesPointer(SpellCast(Value.Between("(", ")")), lineMemory, funcMemory) });
-            
-            if (Value.Contains("()")) Arguments = null;
-            else if (Value.Between("(", ")").Contains(',')) //poly arguments
+            if (Value.Contains("()")) Arguments = null; //none
+            else if (Value.Between("(", ")").Contains(',')) //poly
                 Arguments = SSpellMemory.ProccesPointers(Value.Between("(", ")")
                 .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => SpellCast(s.Trim())), lineMemory, funcMemory);
-            else Arguments = new object[] { SSpellMemory.ProccesPointer(SpellCast(Value.Between("(", ")")), lineMemory, funcMemory) };
+                .Select(s => AsitGlobal.Cast(s.Trim(), CastMethod.SpellScript)), lineMemory, funcMemory);
+            else Arguments = new object[] { SSpellMemory.ProccesPointer(AsitGlobal.Cast(Value.Between("(", ")"), CastMethod.SpellScript), lineMemory, funcMemory) }; //mono
         }
-        /// <summary>
-        /// Construct a new <see cref="SpellCommand"/> with set value.<br/>
-        /// <i>If any of the <see cref="Arguments"/> detected has a pointer, a <see cref="ArgumentException"/> is thrown.</i>
-        /// </summary>
-        /// <param name="value">String used to create a <see cref="SpellCommand"/>.</param>
-        public SpellCommand(string value) : this(value, Array.Empty<object>()) { }
-        /// <summary>
-        /// Construct a new <see cref="SpellCommand"/> with set values and allow commands with arguments.<br/>
-        /// <i>Function pointed aguments will throw a <see cref="SpellScriptException"/>!</i>
-        /// </summary>
-        /// <param name="value">String used to create a <see cref="SpellCommand"/>.</param>
-        /// <param name="lineMemory">LineMemory used to extract pointers.</param>
-        public SpellCommand(string value, object[]? lineMemory) : this(value, lineMemory, Array.Empty<object>()) { }
-        /// <summary>
-        /// A <see cref="SpellCommand"/> with all values set to their defaults.
-        /// </summary>
-        public static SpellCommand Empty => default;
-        public static explicit operator SpellCommand(string s) => new SpellCommand(s);
+        public SpellCommand(string? nameSpace, string name, string[]? arguments, object[]? lineMemory = null, object[]? funcMemory = null)
+            : this(GetFromComposition(nameSpace, name, arguments), (IUniManipulator<string, string>?)null, null, lineMemory, funcMemory) { }
         /// <summary>
         /// Returns the <see cref="Value"/> of this <see cref="SpellCommand"/>.
         /// </summary>
@@ -93,6 +66,15 @@ namespace AsitLib.SpellScript
         public readonly bool Validate()
         {
             return false;
+        }
+        /// <summary>
+        /// A <see cref="SpellCommand"/> with all values set to their defaults.
+        /// </summary>
+        public static SpellCommand Empty => default;
+        public static explicit operator SpellCommand(string s) => new SpellCommand(s);
+        public static string GetFromComposition(string? nameSpace, string name, string[]? arguments)
+        {
+            return nameSpace == null ? string.Empty : (nameSpace + "::") + name + "(" + (arguments ?? Array.Empty<string>()).ToJoinedString(", ") + ")";
         }
     }
 }

@@ -8,17 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AsitLib.SpellScript
 {
-    public static class SSpell
+    public static class SpellUtils
     {
-        public static Dictionary<string, string> DefaultSpellEscapes
-            => new Dictionary<string, string>(new KeyValuePair<string, string>[]
-                {
-                    new KeyValuePair<string, string>(@"\s", " "),
-                    new KeyValuePair<string, string>(@"\n", "\n"),
-                    new KeyValuePair<string, string>(@"\t", "\t"),
-                    new KeyValuePair<string, string>(@"\dq", "\""),
-                    new KeyValuePair<string, string>(@"\q", "\'"),
-                });
         public static string OrganizeTabsAndSpaces(string str)
         {
             string toret = str;
@@ -44,30 +35,18 @@ namespace AsitLib.SpellScript
             }
             return response.ToString();
         }
-        public static string ProccesEscapes(string input, params KeyValuePair<string, string>[] escapes)
-            => ProccesEscapes(input, new Dictionary<string, string>(escapes));
-        public static string ProccesEscapes(string input, string escape, string replaceWith) 
-            => ProccesEscapes(input, new KeyValuePair<string, string>(escape, replaceWith));
-        public static string ProccesEscapes(string input, KeyValuePair<string, string> escape)
-            => ProccesEscapes(input, new KeyValuePair<string, string>[] { escape, });
-        public static string ProccesEscapes(string input, Dictionary<string, string> escapes)
+        
+        public static bool CanSpellCast(string input)
         {
-            escapes.ToList().ForEach(kvp => input = input.Replace(kvp.Key, kvp.Value));
-            return input;
-        }
-        /// <summary>
-        /// Cast a string to a spellscipt designated <see cref="object"/>.
-        /// </summary>
-        /// <param name="input">Input <see cref="string"/>.</param>
-        /// <returns>A spellscipt designated <see cref="object"/>.</returns>
-        /// <exception cref="InvalidCastException"></exception>
-        public static object SpellCast(string input)
-        {
-            if (input.StartsWith("\"") && input.EndsWith("\"")) return ProccesEscapes(input[1..^1], DefaultSpellEscapes);
-            else if (Used.SafeNullIntParse(input) != null) return int.Parse(input);
-            else if (Used.SafeNullBoolParse(input) != null) return input == "false" || input == "False";
-            else if (input.All(c => c == '@') || input.All(c => c == '*') || input.TrimStart('*').All(c => char.IsDigit(c)) || input.TrimStart('@').All(c => char.IsDigit(c))) return new MemoryPointer(input);
-            else throw new InvalidCastException("invalid cast: <" + input + ">");
+            try
+            {
+                AsitGlobal.Cast(input, CastMethod.SpellScript);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         //public static object? Run(this ISpellInterpeter interpeter, SpellCommand cmd, object[]? linememory, SpellReader? parentReader)
         //{

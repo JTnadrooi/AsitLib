@@ -10,12 +10,17 @@ using System.Threading.Tasks;
 
 namespace AsitLib.IO
 {
-    public sealed partial class AsitDocumentFile : IRepresentable, IEquatable<AsitDocumentFile>, IAsitFile, IAsitDocument
+    public sealed partial class AsitDocumentFile : IRepresentable, IEquatable<AsitDocumentFile>, IAsitDocument
     {
         private readonly AsitDocument source;
         private readonly FileInfo fileinfo;
         private readonly Encoding encoding;
 
+        //public AsitDocumentFile(ITemplate template, TagCollection tags) 
+
+        public AsitDocumentFile(string path) : this(path, Encoding.UTF8) { }
+        public AsitDocumentFile(FileInfo file) : this(file, Encoding.UTF8) { }
+        public AsitDocumentFile(string path, Encoding encoding) : this(new FileInfo(path), encoding) { }
         public AsitDocumentFile(FileInfo file, Encoding encoding)
         {
             fileinfo = file;
@@ -24,12 +29,6 @@ namespace AsitLib.IO
         }
         public AsitDocument BaseDocument => source;
 
-        public Encoding Encoding => encoding;
-        public string FileType => "Asit-Formatted-Text-File";
-        public int Version => 2;
-        public string CoreExtension => ".aift"; //AsitFormatedText
-        public object[]? Other => null;
-        public FileInfo FileInfo => fileinfo;
         public string Content => source.Content;
         public Header Header => source.Header;
         public ReadOnlyCollection<Paragraph> Paragraphs => source.Paragraphs;
@@ -45,10 +44,6 @@ namespace AsitLib.IO
     }
     public sealed partial class AsitDocumentFile
     {
-        public static AsitDocumentFile GetFromPath(string path) => GetFromFileInfo(new FileInfo(path));
-        public static AsitDocumentFile GetFromPath(string path, Encoding encoding) => GetFromFileInfo(new FileInfo(path), encoding);
-
-        public static AsitDocumentFile GetFromFileInfo(FileInfo source) => GetFromFileInfo(source, Encoding.UTF8);
-        public static AsitDocumentFile GetFromFileInfo(FileInfo source, Encoding encoding) => new AsitDocumentFile(source, encoding);
+        //public static AsitFileData GetAsitFileData() => new AsitFileData(new Version(1,0), Encoding.UTF8, new AsitFileExtension(".aift"), "Asit-Formatted-Text-File");
     }
 }

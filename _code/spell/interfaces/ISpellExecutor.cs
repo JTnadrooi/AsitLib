@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using static AsitLib.SpellScript.SSpell;
+using static AsitLib.SpellScript.SpellUtils;
 #nullable enable
 
 namespace AsitLib.SpellScript

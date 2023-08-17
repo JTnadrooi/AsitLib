@@ -69,9 +69,20 @@ namespace AsitLib
             if (values == null) return "Null";
             return string.Join("", values);
         }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner)
+        {
+            if (values == null) return "Null";
+            return string.Join(joiner, values);
+        }
         public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner)
         {
             if (values == null) return "Null";
+            return string.Join(joiner, values);
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner, int lenght, int maxSafe = 50)
+        {
+            if (values == null) return "Null";
+            if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
             return string.Join(joiner, values);
         }
         public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner, int lenght, int maxSafe = 50)

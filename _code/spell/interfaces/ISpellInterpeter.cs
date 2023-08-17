@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static AsitLib.SpellScript.SSpell;
+using static AsitLib.SpellScript.SpellUtils;
 #nullable enable
 
 namespace AsitLib.SpellScript
@@ -24,7 +24,7 @@ namespace AsitLib.SpellScript
         /// <returns>The return value of the command corresponding to the given <see cref="SpellCommand"/>. 
         /// Should return <see langword="null"/> when the processed command doesn't return a value.</returns>
         [return: MaybeNull]
-        public SpellReturnArgs Run([DisallowNull] SpellRunArgs args);
+        public ReturnArgs Run([DisallowNull] SpellRunArgs args);
         /// <summary>
         /// Namepace of this <see cref="ISpellInterpeter"/>. 
         /// Return <see langword="null"/> to get all commands instead of only the ones that target this <see cref="Namespace"/>.

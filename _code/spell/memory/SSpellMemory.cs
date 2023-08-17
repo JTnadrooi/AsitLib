@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static AsitLib.SpellScript.SSpell;
+using static AsitLib.SpellScript.SpellUtils;
 #nullable enable
 
 namespace AsitLib.SpellScript

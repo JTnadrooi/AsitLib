@@ -15,7 +15,7 @@ namespace AsitLib.IO
         public string Content { get; }
         public string SourceContent => Header.ToString() + "\n" + Content;
 
-        private Paragraph upper;
+        private readonly Paragraph upper;
 
         public AsitDocument(string content)
         {
@@ -41,13 +41,5 @@ namespace AsitLib.IO
         public override int GetHashCode() => HashCode.Combine(Content.GetHashCode(), Header.GetHashCode());
 
         public void Dispose() { }
-    }
-    public sealed partial class AsitDocument
-    {
-        public static AsitDocumentFile GetFromPath(string path) => AsitDocumentFile.GetFromPath(path);
-        public static AsitDocumentFile GetFromPath(string path, Encoding encoding) => AsitDocumentFile.GetFromPath(path, encoding);
-
-        public static AsitDocumentFile GetFromFileInfo(FileInfo source) => AsitDocumentFile.GetFromFileInfo(source);
-        public static AsitDocumentFile GetFromFileInfo(FileInfo source, Encoding encoding) => AsitDocumentFile.GetFromFileInfo(source, encoding);
     }
 }

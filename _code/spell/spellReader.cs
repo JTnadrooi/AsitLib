@@ -104,7 +104,7 @@ namespace AsitLib.SpellScript
         /// </summary>
         public SpellReaderIndex Index { get => index; private set => index = value; }
         public SpellScript SpellScript { get; }
-        public SpellReturnArgs Run(Action<SpellBlockReturnArgs>? onBlockFinish = null, string entryPoint = "main", string? entryPointNamespace = null, object[]? arguments = null)
+        public ReturnArgs Run(Action<SpellBlockReturnArgs>? onBlockFinish = null, string entryPoint = "main", string? entryPointNamespace = null, object[]? arguments = null)
         {
             //cleaning input
             arguments = arguments?.Length == null || arguments?.Length == 0 ? null : arguments;
@@ -118,7 +118,7 @@ namespace AsitLib.SpellScript
             {
                 
                 if (funcmem == null) throw new SpellScriptMemoryException("Funcmem is null");
-                KeyValuePair<CatagoryParameterInput, object>[] keyValuePairs = AsitLibStatic.Merge(start.Arguments!, arguments!);
+                KeyValuePair<CatagoryParameterInput, object>[] keyValuePairs = AsitGlobal.Merge(start.Arguments!, arguments!);
                 int i = 0;
                 foreach(KeyValuePair<CatagoryParameterInput, object> pair in keyValuePairs)
                 {
@@ -131,7 +131,7 @@ namespace AsitLib.SpellScript
             while (true) 
             {
                 //check if finished.
-                if (Index.IsFinished) return SpellReturnArgs.NullSucces;
+                if (Index.IsFinished) return ReturnArgs.NullSucces;
 
                 //if new block, clear linemem.
                 if (Index.CmdIndex == 0) Clear(ref linemem);
@@ -148,22 +148,22 @@ namespace AsitLib.SpellScript
                     Console.WriteLine("Returning something:: " + current.Arguments.First());
                     
                     //It returns a object.
-                    if(SSpell.Debug.ValidateArgs<object>(new SpellRunArgs(current, this), true))
+                    if(SpellUtils.Debug.ValidateArgs<object>(new SpellRunArgs(current, this), true))
                     {
                         Console.WriteLine("Returning something. A");
                         if (start.ReturnType == null)
                             throw new SpellScriptException("Return command error. Invalid return type. : " + current);
                         if (current.Arguments![0].GetType().Name != start.ReturnType.Name)
                             throw new SpellScriptException("Return command error. Invalid return type. : " + current);
-                        return SpellReturnArgs.GetFromObject(current.Arguments[0]);
+                        return ReturnArgs.GetFromObject(current.Arguments[0]);
                     }
                     //It returns void.
-                    else if(SSpell.Debug.ValidateArgs(new SpellRunArgs(current, this), true))
+                    else if(SpellUtils.Debug.ValidateArgs(new SpellRunArgs(current, this), true))
                     {
                         Console.WriteLine("Returning something. B");
                         if (start.ReturnType != null)
                             throw new SpellScriptException("Return command error. Invalid return type. : " + current);
-                        return SpellReturnArgs.NullSucces;
+                        return ReturnArgs.NullSucces;
                     }
                     else throw new SpellScriptException("Return command error. : " + current);
                 }
@@ -181,7 +181,7 @@ namespace AsitLib.SpellScript
 
                         Console.WriteLine(start.Name + " reset: " + index);
 
-                        SpellReturnArgs returnArgs = Run(onBlockFinish, current.Name, null, current.Arguments);
+                        ReturnArgs returnArgs = Run(onBlockFinish, current.Name, null, current.Arguments);
                         if (returnArgs.HasReturned && current.ShouldReturnValue) SSpellMemory.ToMemory(returnArgs.ReturnValue!, current.OutPointer, linemem);
 
                         Console.WriteLine("casted out (" + returnArgs.ReturnValue!.ToString() + ") to" + current.OutPointer);
@@ -197,7 +197,7 @@ namespace AsitLib.SpellScript
                     {
                         if (interpeter.Namespace == current.Namespace)
                         {
-                            SpellReturnArgs returnArgs = interpeter.Run(new SpellRunArgs(current, this));
+                            ReturnArgs returnArgs = interpeter.Run(new SpellRunArgs(current, this));
                             if (returnArgs.HasReturned && current.ShouldReturnValue) SSpellMemory.ToMemory(returnArgs.ReturnValue!, current.OutPointer, linemem);
                         }
                         //else if (current.Namespace == null) interpeter.Run(current, linemem);
@@ -211,7 +211,7 @@ namespace AsitLib.SpellScript
 
         }
         
-        public async Task<SpellReturnArgs> RunAsync(Action<SpellBlockReturnArgs>? onBlockFinish = null, string entryPoint = "main", string? entryPointNamespace = null, params object[] arguments)
+        public async Task<ReturnArgs> RunAsync(Action<SpellBlockReturnArgs>? onBlockFinish = null, string entryPoint = "main", string? entryPointNamespace = null, params object[] arguments)
             => await Task.Run(() =>
             {
                 return Run(onBlockFinish, entryPoint, entryPointNamespace, arguments);
