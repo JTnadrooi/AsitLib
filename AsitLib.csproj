@@ -18,18 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="lib\**" />
-    <Compile Remove="_code\IO\**" />
-    <Compile Remove="_code\spell\**" />
-    <EmbeddedResource Remove="lib\**" />
-    <EmbeddedResource Remove="_code\IO\**" />
-    <EmbeddedResource Remove="_code\spell\**" />
-    <None Remove="lib\**" />
-    <None Remove="_code\IO\**" />
-    <None Remove="_code\spell\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="New Test File.txt" />
   </ItemGroup>
 
