@@ -19,8 +19,15 @@ namespace AsitLib
     /// <summary>
     /// Thanks stack! (Not for all)
     /// </summary>
-    public static class Used
+    public static class GeneralHelpers
     {
+        public static KeyValuePair<string, T>?[] ToKeyValuePair<T>(T[] source)
+        {
+            KeyValuePair<string, T>?[] toret = new KeyValuePair<string, T>?[source.Length];
+            for (int i = 0; i < source.Length; i++)
+                toret[i] = new KeyValuePair<string, T>(i.ToString(), source[i]);
+            return toret;
+        }
         public static int[] GetIndexes<T>(this IEnumerable<T> values, Func<T, bool> validator)
             => Enumerable.Range(0, values.Count()).Where(i => validator.Invoke(values.ToArray()[i])).ToArray();
             //values.Select(v => (v, Array.IndexOf(values.ToArray(), v))).Where(tup => validator.Invoke(tup.v)).Select(tup => tup.Item2).ToArray();

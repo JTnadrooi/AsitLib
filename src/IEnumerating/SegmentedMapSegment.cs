@@ -20,23 +20,23 @@ namespace AsitLib.Collections
     // P(add) => S(notify)
     // notify self to
     /// <summary>
-    /// A way to create a segment in a <see cref="AsitDictionary{T}"/>. This also supports adding and clearing in only this part of the contained <see cref="AsitDictionary{T}"/>.
+    /// A way to create a segment in a <see cref="SegmentedMap{T}"/>. This also supports adding and clearing in only this part of the contained <see cref="SegmentedMap{T}"/>.
     /// </summary>
-    /// <typeparam name="T">The <see cref="Type"/> the parent <see cref="AsitDictionary{T}"/> holds and enumerates.</typeparam>
-    public class AsitDictionarySegment<T> : IAsitDictionary<T>
+    /// <typeparam name="T">The <see cref="Type"/> the parent <see cref="SegmentedMap{T}"/> holds and enumerates.</typeparam>
+    public class SegmentedMapSegment<T> : ISegmentedMap<T>
     {
         /// <summary>
-        /// The <see cref="AsitDictionary{T}"/> this <see cref="AsitDictionarySegment{T}"/> references.
+        /// The <see cref="SegmentedMap{T}"/> this <see cref="SegmentedMapSegment{T}"/> references.
         /// </summary>
-        public AsitDictionary<T> Parent { get; }
+        public SegmentedMap<T> Parent { get; }
         /// <summary>
-        /// The <see cref="Range"/> this <see cref="AsitDictionarySegment{T}"/> covers.
+        /// The <see cref="Range"/> this <see cref="SegmentedMapSegment{T}"/> covers.
         /// </summary>
         public Range Range { get; }
         /// <summary>
-        /// The <see cref="AsitRange"/> this <see cref="AsitDictionarySegment{T}"/> covers.
+        /// The <see cref="NormalizedRange"/> this <see cref="SegmentedMapSegment{T}"/> covers.
         /// </summary>
-        public AsitRange AsitRange => Range.ToAsitRange(Parent.Capacity);
+        public NormalizedRange NormalizedRange => Range.ToNormalizedRange(Parent.Capacity);
         public int Capacity { get; }
         public T this[string key]
         {
@@ -52,9 +52,9 @@ namespace AsitLib.Collections
         public ICollection<string> Keys { get; private set; }
         public ICollection<T> Values => sourceSegment.WhereSelect(kvp => kvp == null ? (default(T)!, false) : (kvp.Value.Value, true)).ToList();
 
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnRemove { get; set; }
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnAdd { get; set; }
-        public Action<IAsitDictionary<T>>? OnClear { get; set; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnRemove { get; set; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnAdd { get; set; }
+        public Action<ISegmentedMap<T>>? OnClear { get; set; }
 
         public T this[int index]
         {
@@ -64,14 +64,14 @@ namespace AsitLib.Collections
 
         private ArraySegment<KeyValuePair<string, T>?> sourceSegment;
 
-        internal AsitDictionarySegment(AsitDictionary<T> parent, int startIndex, int endindex) : this(parent, startIndex..endindex) { }
-        internal AsitDictionarySegment(AsitDictionary<T> parent, Range range)
+        internal SegmentedMapSegment(SegmentedMap<T> parent, int startIndex, int endindex) : this(parent, startIndex..endindex) { }
+        internal SegmentedMapSegment(SegmentedMap<T> parent, Range range)
         {
             Range = range;
             Parent = parent;
             var ol = range.GetOffsetAndLength(parent.Capacity);
             Capacity = ol.Length;
-            sourceSegment = new ArraySegment<KeyValuePair<string, T>?>(parent.source, AsitRange.Start, Capacity);
+            sourceSegment = new ArraySegment<KeyValuePair<string, T>?>(parent.source, NormalizedRange.Start, Capacity);
             //Values = new Collection<T>(sourceSegment.WhereSelect<KeyValuePair<string, T>?, T>(kvp => kvp == null ? (default(T)!, false) : (kvp.Value.Value, true)).ToList());
             Keys = new Collection<string>(sourceSegment.WhereSelect(kvp => kvp == null ? (string.Empty, false) : (kvp.Value.Key, true)).ToList());
             //Console.WriteLine(Keys.Any(k => k == null));

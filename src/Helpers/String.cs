@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace AsitLib
 {
-    public  static class EString
+    public  static class StringExtensions
     {
         static readonly char[] Alphabet = 
         {   'a', 'b',

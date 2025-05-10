@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using AsitLib;
 using System.IO;
+using System.Runtime.CompilerServices;
 #nullable enable
 
 namespace AsitLib
@@ -50,12 +51,19 @@ namespace AsitLib
             chars[index] = newChar;
             return new string(chars);
         }
-        public static string ReplaceAt(this string input, AsitRange range, char newChar)
+        public static string ReplaceAt(this string input, NormalizedRange range, char newChar)
         {
             char[] inputChars = input.ToCharArray();
             for (int i = range.Start; i <= range.End; i++)
                 inputChars[i] = newChar;
             return new string(inputChars);
+        }
+        public static object?[] GetItems(this ITuple tuple)
+        {
+            List<object?> toret2 = new List<object?>();
+            for (int i = 0; i < tuple.Length; i++)
+                toret2.Add(tuple[i]);
+            return toret2.ToArray();
         }
         public static void Fill(byte[] bytes, string s, int startindex, int endindex, Encoding e) //needs work
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.Collections
 {
-    public static class AsitEnumerable
+    public static class ArrayOperations
     {
         public static bool EndsWith<T>(this T[] source, T[] value)
         {

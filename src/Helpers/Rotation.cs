@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AsitLib
 {
-    public class AsitRotationF : IEquatable<AsitRotationF>, ICloneable, IConvertible
+    public class NormalizedRotation : IEquatable<NormalizedRotation>, ICloneable, IConvertible
     {
         private float rotation;
         public float Degrees
@@ -27,15 +27,15 @@ namespace AsitLib
             }
             set => rotation = MathFI.Normalize(MathFI.ToDegrees(value));
         }
-        public AsitRotationF(float rotation, bool isRadiants)
+        public NormalizedRotation(float rotation, bool isRadiants)
         {
             rotation = MathFI.Normalize(rotation);
             if (isRadiants) rotation = MathFI.ToDegrees(rotation);
             this.rotation = rotation;
         }
-        public static AsitRotationF Zero => new AsitRotationF(0, false);
-        public object Clone() => new AsitRotationF(rotation, false);
-        public bool Equals([AllowNull] AsitRotationF other)
+        public static NormalizedRotation Zero => new NormalizedRotation(0, false);
+        public object Clone() => new NormalizedRotation(rotation, false);
+        public bool Equals([AllowNull] NormalizedRotation other)
             => other != null && rotation == other.rotation;
         double GetDoubleValue() => rotation;
         byte IConvertible.ToByte(IFormatProvider? provider)

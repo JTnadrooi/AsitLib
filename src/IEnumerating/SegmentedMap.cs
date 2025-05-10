@@ -17,18 +17,18 @@ namespace AsitLib.Collections
     /// <summary>
     /// Provides the base <see langword="interface"/> for the abstraction of non generic AsitDictionaries.
     /// </summary>
-    public interface IAsitDictionary
+    public interface ISegmentedMap
     {
         /// <summary>
-        /// The max <see cref="Capacity"/> of this <see cref="IAsitDictionary"/>.
+        /// The max <see cref="Capacity"/> of this <see cref="ISegmentedMap"/>.
         /// </summary>
         public int Capacity { get; }
         /// <summary>
-        /// The remaining space of this <see cref="IAsitDictionary"/>.
+        /// The remaining space of this <see cref="ISegmentedMap"/>.
         /// </summary>
         public int Space { get; }
         /// <summary>
-        /// A value indicating of this <see cref="IAsitDictionary"/> has place for at least one more item.
+        /// A value indicating of this <see cref="ISegmentedMap"/> has place for at least one more item.
         /// </summary>
         public bool HasSpace { get; }
         /// <summary>
@@ -47,7 +47,7 @@ namespace AsitLib.Collections
     /// <summary>
     /// Provides the base <see langword="interface"/> for the abstraction of generic AsitDictionaries.
     /// </summary>
-    public interface IAsitDictionary<T> : IDictionary<string, T>, IAsitDictionary, IEnumerable<T>
+    public interface ISegmentedMap<T> : IDictionary<string, T>, ISegmentedMap, IEnumerable<T>
     {
         /// <summary>
         /// Get a shallow array copy of all the values from the <see cref="Source"/> array. <see langword="null"/>/empty values excluded.
@@ -95,19 +95,19 @@ namespace AsitLib.Collections
         /// <returns>The <see cref="KeyValuePair{TKey, TValue}.Value"/> of the <see cref="KeyValuePair{TKey, TValue}"/> at the given <paramref name="index"/>.</returns>
         public T Get(int index);
         /// <summary>
-        /// A <see cref="Action{T1, T2}"/> to execute when a item is added to this <see cref="IAsitDictionary{T}"/>.
+        /// A <see cref="Action{T1, T2}"/> to execute when a item is added to this <see cref="ISegmentedMap{T}"/>.
         /// </summary>
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnAdd { get; }
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnRemove { get; }
-        public Action<IAsitDictionary<T>>? OnClear { get; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnAdd { get; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnRemove { get; }
+        public Action<ISegmentedMap<T>>? OnClear { get; }
         /// <summary>
-        /// The <see cref="Source"/> of this <see cref="IAsitDictionary{T}"/> in form of a <see cref="ReadOnlyCollection{T}"/>.
+        /// The <see cref="Source"/> of this <see cref="ISegmentedMap{T}"/> in form of a <see cref="ReadOnlyCollection{T}"/>.
         /// </summary>
         public ReadOnlyCollection<KeyValuePair<string, T>?> Source { get; }
         /// <summary>
         /// Get the value at the given <paramref name="index"/>.
         /// </summary>
-        /// <param name="index">The index to get the value from. See also <see cref="AsitDictionary{T}.Get(int)"/>.</param>
+        /// <param name="index">The index to get the value from. See also <see cref="SegmentedMap{T}.Get(int)"/>.</param>
         /// <returns>The value at the given <paramref name="index"/>.</returns>
         public T this[int index] { get; set; }
     }
@@ -115,15 +115,15 @@ namespace AsitLib.Collections
     /// Provides a way to manage a set dictiory with advanced add- get- methods and segmentation support.
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> that gets stored.</typeparam>
-    public class AsitDictionary<T> : IAsitDictionary<T>
+    public class SegmentedMap<T> : ISegmentedMap<T>
     {
         public int Capacity { get; }
         public int Space => Capacity - Count;
         public int Count => Keys.Count;
         public bool HasSpace => Space > 0;
         public bool IsReadOnly => false;
-        public ReadOnlyCollection<AsitDictionarySegment<T>> Segments => segments.AsReadOnly();
-        private readonly List<AsitDictionarySegment<T>> segments;
+        public ReadOnlyCollection<SegmentedMapSegment<T>> Segments => segments.AsReadOnly();
+        private readonly List<SegmentedMapSegment<T>> segments;
 
 
         internal KeyValuePair<string,T>?[] source;
@@ -132,9 +132,9 @@ namespace AsitLib.Collections
         public ICollection<string> Keys { get; private set; }
         public ICollection<T> Values => source.WhereSelect(kvp => kvp == null ? (default(T)!, false) : (kvp.Value.Value, true)).ToList();
 
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnRemove { get; set; }
-        public Action<KeyValuePair<string, T>, IAsitDictionary<T>>? OnAdd { get; set; }
-        public Action<IAsitDictionary<T>>? OnClear { get; set; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnRemove { get; set; }
+        public Action<KeyValuePair<string, T>, ISegmentedMap<T>>? OnAdd { get; set; }
+        public Action<ISegmentedMap<T>>? OnClear { get; set; }
 
 
         //public ICollection<T> Values {get; private set;}
@@ -166,27 +166,27 @@ namespace AsitLib.Collections
         }
 
 
-        public AsitDictionary(T[] source) : this(AsitDictionary.ToKeyValuePair(source)) { }
-        public AsitDictionary(T[] source, int capacity) : this(AsitDictionary.ToKeyValuePair(source), capacity) { }
-        public AsitDictionary(int capacity) : this(new KeyValuePair<string, T>?[capacity]) { }
-        public AsitDictionary(KeyValuePair<string, T>?[] source) : this(source, source.Length) { }
+        public SegmentedMap(T[] source) : this(GeneralHelpers.ToKeyValuePair(source)) { }
+        public SegmentedMap(T[] source, int capacity) : this(GeneralHelpers.ToKeyValuePair(source), capacity) { }
+        public SegmentedMap(int capacity) : this(new KeyValuePair<string, T>?[capacity]) { }
+        public SegmentedMap(KeyValuePair<string, T>?[] source) : this(source, source.Length) { }
 
 
-        public AsitDictionary(KeyValuePair<string, T>?[] source, int capacity)
+        public SegmentedMap(KeyValuePair<string, T>?[] source, int capacity)
         {
             if (capacity < source.Length) throw new Exception();
             this.source = new KeyValuePair<string, T>?[capacity];
             source.CopyTo(this.source, 0);
             Capacity = capacity;
-            segments = new List<AsitDictionarySegment<T>>();
+            segments = new List<SegmentedMapSegment<T>>();
             //Values = new Collection<T>(source.WhereSelect<KeyValuePair<string, T>?, T>(kvp => kvp == null ? (default(T)!, false) : (kvp.Value.Value, true)).ToList());
             Keys = new Collection<string>(source.WhereSelect<KeyValuePair<string, T>?, string>(kvp => kvp == null ? (string.Empty, false) : (kvp.Value.Key, true)).ToList());
         }
         //O(n)
         //O(n3)
-        public AsitDictionarySegment<T> AddSegment(Index start, Index end) => AddSegment(new Range(start, end));
-        public AsitDictionarySegment<T> AddSegment(Range range) => AddSegment(new AsitDictionarySegment<T>(this, range));
-        public AsitDictionarySegment<T> AddSegment(AsitDictionarySegment<T> segment)
+        public SegmentedMapSegment<T> AddSegment(Index start, Index end) => AddSegment(new Range(start, end));
+        public SegmentedMapSegment<T> AddSegment(Range range) => AddSegment(new SegmentedMapSegment<T>(this, range));
+        public SegmentedMapSegment<T> AddSegment(SegmentedMapSegment<T> segment)
         {
             segments.Add(segment);
             return segment;
@@ -229,9 +229,9 @@ namespace AsitLib.Collections
             //if (Keys.Contains(key)) throw new Exception();
             source[index] = new KeyValuePair<string, T>(key, value);
             ON_ADD(index, key, value);
-            foreach (AsitDictionarySegment<T> segment in segments)    
+            foreach (SegmentedMapSegment<T> segment in segments)    
             {
-                if (segment.AsitRange.Contains(index))
+                if (segment.NormalizedRange.Contains(index))
                 {
                     //Console.WriteLine(segment.AsitRange.ToString());
                     segment.ON_ADD(index, key, value);
@@ -280,7 +280,7 @@ namespace AsitLib.Collections
         {
             Keys.Clear();
             source.Select(kvp => kvp = null);
-            foreach (AsitDictionarySegment<T> segment in segments)
+            foreach (SegmentedMapSegment<T> segment in segments)
                 segment.ON_CLEAR();
             OnClear?.Invoke(this);
         }
@@ -298,9 +298,9 @@ namespace AsitLib.Collections
         {
             if (source[index] == null || source[index]!.Value.Value!.Equals(source[index]!.Value.Value)) return false;
             ON_REMOVE(source[index]!.Value.Key, source[index]!.Value.Value);
-            foreach (AsitDictionarySegment<T> segment in segments)
+            foreach (SegmentedMapSegment<T> segment in segments)
             {
-                if (segment.AsitRange.Contains(index)) segment.ON_REMOVE(source[index]!.Value.Key, source[index]!.Value.Value);
+                if (segment.NormalizedRange.Contains(index)) segment.ON_REMOVE(source[index]!.Value.Key, source[index]!.Value.Value);
             }
             source[index] = null;
             return true;
@@ -330,7 +330,7 @@ namespace AsitLib.Collections
             Console.WriteLine("Adding: " + value!.ToString() + " at " + index);
             OnAdd?.Invoke(new KeyValuePair<string, T>(key, value), this);
         }
-        internal void ON_CLEAR(AsitDictionarySegment<T> source)
+        internal void ON_CLEAR(SegmentedMapSegment<T> source)
         {
             //Console.WriteLine("C - PARENT KNOWS!");
             foreach (string key in source.Keys)
@@ -341,16 +341,6 @@ namespace AsitLib.Collections
         {
             Keys.Remove(key);
             OnRemove?.Invoke(new KeyValuePair<string, T>(key, value), this);
-        }
-    }
-    public static class AsitDictionary
-    {
-        public static KeyValuePair<string, T>?[] ToKeyValuePair<T>(T[] source)
-        {
-            KeyValuePair<string, T>?[] toret = new KeyValuePair<string, T>?[source.Length];
-            for (int i = 0; i < source.Length; i++)
-                toret[i] = new KeyValuePair<string, T>(i.ToString(), source[i]);
-            return toret;
         }
     }
 }

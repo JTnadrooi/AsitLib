@@ -12,7 +12,7 @@ namespace AsitLib.Debug
     /// <summary>
     /// A static <see langword="class"/> containing methods to help debugging.
     /// </summary>
-    public class AsitDebugStream
+    public class DebugStream
     {
         public char TabFiller { get; }
         public char TabEnd { get; }
@@ -33,7 +33,7 @@ namespace AsitLib.Debug
 
         private readonly Stopwatch?[] localStopwatches;
         
-        public AsitDebugStream(bool enabled = true)
+        public DebugStream(bool enabled = true)
         {
             //Stopwatch sw = Stopwatch.StartNew();
             localStopwatches = new Stopwatch[10];
@@ -117,7 +117,7 @@ namespace AsitLib.Debug
         {
             if (!IsEnabled) return;
             if (many)
-                Out.WriteLine(TabEnd + new string(TabFiller, lenght - 1).ReplaceAt(new AsitRange(((TabSize * aboveTabs) - 1)..((TabSize * (aboveTabs + 1)) - 1), (TabEnd + new string(TabFiller, lenght - 1)).Length), TabEnd) + trail);
+                Out.WriteLine(TabEnd + new string(TabFiller, lenght - 1).ReplaceAt(new NormalizedRange(((TabSize * aboveTabs) - 1)..((TabSize * (aboveTabs + 1)) - 1), (TabEnd + new string(TabFiller, lenght - 1)).Length), TabEnd) + trail);
             else
                 Out.WriteLine(TabEnd + new string(TabFiller, lenght - 1).ReplaceAt((TabSize * aboveTabs) - 1, TabEnd) + trail);
             Out.Flush();

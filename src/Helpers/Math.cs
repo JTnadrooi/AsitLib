@@ -27,7 +27,7 @@ namespace AsitLib.Math
             Type t = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
             return new BigInteger(Convert.ToInt64(value));
         }
-        public static AsitRotationF GetRotation(float rotation, bool isRadiants) => new AsitRotationF(rotation, isRadiants);
+        public static NormalizedRotation GetRotation(float rotation, bool isRadiants) => new NormalizedRotation(rotation, isRadiants);
         public static bool IsNear(float value1, float value2, float diff) => System.Math.Abs(value1 - value2) <= diff;
         public static string AddPrefix(int amount, string suffix)
         {
