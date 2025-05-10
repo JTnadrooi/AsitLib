@@ -9,11 +9,6 @@ using System.Runtime.CompilerServices;
 
 namespace AsitLib
 {
-    public enum CastMethod
-    {
-        CS,
-        SpellScript,
-    }
     public static class AsitGlobal
     {
         
