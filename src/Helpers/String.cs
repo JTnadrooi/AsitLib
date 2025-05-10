@@ -158,7 +158,6 @@ namespace AsitLib
 
         public static string Between(this string str, string FirstString, string LastString, BetweenMethod method = BetweenMethod.FirstFirst)
         {
-            //Console.WriteLine("BTW: -" + str + "- " + FirstString + " " + LastString);
             return method switch
             {
                 BetweenMethod.FirstFirst => str[(str.IndexOf(FirstString) + FirstString.Length)..str.IndexOf(LastString)],
@@ -179,10 +178,6 @@ namespace AsitLib
 
                 string betw = str.Between(FirstString, LastString);
                 toret.Add(betw); //add
-                //if (Regex.Matches(str, FirstString + betw + LastString).Count == 0) break;
-
-                //Console.WriteLine("LOOP: -" + str + "- " + FirstString + " " + LastString + " " + Regex.Matches(str, FirstString + betw + LastString).Count);
-                
                 str = str.ReplaceFirst(FirstString + betw + LastString, string.Empty); //remove
                 
             }
