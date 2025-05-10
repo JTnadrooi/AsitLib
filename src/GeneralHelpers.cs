@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using AsitLib.Numerics;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -315,7 +316,7 @@ namespace AsitLib
             else
             {
                 List<T> values = new List<T>(source);
-                int diff = (int)Math.MathFI.Diff(source.Length, newSize);
+                int diff = (int)MathFI.Diff(source.Length, newSize);
                 for (int i = 0; i < diff; i++) values.Add(default(T));
                 source = values.ToArray();
             }

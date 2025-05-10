@@ -1,4 +1,4 @@
-﻿using AsitLib.Math;
+﻿using AsitLib.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

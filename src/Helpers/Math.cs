@@ -6,7 +6,7 @@ using System.Numerics;
 using static System.Net.Mime.MediaTypeNames;
 #nullable enable
 
-namespace AsitLib.Math
+namespace AsitLib.Numerics
 {
     public static class MathHelperFI
     {
