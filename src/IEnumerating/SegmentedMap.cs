@@ -166,8 +166,8 @@ namespace AsitLib.Collections
         }
 
 
-        public SegmentedMap(T[] source) : this(GeneralHelpers.ToKeyValuePair(source)) { }
-        public SegmentedMap(T[] source, int capacity) : this(GeneralHelpers.ToKeyValuePair(source), capacity) { }
+        public SegmentedMap(T[] source) : this(ArrayExtensions.ToKeyValuePair(source)) { }
+        public SegmentedMap(T[] source, int capacity) : this(ArrayExtensions.ToKeyValuePair(source), capacity) { }
         public SegmentedMap(int capacity) : this(new KeyValuePair<string, T>?[capacity]) { }
         public SegmentedMap(KeyValuePair<string, T>?[] source) : this(source, source.Length) { }
 

@@ -265,10 +265,6 @@ namespace AsitLib
             res.Append(src[pos..]);
             return res.ToString();
         }
-        public static int PuncToInt(this string str)
-        {
-            return str.Count(c => c == '.') + 2 * str.Count(c => c == ':');
-        }
     }
 
     public static class ArrayExtensions
