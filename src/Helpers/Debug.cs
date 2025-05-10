@@ -1,136 +1,136 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
-#nullable enable
 
 namespace AsitLib.Debug
 {
+    public interface IStyle
+    {
+        string GetIndentation(int level);
+        string GetHeaderIndentation();
+    }
 
-    /// <summary>
-    /// A static <see langword="class"/> containing methods to help debugging.
-    /// </summary>
+    public class BoxDrawingStyle : IStyle
+    {
+        public string GetIndentation(int level)
+        {
+            if (level <= 0)
+                return string.Empty;
+
+            // for each level >1 draw "│   ", then at current level "├──"
+            var prefix = string.Concat(Enumerable.Repeat("│   ", level - 1));
+            return prefix + "├──";
+        }
+
+        public string GetHeaderIndentation()
+        {
+            return "╭──";
+        }
+    }
+
+    public class DefaultStyle : IStyle
+    {
+        public string GetIndentation(int level)
+        {
+            if (level <= 0)
+                return string.Empty;
+
+            var prefix = string.Concat(Enumerable.Repeat("   ", level - 1));
+            return prefix + "^--";
+        }
+
+        public string GetHeaderIndentation()
+        {
+            return "^";
+        }
+    }
+
     public class DebugStream
     {
-        public char TabFiller { get; }
-        public char TabEnd { get; }
-        public char PrefixFiller { get; }
-        public TextWriter Out { get; set; }
-        public TextReader In { get; set; }
-        public bool IsEnabled
+        private int indentation = 0;
+        public bool Silent { get; set; } = false;
+        private readonly IStyle style;
+
+        public DebugStream(string styleId = null, string header = null)
         {
-            get => Priority > 0;
-            set => Priority = value ? int.MaxValue : -1;    
+            this.style = GetStyle(styleId);
+            if (!string.IsNullOrEmpty(header))
+                Header(header);
         }
-        public int Priority { get; set; }
 
-        public int TabSize { get; }
-        public int TabType { get; }
-
-        public Encoding Encoding => Out.Encoding;
-
-        private readonly Stopwatch?[] localStopwatches;
-        
-        public DebugStream(bool enabled = true)
+        public void Header(string msg)
         {
-            //Stopwatch sw = Stopwatch.StartNew();
-            localStopwatches = new Stopwatch[10];
-            
-            PrefixFiller = ':';
-            IsEnabled = enabled;
-
-            TabSize = 4;
-            TabFiller = '-';
-            TabEnd = '^';
-            TabType = 2;
-
-            Out = Console.Out;
-            In = Console.In;
-
-            WriteLine("[s]initializing debug variables..");
-            Succes();
+            msg = msg ?? string.Empty;
+            Console.WriteLine(style.GetHeaderIndentation() + "[" + msg.ToUpperInvariant() + "]");
         }
-        public string ReadLine(int depth = 1)
-        {
-            if (Priority < depth) throw new Exception();
-            Write(new string('\t', depth) + ">");
-            return In.ReadLine()!;
-        }
-        public void Write<T>(T value, Stopwatch? stopwatch = null)
-        {
-            string s = value == null ? "Null" : value.ToString()!;
-            int tabCount = s.Length - s.TrimStart('\t').Length;
-            if (Priority < tabCount) return;
-            string prefix = tabCount == 0 ? "^" + new string(TabFiller, TabSize - 1) : string.Empty;
-            //prefix = string.Empty;
-            bool newLine = false;
-            s = s.TrimStart('\t');
 
-            if (s.EndsWith('\n'))
+        public void Log(string msg, object[] displays = null)
+        {
+            if (Silent) return;
+
+            msg = msg ?? string.Empty;
+            int delta = 0;
+
+            // adjust delta for closing marker '<'
+            if (msg.StartsWith("<"))
             {
-                s = s.TrimEnd('\n');
-                newLine = true;
+                delta--;
+                msg = msg.Substring(1).TrimStart();
             }
-            string tabs = tabCount != 0 ? new string(' ', (tabCount) * TabSize) + TabEnd + new string(TabFiller, TabSize - 1) : string.Empty;
-            tabs = new string(' ', (tabCount) * TabSize) + TabEnd + new string(TabFiller, TabSize - 1);
+            // adjust delta for opening marker '>'
+            else if (msg.StartsWith(">"))
+            {
+                delta++;
+                msg = msg.Substring(1).TrimStart();
+            }
 
-            if (s.StartsWith("[s]"))
+            // count all leading tabs as additional indent
+            int tabs = msg.TakeWhile(c => c == '\t').Count();
+            if (tabs > 0)
             {
-                tabs = tabs[..^3];
-                localStopwatches[tabCount] = Stopwatch.StartNew();
+                delta += tabs;
+                msg = msg.Substring(tabs);
             }
-            Out.Write(/*prefix +*/ tabs + s +
-                (stopwatch == null ? string.Empty : "time taken: " + stopwatch!.ElapsedMilliseconds + "ms") +
-                (newLine ? "\n" : string.Empty));
-            Out.Flush();
 
-            //Console.WriteLine((s.StartsWith('\t') ? "^" + new string(tabFiller, (s.Length - s.TrimStart('\t').Length) * tabSize - 1) + s.TrimStart('\t') : s)
-            //    + (stopwatch == null ? string.Empty : " time taken: " + stopwatch!.ElapsedMilliseconds + "ms"));
-        }
-        public void WriteLine<T>(T value, Stopwatch? stopwatch = null) => Write((value ?? (T)(object)"Null").ToString()! + "\n", stopwatch);
-        public void WriteLine(string s, Stopwatch? stopwatch = null) => Write(s + "\n", stopwatch);
-        public void Succes(string tabs) => Succes(tabs.Count(c => c == '\t'));
-        public void Succes(int depth = 1)
-        {
-            if (Priority < depth) return;
-            if (localStopwatches[depth - 1] != null)
+            // trailing dots indicate indent after
+            if (msg.EndsWith(".."))
             {
-                WriteLine(new string('\t', depth) + "succes. ", localStopwatches[depth - 1]);
-                localStopwatches[depth - 1] = null;
+                delta++;
             }
-            else WriteLine(new string('\t', depth) + "succes. time taken: ??ms");
-        }
-        public void Fail(string tabs) => Fail(tabs.Count());
-        public void Fail(int depth = 1)
-        {
-            if (Priority < depth) return;
-            if (localStopwatches[depth - 1] != null)
+
+            // append display info if provided
+            if (displays != null)
             {
-                WriteLine(new string('\t', depth) + "failure. ", localStopwatches[depth - 1]);
-                localStopwatches[depth - 1] = null;
+                string list = displays.Length > 0
+                    ? string.Join(", ", displays.Select(d =>
+                        d == null ? "undefined"
+                        : (d is string str ? $"\"{str}\""
+                                          : d.GetType().Name)))
+                    : "_EMPTY_ARRAY_";
+                msg += " [" + list + "]";
             }
-            else WriteLine(new string('\t', depth) + "failure. time taken: ??ms");
+
+            // print with current indentation
+            string indentStr = style.GetIndentation(indentation);
+            Console.WriteLine(indentStr + msg);
+
+            // update indentation (never negative)
+            indentation = Math.Max(indentation + delta, 0);
         }
-        public void WriteStripe(int aboveTabs, int lenght = 30, bool many = false, string trail = "")
+
+        public void Error(string msg, object[] displays = null)
         {
-            if (!IsEnabled) return;
-            if (many)
-                Out.WriteLine(TabEnd + new string(TabFiller, lenght - 1).ReplaceAt(new NormalizedRange(((TabSize * aboveTabs) - 1)..((TabSize * (aboveTabs + 1)) - 1), (TabEnd + new string(TabFiller, lenght - 1)).Length), TabEnd) + trail);
-            else
-                Out.WriteLine(TabEnd + new string(TabFiller, lenght - 1).ReplaceAt((TabSize * aboveTabs) - 1, TabEnd) + trail);
-            Out.Flush();
+            var origColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Log("WARNING: " + (msg ?? string.Empty), displays);
+            Console.ForegroundColor = origColor;
         }
-        public void Help()
+
+        public static IStyle GetStyle(string styleId = null)
         {
-            if (Priority < 0) return;
-            Out.WriteLine("I guess this is the part where I link a nice help pdf file..." +
-                "\nuhmm.." +
-                "\n.." +
-                "\nany second now..." +
-                "\n(you're not waiting for anything.)");
-            Out.Flush();
+            return string.Equals(styleId, "box-drawing",
+                                 StringComparison.OrdinalIgnoreCase)
+                ? (IStyle)new BoxDrawingStyle()
+                : new DefaultStyle();
         }
     }
 }
