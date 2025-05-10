@@ -34,16 +34,6 @@ namespace AsitLib
                 keyValuePairs.Add(new KeyValuePair<TKey, TValue>(arrayKeys[i], arrayValues[i]));
             return keyValuePairs.ToArray();
         }
-        //public static string ReplaceAt(this string input, Range range, char newChar)
-        //{
-        //    string toret = input;
-        //    AsitRange asitRange = range.ToAsitRange(input.Length);
-        //    foreach (int index in asitRange.Indexes)
-        //    {
-        //        toret = toret.ReplaceAt(index, newChar);
-        //    }
-        //    return toret;
-        //}
         public static string ReplaceAt(this string input, Index index, char newChar)
         {
             if (input == null) throw new ArgumentNullException("input");
@@ -202,7 +192,7 @@ namespace AsitLib
                 return false;
             }
         }
-        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range) // needs optimizing 
+        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range)
         {
             return values.ToArray()[range];
         }
@@ -212,7 +202,7 @@ namespace AsitLib
         /// </summary>
         /// <param name="filename">The text file to analyze.</param>
         /// <returns>The detected encoding.</returns>
-        public static Encoding GetEncoding(string filename) //stack overflow (site)
+        public static Encoding GetEncoding(string filename) //stack overflow
         {
             // Read the BOM
             var bom = new byte[4];
