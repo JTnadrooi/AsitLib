@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -16,11 +15,190 @@ using System.Windows.Forms;
 
 namespace AsitLib
 {
-    /// <summary>
-    /// Thanks stack! (Not for all)
-    /// </summary>
-    public static class GeneralHelpers
+    public static class StringExtensions
     {
+        public enum BetweenMethod
+        {
+            FirstFirst,
+            FirstLast,
+            LastLast,
+        }
+        static readonly char[] Alphabet =
+        {   'a', 'b',
+            'c', 'd',
+            'e', 'f',
+            'g', 'h',
+            'i', 'j',
+            'k', 'l',
+            'm', 'n',
+            'o', 'p',
+            'q', 'r',
+            's', 't',
+            'u', 'v',
+            'w', 'x',
+            'y', 'z',
+        };
+        public static string Inverse(this string str) => string.Join("", str.ToArray().Reverse());
+        public static int AlphabeticalConvert(this char c) => Alphabet.ToList().FindIndex(cc => cc == c);
+        public static string ReEncode(this string str, Encoding encoding) => encoding.GetString(encoding.GetBytes(str));
+
+        public static string NummicalInverse(this string str)
+        {
+            string toreturn = string.Empty;
+            string data = String.Empty;
+            foreach (char c in str)
+            {
+                if (!Alphabet.Contains(c.ToString().ToLower().ToCharArray()[0])) throw new Exception("Invalid String.");
+                if (char.IsUpper(c)) data += "1";
+                else data += "0";
+            }
+            foreach (char c in str.ToLower())
+            {
+                if (data[0] == '1') toreturn += Char.ToUpper(Alphabet.Reverse().ToArray()[c.AlphabeticalConvert()]);
+                else toreturn += Alphabet.Reverse().ToArray()[c.AlphabeticalConvert()];
+                data = data[1..];
+            }
+            return toreturn;
+        }
+        public static Stream ToStream(this string str)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(str);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+        public static string? FirstLine(this string str)
+        {
+            using var reader = new StringReader(str);
+            return reader.ReadLine();
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values)
+        {
+            if (values == null) return "Null";
+            return string.Join("", values);
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner)
+        {
+            if (values == null) return "Null";
+            return string.Join(joiner, values);
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner)
+        {
+            if (values == null) return "Null";
+            return string.Join(joiner, values);
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner, int lenght, int maxSafe = 50)
+        {
+            if (values == null) return "Null";
+            if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
+            return string.Join(joiner, values);
+        }
+        public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner, int lenght, int maxSafe = 50)
+        {
+            if (values == null) return "Null";
+            if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
+            return string.Join(joiner, values);
+        }
+        public static string To2DJoinedString<T>(this T[][] values, string joiner = "")
+        {
+            if (values == null) return "Null";
+            var result = string.Empty;
+            var maxI = values.Length;
+            var maxJ = values[0].Length;
+            for (var i = 0; i < maxI; i++)
+            {
+                result += ",{";
+                for (var j = 0; j < maxJ; j++)
+                {
+                    result += $"{values[i][j]},";
+                }
+
+                result += "}";
+            }
+            return result.Replace(",}", "}")[1..];
+        }
+        public static string VisualizeNewLine(this string str) => str.Replace("\n", "\n<n>").Replace("\r", "\r<r>");
+        /*a*/
+        public static string IgnoreComments(this string str)
+        {
+            var blockComments = @"/\*(.*?)\*/";
+            var lineComments = @"//(.*?)\r?\n";
+            var strings = @"""((\\[^\n]|[^""\n])*)""";
+            var verbatimStrings = @"@(""[^""]*"")+";
+            string noComments = Regex.Replace(str,
+                blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
+                me => {
+                    if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
+                        return me.Value.StartsWith("//") ? Environment.NewLine : "";
+                    // Keep the literal strings
+                    return me.Value;
+                }, RegexOptions.Singleline);
+            return noComments;
+        }
+        public static IEnumerable<TResult> WhereSelect<TIn, TResult>(this IEnumerable<TIn> values, Func<TIn, (TResult value, bool pass)> predicate)
+        {
+            List<TResult> toret = new List<TResult>();
+            foreach (TIn value in values)
+            {
+                var t = predicate.Invoke(value);
+                if (t.pass) toret.Add(t.value);
+            }
+            return toret;
+        }
+        public static string IgnoreEscapes(this string str)
+        {
+            StringReader reader = new StringReader(str.Replace(@"\\", ((char)22).ToString()));
+            bool ignoreNext = false;
+            List<byte> toReturn = new List<byte>();
+            for (int i; (i = reader.Read()) != -1;)
+            {
+                if (!ignoreNext) toReturn.Add((byte)i);
+                else toReturn.RemoveAt(toReturn.Count - 1);
+                if ((char)i == '\\') ignoreNext = true;
+                else ignoreNext = false;
+            }
+            reader.Dispose();
+            return Encoding.UTF8.GetString(toReturn.ToArray()).Replace(((char)22).ToString(), @"\\");
+        }
+        public static string NormalizeLE(this string input, string to = "\n") => Regex.Replace(input, @"\r\n|\n\r|\n|\r", to);
+        public static bool Contains(this string input, string str, int maxcount) => Regex.Matches(input, str).Count <= maxcount;
+        public static bool Contains(this string input, char c, int maxcount) => input.Where(cc => c == cc).Count() <= maxcount;
+
+        public static string Between(this string str, string FirstString, string LastString, BetweenMethod method = BetweenMethod.FirstFirst)
+        {
+            return method switch
+            {
+                BetweenMethod.FirstFirst => str[(str.IndexOf(FirstString) + FirstString.Length)..str.IndexOf(LastString)],
+                BetweenMethod.FirstLast => str[(str.IndexOf(FirstString) + FirstString.Length)..str.LastIndexOf(LastString)],
+                BetweenMethod.LastLast => str[(str.LastIndexOf(FirstString) + FirstString.Length)..str.LastIndexOf(LastString)],
+                _ => throw new Exception(str),
+            };
+        }
+
+        public static string[] Betweens(this string str, string FirstString, string LastString)
+        {
+            List<string> toret = new List<string>();
+            while (true)
+            {
+                if (!str.Contains(FirstString) || !str.Contains(LastString) || str.IndexOf(FirstString) >= str.IndexOf(LastString)) break;
+
+
+
+                string betw = str.Between(FirstString, LastString);
+                toret.Add(betw); //add
+                str = str.ReplaceFirst(FirstString + betw + LastString, string.Empty); //remove
+
+            }
+            return toret.ToArray();
+        }
+        public static string ReplaceFirst(this string str, string oldStr, string newString)
+        {
+            int pos = str.IndexOf(oldStr);
+            if (pos < 0) return str;
+            return str[..pos] + newString + str[(pos + oldStr.Length)..];
+        }
         public static string ReplaceAt(this string input, Index index, char newChar)
         {
             if (input == null) throw new ArgumentNullException("input");
@@ -35,23 +213,67 @@ namespace AsitLib
                 inputChars[i] = newChar;
             return new string(inputChars);
         }
-        public static object?[] GetItems(this ITuple tuple)
+        public static string ProccesEscapes(string input, params KeyValuePair<string, string>[] escapes)
+            => ProccesEscapes(input, new Dictionary<string, string>(escapes));
+        public static string ProccesEscapes(string input, string escape, string replaceWith)
+            => ProccesEscapes(input, new KeyValuePair<string, string>(escape, replaceWith));
+        public static string ProccesEscapes(string input, KeyValuePair<string, string> escape)
+            => ProccesEscapes(input, new KeyValuePair<string, string>[] { escape, });
+        public static string ProccesEscapes(string input, Dictionary<string, string> escapes)
         {
-            List<object?> toret2 = new List<object?>();
-            for (int i = 0; i < tuple.Length; i++)
-                toret2.Add(tuple[i]);
-            return toret2.ToArray();
+            escapes.ToList().ForEach(kvp => input = input.Replace(kvp.Key, kvp.Value));
+            return input;
         }
-        public static void Fill(byte[] bytes, string s, int startindex, int endindex, Encoding e) //needs work
+        public static Dictionary<string, string> DefaultEscapes => new Dictionary<string, string>
         {
-            byte[] strbytes = e.GetBytes(s)[..(endindex - startindex)];
-            for (int i = 0; i < endindex && i < strbytes.Length; i++)
+            {"\\s", " "},
+            {"\\n", "\n"},
+            {"\\t", "\t"},
+            {"\\dq", "\""},
+            {"\\q", "\'"},
+        };
+        /// <summary>
+        /// Returns String.Empty if the string is null.
+        /// </summary>
+        /// <param name="possibleNull">The string that *could* be null.</param>
+        /// <returns>String.Empty if the string is null, else the input.</returns>
+        public static string NullToEmptyString(string? possibleNull)
+        {
+            if (possibleNull == null) return String.Empty;
+            else return possibleNull;
+        }
+        public static int SafeIntParse(this string i) => int.TryParse(i, out var v) ? v : -1;
+        public static int? SafeNullIntParse(this string i) => int.TryParse(i, out var v) ? v : (int?)null;
+        public static bool? SafeNullBoolParse(this string i)
+        {
+            return i.Equals("true", StringComparison.OrdinalIgnoreCase) ? true :
+                   i.Equals("false", StringComparison.OrdinalIgnoreCase) ? false :
+                   (bool?)null;
+        }
+        public static int GetCharCount(this string str, string c) => str.Split(c).Length - 1;
+        public static string UnescapeCodes(this string src)
+        {
+            var rx = new Regex("\\\\([0-9A-Fa-f]+)");
+            var res = new StringBuilder();
+            var pos = 0;
+            foreach (Match m in rx.Matches(src))
             {
-                bytes[i + startindex] = strbytes[i];
+                res.Append(src.Substring(pos, m.Index - pos));
+                pos = m.Index + m.Length;
+                res.Append((char)Convert.ToInt32(m.Groups[1].Value, 16));
             }
+            res.Append(src[pos..]);
+            return res.ToString();
         }
-        public static T[] ToSingleArray<T>(this T value)
-            => new T[] { value };
+        public static int PuncToInt(this string str)
+        {
+            return str.Count(c => c == '.') + 2 * str.Count(c => c == ':');
+        }
+    }
+
+    public static class ArrayExtensions
+    {
+        public static T[] ToSingleArray<T>(this T value) => new[] { value };
         public static T[,] CreateRectangularArray<T>(this Collections.WideEnumerable<T> source)
             => source.ToArray().CreateRectangularArray();
         public static T[,] CreateRectangularArray<T>(this T[][] arrays)
@@ -74,28 +296,34 @@ namespace AsitLib
                 }
             }
             return ret;
-
         }
-        public static string ProccesEscapes(string input, params KeyValuePair<string, string>[] escapes)
-            => ProccesEscapes(input, new Dictionary<string, string>(escapes));
-        public static string ProccesEscapes(string input, string escape, string replaceWith)
-            => ProccesEscapes(input, new KeyValuePair<string, string>(escape, replaceWith));
-        public static string ProccesEscapes(string input, KeyValuePair<string, string> escape)
-            => ProccesEscapes(input, new KeyValuePair<string, string>[] { escape, });
-        public static string ProccesEscapes(string input, Dictionary<string, string> escapes)
+        public static object?[] GetItems(this ITuple tuple)
         {
-            escapes.ToList().ForEach(kvp => input = input.Replace(kvp.Key, kvp.Value));
-            return input;
+            List<object?> toret2 = new List<object?>();
+            for (int i = 0; i < tuple.Length; i++)
+                toret2.Add(tuple[i]);
+            return toret2.ToArray();
         }
-        public static Dictionary<string, string> DefaultEscapes
-            => new Dictionary<string, string>(new KeyValuePair<string, string>[]
+        public static int ArrayAdd<T>(this T[] array, T value)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == null)
                 {
-                    new KeyValuePair<string, string>(@"\s", " "),
-                    new KeyValuePair<string, string>(@"\n", "\n"),
-                    new KeyValuePair<string, string>(@"\t", "\t"),
-                    new KeyValuePair<string, string>(@"\dq", "\""),
-                    new KeyValuePair<string, string>(@"\q", "\'"),
-                });
+                    array[i] = value;
+                    return i;
+                }
+            }
+            throw new ArgumentException("Array has no empty spots.");
+        }
+        public static TArray[] Copy<TArray>(this TArray[] array) => array.ToArray();
+        public static KeyValuePair<string, T>?[] ToKeyValuePair<T>(T[] source)
+        {
+            KeyValuePair<string, T>?[] toret = new KeyValuePair<string, T>?[source.Length];
+            for (int i = 0; i < source.Length; i++)
+                toret[i] = new KeyValuePair<string, T>(i.ToString(), source[i]);
+            return toret;
+        }
         /// <summary>
         /// Get the first index where the set conditions are met. If none are found a <see cref="Exception"/> is thrown.
         /// </summary>
@@ -138,6 +366,35 @@ namespace AsitLib
                 return false;
             }
         }
+        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range) => values.ToArray()[range];
+        public static int[] GetIndexes<T>(this IEnumerable<T> values, Func<T, bool> validator)
+            => Enumerable.Range(0, values.Count()).Where(i => validator.Invoke(values.ToArray()[i])).ToArray();
+        public static Range[] ToBetweenRanges(this IEnumerable<int> ints)
+        {
+            if (ints.Any(i => i < 0) || ints.Count() != ints.Distinct().Count()) throw new ArgumentException("Invalid int array.");
+            List<Range> toret = new List<Range>();
+            int last = 0;
+            foreach (int i in ints)
+            {
+                toret.Add(new Range(last, i));
+                last = i;
+            }
+            return toret.ToArray()[1..];
+        }
+        public static IEnumerable<T> ConcatToStart<T>(this IEnumerable<T> values, T value)
+        {
+            T[] newValues = new T[values.Count() + 1];
+            newValues[0] = value;
+            Array.Copy(values.ToArray(), 0, newValues, 1, values.Count());
+            return newValues;
+        }
+    }
+
+    public static class GenericHelpers
+    {
+        public static void DoNothing() { }
+        public static void ThrowException<T>(T exception) where T : Exception { }
+
         public static bool TryCatch(Action action1, Action action2, params Exception[]? exceptions)
         {
             try
@@ -154,166 +411,27 @@ namespace AsitLib
                 return false;
             }
         }
-        public static int ArrayAdd<T>(this T[] array, T value)
-        {
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] == null)
-                {
-                    array[i] = value;
-                    return i;
-                }
-            }
-            throw new ArgumentException("Array has no empty spots.");
-        }
-        public static bool EasyTryOut<TFunc, TOut>(TFunc func, out TOut output) where TFunc : Delegate
-        {
-            try
-            {
-                output = (TOut)func.DynamicInvoke()!;
-                return true;
-            }
-            catch (Exception)
-            {
-                output = default!;
-                return false;
-            }
-        }
-        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range)
-        {
-            return values.ToArray()[range];
-        }
-        /// <summary>
-        /// Determines a text file's encoding by analyzing its byte order mark (BOM).
-        /// Defaults to ASCII when detection of the text file's endianness fails.
-        /// </summary>
-        /// <param name="filename">The text file to analyze.</param>
-        /// <returns>The detected encoding.</returns>
-        public static Encoding GetEncoding(string filename) //stack overflow
-        {
-            // Read the BOM
-            var bom = new byte[4];
-            using (var file = new FileStream(filename, FileMode.Open, FileAccess.Read))
-                file.Read(bom, 0, 4);
+    }
 
-            // Analyze the BOM
-            #pragma warning disable SYSLIB0001 // Type or member is obsolete
-            if (bom[0] == 0x2b && bom[1] == 0x2f && bom[2] == 0x76) return Encoding.UTF7;
-            #pragma warning restore SYSLIB0001 // Type or member is obsolete
-            if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf) return Encoding.UTF8;
-            if (bom[0] == 0xff && bom[1] == 0xfe && bom[2] == 0 && bom[3] == 0) return Encoding.UTF32; //UTF-32LE
-            if (bom[0] == 0xff && bom[1] == 0xfe) return Encoding.Unicode; //UTF-16LE
-            if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
-            if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return new UTF32Encoding(true, true);  //UTF-32BE
-            return Encoding.ASCII;
-        }
-        public static KeyValuePair<string, T>?[] ToKeyValuePair<T>(T[] source)
+    public static class IOHelpers
+    {
+        public static void Fill(byte[] bytes, string s, int startindex, int endindex, Encoding e) //needs work
         {
-            KeyValuePair<string, T>?[] toret = new KeyValuePair<string, T>?[source.Length];
-            for (int i = 0; i < source.Length; i++)
-                toret[i] = new KeyValuePair<string, T>(i.ToString(), source[i]);
-            return toret;
-        }
-        public static int[] GetIndexes<T>(this IEnumerable<T> values, Func<T, bool> validator)
-            => Enumerable.Range(0, values.Count()).Where(i => validator.Invoke(values.ToArray()[i])).ToArray();
-            //values.Select(v => (v, Array.IndexOf(values.ToArray(), v))).Where(tup => validator.Invoke(tup.v)).Select(tup => tup.Item2).ToArray();
-        public static Range[] ToBetweenRanges(this IEnumerable<int> ints)
-        {
-            //Console.WriteLine(ints.ToJoinedString("/") + "<<");
-            if (ints.Any(i => i < 0) || ints.Count() != ints.Distinct().Count()) throw new ArgumentException("Invalid int array.");
-            List<Range> toret = new List<Range>();
-            int last = 0;
-            foreach(int i in ints)
+            byte[] strbytes = e.GetBytes(s)[..(endindex - startindex)];
+            for (int i = 0; i < endindex && i < strbytes.Length; i++)
             {
-                toret.Add(new Range(last, i));
-                last = i;
-            }
-            //Console.WriteLine(toret.ToArray()[1..].ToJoinedString("//"));
-            return toret.ToArray()[1..];
-        }
-        /// <summary>
-        /// Suprisingly usefull when in those <see langword="void"/> returning one-liner functions/methods!
-        /// </summary>
-        public static void DoNothing() { }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="exception"></param>
-        public static void ThrowException<T>(T exception) where T : Exception { }
-        public static IDictionary<TKey, TValue> CopyPartailly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, params TKey[] keys) where TValue : ICloneable
-        {
-            List<KeyValuePair<TKey, TValue>> toret = new List<KeyValuePair<TKey, TValue>>();
-            for (int i = 0; i < keys.Length; i++)
-                toret.Add(new KeyValuePair<TKey, TValue>(keys[i], (TValue)dictionary[keys[i]].Clone()));
-            return new Dictionary<TKey, TValue>(toret.ToArray());
-        }
-        //public static Stream ToStream(this string s)
-        //{
-        //    var stream = new MemoryStream();
-        //    var writer = new StreamWriter(stream);
-        //    writer.Write(s);
-        //    writer.Flush();
-        //    stream.Position = 0;
-        //    return stream;
-        //}
-        public static TArray[] Copy<TArray>(this TArray[] array)
-        {
-            TArray[] toret = new TArray[array.Length];
-            array.CopyTo(toret, 0);
-            return toret;
-        }
-        public static void CheckNull(object? maybeNull, [CallerArgumentExpression("maybeNull")] string thrownVarableName = "input for CheckNull") => CheckNull(maybeNull, new ArgumentNullException(thrownVarableName));
-        public static void CheckNull(object? maybeNull,  Exception exception)
-        {
-            if (maybeNull == null) throw exception;
-        }
-
-        //public static byte[] ToByteArray(this string str) => str.ToCharArray().Select(c => (byte)c).ToArray();
-        public static byte[] ToByteArray(this string str) => Encoding.UTF8.GetBytes(str);
-        public static string FromByteToString(this byte[] by) => string.Join("", by.Select(b => (char)b).ToArray());
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Mirroring default behavior.")]
-        public static void CreateRegistryKeys(string fileExtension, string master, string desc, string imageIcoPath)
-        {
-            if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
-            {
-                string location = master + "." + fileExtension[1..].ToUpper();
-                Registry.ClassesRoot.CreateSubKey(fileExtension).SetValue(null, location);
-                Registry.ClassesRoot.CreateSubKey(location).SetValue(null, desc);
-                Registry.ClassesRoot.CreateSubKey(location + "\\DefaultIcon").SetValue(null, imageIcoPath);
-                return;
+                bytes[i + startindex] = strbytes[i];
             }
         }
-        public static void WriteAllLinesLE(string path, IEnumerable<string> strings, string lineEnding = "\r\n") => File.WriteAllText(path, string.Join(lineEnding, strings) + lineEnding);
-        public static byte[]? ReadEncodingLine(this FileStream fs)
+        public static void WriteAllLinesLE(string path, IEnumerable<string> strings, string lineEnding = "\r\n")
         {
-            List<byte> toReturn = new List<byte>();
-            for (int i = 0; i != '\u000a' && fs.Length != fs.Position; i = fs.ReadByte())
-            {
-                if (i == -1) return null;
-                toReturn.Add((byte)i);
-            }
-            return toReturn.ToArray();
+            File.WriteAllText(path, string.Join(lineEnding, strings) + lineEnding);
         }
-        public static bool OnlyLettersPlusUnderscore(this string str) => Regex.IsMatch(str, @"^[a-zA-Z_]+$");
-        //public static string ToJoinedString<T>(this IEnumerable<T>? ts, string joiner = "")
-        //{
-        //    if (ts == null) return "Null";
-        //    else return string.Join(joiner, ts);
-        //}
         public static void AppendAllBytes(string path, byte[] bytes)
         {
             if (!File.Exists(path)) throw new Exception();
-            using var stream = new FileStream(path, FileMode.Append); 
+            using var stream = new FileStream(path, FileMode.Append);
             stream.Write(bytes, 0, bytes.Length);
-        }
-        public static int PuncToInt(this string str)
-        {
-            int Iout = 0;
-            foreach (char c in str.Where(c => c == '.' || c == ':'))
-                if (c == '.') Iout++;
-            else if (c == ':') Iout += 2;
-            return Iout;
         }
         public static void AppendToFile(string path, string content, FileStream fs, Encoding e, bool dispose = false)
         {
@@ -323,255 +441,7 @@ namespace AsitLib
                 fs.WriteByte(b);
             }
             fs.Position = mempos;
-            if(dispose) fs.Dispose();
-        }
-        //public static void AppendReadify(string path, string lineEnder, FileStream fs, Encoding e)
-        //{
-        //    if(!File.ReadLines(path).Last().EndsWith(lineEnder)) AppendToFile(lineEnder)
-        //}
-        public static IEnumerable<T> ConcatToStart<T>(this IEnumerable<T> values, T value)
-        {
-            T[] newValues = new T[values.Count() + 1];
-            newValues[0] = value;
-            Array.Copy(values.ToArray(), 0, newValues, 1, values.Count());
-            return newValues;
-        }
-        /// <summary>
-        /// Returns -1 if Parsing failed.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static int SafeIntParse(this string i)
-        {
-            try { return int.Parse(i); }
-            catch (Exception) { return -1; }
-        }
-        /// <summary>
-        /// Returns null if Parsing failed.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static int? SafeNullIntParse(this string i)
-        {
-            try { return int.Parse(i); }
-            catch (Exception) { return null; }
-        }
-        /// <summary>
-        /// Returns null if Parsing failed.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static bool? SafeNullBoolParse(this string i)
-        {
-            if(i == "true" || i == "True") return true;
-            else if(i == "false" || i == "False") return false;
-            else return null;
-        }
-        /// <summary>
-        /// Gets the count of strinf sequence in the specified string.
-        /// </summary>
-        /// <param name="str"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static int GetCharCount(this string str, string c) => str.Split(c).Length - 1;
-        public static string Capatalize(this string str) => Char.ToUpper(str[0]) + str[1..];
-        public static (int DataLenght, int GottenInt) FirstIntData(string str)
-        {
-            using StringReader reader = new StringReader(str);
-            if (SafeIntParse(str[0].ToString()) == -1) throw new ArgumentException("Invalid string.");
-            reader.Read();
-            string _int = "";
-            for (int i = 0; i < SafeIntParse(str[0].ToString()); i++)
-                _int += (char)reader.Read();
-            if (SafeIntParse(_int) == -1) throw new ArgumentException("Invalid string.");
-            return (SafeIntParse(str[0].ToString()), SafeIntParse(_int));
-        }
-        /// <summary>
-        /// Returns String.Empty if the string is null.
-        /// </summary>
-        /// <param name="possibleNull">The string that *could* be null.</param>
-        /// <returns>String.Empty if the string is null, else the input.</returns>
-        public static string NullToEmptyString(string? possibleNull)
-        {
-            if (possibleNull == null) return String.Empty;
-            else return possibleNull;
-        }
-        public static string KeyCodeToUnicode(Keys key)
-        {
-            byte[] keyboardState = new byte[255];
-            bool keyboardStateStatus = GetKeyboardState(keyboardState);
-
-            if (!keyboardStateStatus)
-            {
-                return "";
-            }
-
-            uint virtualKeyCode = (uint)key;
-            uint scanCode = MapVirtualKey(virtualKeyCode, 0);
-            IntPtr inputLocaleIdentifier = GetKeyboardLayout(0);
-
-            StringBuilder result = new StringBuilder();
-            ToUnicodeEx(virtualKeyCode, scanCode, keyboardState, result, (int)5, (uint)0, inputLocaleIdentifier);
-
-            return result.ToString();
-        }
-
-        [DllImport("user32.dll")]
-        static extern bool GetKeyboardState(byte[] lpKeyState);
-
-        [DllImport("user32.dll")]
-        static extern uint MapVirtualKey(uint uCode, uint uMapType);
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetKeyboardLayout(uint idThread);
-
-        [DllImport("user32.dll")]
-        static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
-        public static ConsoleColor ColorToConsoleColor(Color a)
-        {
-            byte r = a.R;
-            byte g = a.G;
-            byte b = a.B;
-            ConsoleColor ret = 0;
-            double rr = r, gg = g, bb = b, delta = double.MaxValue;
-            foreach (ConsoleColor? cc in Enum.GetValues(typeof(ConsoleColor)))
-            {
-                string n = Enum.GetName(typeof(ConsoleColor), cc ?? throw new ArgumentNullException("Consolecolornull"))!;
-                Color c = System.Drawing.Color.FromName(n == "DarkYellow" ? "Orange" : n); // bug fix
-                double t = System.Math.Pow(c.R - rr, 2.0) + System.Math.Pow(c.G - gg, 2.0) + System.Math.Pow(c.B - bb, 2.0);
-                if (t == 0.0) return cc.Value;
-                if (t < delta)
-                {
-                    delta = t;
-                    ret = cc.Value;
-                }
-            }
-            return ret;
-        }
-        public static System.Drawing.Color FromColor(System.ConsoleColor c)
-        {
-            int[] cColors = {   0x000000, //Black = 0
-                        0x000080, //DarkBlue = 1
-                        0x008000, //DarkGreen = 2
-                        0x008080, //DarkCyan = 3
-                        0x800000, //DarkRed = 4
-                        0x800080, //DarkMagenta = 5
-                        0x808000, //DarkYellow = 6
-                        0xC0C0C0, //Gray = 7
-                        0x808080, //DarkGray = 8
-                        0x0000FF, //Blue = 9
-                        0x00FF00, //Green = 10
-                        0x00FFFF, //Cyan = 11
-                        0xFF0000, //Red = 12
-                        0xFF00FF, //Magenta = 13
-                        0xFFFF00, //Yellow = 14
-                        0xFFFFFF  //White = 15
-                    };
-            return Color.FromArgb(cColors[(int)c]);
-        }
-        public static Color DrawingColor(ConsoleColor color) => color switch
-        {
-            ConsoleColor.Black => Color.Black,
-            ConsoleColor.Blue => Color.Blue,
-            ConsoleColor.Cyan => Color.Cyan,
-            ConsoleColor.DarkBlue => Color.DarkBlue,
-            ConsoleColor.DarkGray => Color.DarkGray,
-            ConsoleColor.DarkGreen => Color.DarkGreen,
-            ConsoleColor.DarkMagenta => Color.DarkMagenta,
-            ConsoleColor.DarkRed => Color.DarkRed,
-            ConsoleColor.DarkYellow => Color.FromArgb(255, 128, 128, 0),
-            ConsoleColor.Gray => Color.Gray,
-            ConsoleColor.Green => Color.Green,
-            ConsoleColor.Magenta => Color.Magenta,
-            ConsoleColor.Red => Color.Red,
-            ConsoleColor.White => Color.White,
-            ConsoleColor.DarkCyan => Color.DarkCyan,
-            ConsoleColor.Yellow => Color.Yellow,
-            _ => Color.Red,
-        };
-        /// <summary>
-        /// Allows thread safe updates of UI components
-        /// </summary>
-        public static void InvokeEx<T>(T @this, Action<T> action) where T : ISynchronizeInvoke
-        {
-            if (@this.InvokeRequired)
-            {
-                @this.Invoke(action, new object[] { @this });
-            }
-            else
-            {
-                action(@this);
-            }
-        }
-        public static string UnescapeCodes(this string src)
-        {
-            var rx = new Regex("\\\\([0-9A-Fa-f]+)");
-            var res = new StringBuilder();
-            var pos = 0;
-            foreach (Match? m in rx.Matches(src))
-            {
-                res.Append(src.Substring(pos, m?.Index ?? default(int) - pos));
-                pos = m?.Index ?? default(int) + (m?.Length ?? default);
-                res.Append((char)Convert.ToInt32((m ?? throw new Exception("Invalid match.")).Groups[1].ToString(), 16));
-            }
-            res.Append(src[pos..]);
-            return res.ToString();
-        }
-        public static Form? GetParentForm(Control parent)
-        {
-            Form? form = parent as Form;
-            if (form != null)
-            {
-                return form;
-            }
-            if (parent != null)
-            {
-                // Walk up the control hierarchy
-                return GetParentForm(parent.Parent);
-            }
-            return null; // Control is not on a Form
-        }
-        public static int SyllableCount(string word)
-        {
-            word = word.ToLower().Trim();
-            int count = System.Text.RegularExpressions.Regex.Matches(word, "[aeiouy]+").Count;
-            //if ((word.EndsWith("e") || (word.EndsWith("es") || word.EndsWith("ed"))) && !word.EndsWith("le"))
-            //    count--;
-            return count;
-        }
-        public static string[] GetSyllables(string word)
-        {
-            word = word.ToLower().Trim();
-            List<string> syllableList = new List<string>();
-            bool lastWasVowel = false;
-            string vowels = "aeiouy";
-
-            StringBuilder currSyllable = new StringBuilder();
-
-            foreach (char c in word)
-            {
-                if (vowels.Contains(c))
-                {
-                    if (!lastWasVowel)
-                    {
-                        lastWasVowel = true;
-
-                        // Finish this syllable and add to the list
-                        syllableList.Add(currSyllable.ToString());
-                        currSyllable.Clear();
-                    }
-                }
-                else
-                {
-                    lastWasVowel = false;
-                }
-
-                // Add this character to the current syllable
-                currSyllable.Append(c);
-            }
-
-
-            return syllableList.ToArray();
+            if (dispose) fs.Dispose();
         }
         public static IEnumerable<string> Chunk(this Stream stream, string delimiter, StringSplitOptions options)
         {
@@ -613,6 +483,30 @@ namespace AsitLib
             stream.Dispose();
         }
     }
+
+    public static class ControlHelpers
+    {
+        /// <summary>
+        /// Allows thread safe updates of UI components
+        /// </summary>
+        public static void InvokeEx<T>(T @this, Action<T> action) where T : ISynchronizeInvoke
+        {
+            if (@this.InvokeRequired)
+            {
+                @this.Invoke(action, new object[] { @this });
+            }
+            else
+            {
+                action(@this);
+            }
+        }
+    }
+
+    public static class TextHelpers
+    {
+
+    }
+
     internal static class ThreadHelperClass
     {
         delegate void SetTextCallback(Form f, Control ctrl, string text);
@@ -647,6 +541,6 @@ namespace AsitLib
                 ((RichTextBox)ctrl.Tag).ReadOnly = readOnly;
             }
         }
-        
+
     }
 }
