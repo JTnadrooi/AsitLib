@@ -36,9 +36,9 @@ namespace AsitLib.Collections
         public bool MoveNext()
         {
             var t = source.Next();
-            current = t.returned;
-            pastEnd = !t.succes;
-            return t.succes;
+            current = t;
+            pastEnd = t != null;
+            return t != null;
         }
         public WideEnumerableEnumerator(WideEnumerable<T> source)
         {
@@ -80,12 +80,11 @@ namespace AsitLib.Collections
         /// <param name="width">The view <see cref="Width"/>.</param>
         public WideEnumerable(IEnumerable<T> source, int width)
         {
-            
             Width = width;
             Source = source;
             index = 0;
             sourceEnumerator = Source.GetEnumerator();
-            sourceEnumerator.Reset();
+            //sourceEnumerator.Reset();
             viewArray = new T[Width];
         }
         public void Dispose() { }
@@ -96,15 +95,13 @@ namespace AsitLib.Collections
         /// A <see cref="Tuple{T1, T2, T3}"/> containing a <see cref="Boolean"/>
         /// indicating if the operation was a succes, the <see cref="Array"/> in the view area and the current <see cref="Index"/>.
         /// </returns>
-        public (bool succes, T[] returned, int index) Next()
-        {
-            //Console.WriteLine("NEXT -- " + "");
-            bool succes = sourceEnumerator.MoveNext();
-            prevSucces = succes;
-            //Console.WriteLine(succes);
-            if (!succes)
+        public T[]? Next()
+        {         
+            bool succes = sourceEnumerator.MoveNext(); // check if movenext is valid.
+            prevSucces = succes; //?
+            if (!succes) // if not succes, return stuff
             {
-                return (succes, viewArray, index);
+                return null;
             }
 
             for (int i = 0; i < viewArray.Length; i++)
@@ -120,7 +117,7 @@ namespace AsitLib.Collections
             //Console.WriteLine(viewArray.ToJoinedString() + "--" + succes);
 
             index++;
-            return (succes, viewArray.Copy(), index);
+            return viewArray.Copy();
         }
         /// <summary>
         /// Reset this <see cref="WideEnumerable{T}"/> to its initial position, before the first element.

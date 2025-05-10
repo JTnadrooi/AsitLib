@@ -90,7 +90,7 @@ namespace AsitLib.Collections
         {
             //Console.WriteLine("SEGMENT KNOWS!");
             Keys.Add(key);
-            Console.WriteLine("Calling ONADD? :: " + (OnAdd != null));
+            //Console.WriteLine("Calling ONADD? :: " + (OnAdd != null));
             OnAdd?.Invoke(new KeyValuePair<string, T>(key, value), this);
         }
         internal void ON_CLEAR()

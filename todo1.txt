@@ -1,2 +1,0 @@
-﻿-Support hex en binary in casting. 
--bitwize stuff

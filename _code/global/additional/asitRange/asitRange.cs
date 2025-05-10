@@ -11,6 +11,7 @@ namespace AsitLib
     /// </summary>
     public readonly struct AsitRange : IEquatable<AsitRange>, ICloneable
     {
+        public bool IsEmpty => Start == End;
         /// <summary>
         /// The start of this <see cref="Range"/>. <strong>Inclucive!</strong>
         /// </summary>
@@ -30,12 +31,35 @@ namespace AsitLib
         /// <summary>
         /// Create a new <see cref="AsitRange"/> with set values.
         /// </summary>
-        /// <param name="start">The start of the <see cref="Range"/>. <strong>Inclucive!</strong></param>
-        /// <param name="end">The end of this <see cref="Range"/>. <strong>Exclucive!</strong></param>
-        public AsitRange(int start, int end)
+        /// <param name="value1">The start of the <see cref="Range"/>. <strong>Inclucive!</strong></param>
+        /// <param name="value2">The end of this <see cref="Range"/>. <strong>Exclucive!</strong></param>
+        /// <param name="throwEx">
+        /// If <see langword="true"/>, a <see cref="InvalidOperationException"/> will be throw when value1 > value2. 
+        /// If <see langword="false"/>, the <see cref="Start"/> and <see cref="End"/> will be set to the smaller and larger automatically,
+        /// </param>
+        public AsitRange(int value1, int value2, bool throwEx = true)
         {
-            Start = start; 
-            End = end;
+            if (throwEx)
+            {
+                if(value1 > value2) throw new InvalidOperationException();
+                Start = value1;
+                End = value2;
+            }
+            else
+            {
+                if(value1 == value2)
+                {
+                    Start = value1;
+                    End = value2;
+                }
+                else
+                {
+                    Start = System.Math.Min(value1, value2);
+                    End = System.Math.Max(value1, value2);
+                }
+            }
+            //Console.WriteLine(start + " " + end);
+            //Indexes = new int[start - (end - 1) + 1]
         }
         /// <summary>
         /// Create a new <see cref="AsitRange"/> from a existing <see cref="Range"/> given the size of the collection. (<paramref name="collectionLenght"/>)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Numerics;
+using static System.Net.Mime.MediaTypeNames;
 #nullable enable
 
 namespace AsitLib.Math
@@ -27,7 +28,34 @@ namespace AsitLib.Math
             return new BigInteger(Convert.ToInt64(value));
         }
         public static AsitRotationF GetRotation(float rotation, bool isRadiants) => new AsitRotationF(rotation, isRadiants);
+        public static bool IsNear(float value1, float value2, float diff) => System.Math.Abs(value1 - value2) <= diff;
+        public static string AddPrefix(int amount, string suffix)
+        {
+            string[] prefixes = { "nano", "micro", "milli", "kilo", "mega", "giga", "tera" };
+            string result = "";
+            int prefixIndex = 0;
 
+            // Check if the input value is negative and adjust it to a positive value
+            bool isNegative = amount < 0;
+            amount = System.Math.Abs(amount);
+
+            while (amount >= 1000 && prefixIndex < prefixes.Length - 1)
+            {
+                amount /= 1000;
+                prefixIndex++;
+            }
+
+            string formattedValue = amount.ToString("F2"); // Format to 2 decimal places
+
+            result = $"{formattedValue} {prefixes[prefixIndex]}{suffix}";
+
+            if (isNegative)
+            {
+                result = "-" + result;
+            }
+
+            return result;
+        }
     }
     /// <summary>
     /// Provides static methods and constants for extra mathimatical functions.
@@ -177,23 +205,33 @@ namespace AsitLib.Math
         {
             if (depth == 0) return value;
             if (multiple <= 0) throw new ArgumentException();
-            bool negative = value < 0 && Fit(depth < 0 ? System.Math.Abs(value) : depth, multiple) % 2 == 1;
+            bool negative = value < 0 && AbsDivide(depth < 0 ? System.Math.Abs(value) : depth, multiple) % 2 == 1;
             value = System.Math.Abs(value);
             for (float f = value - 1; f > 0; f--)
                 if (predicate.Invoke(f) && (value - f) % multiple == 0 && (value - (1 + f) < depth || depth < 0))
                     value *= f;
             return negative ? -value : value;
         }
-        //this can be done alot better i guess... (still, this is more precise... i think.. hmm. more testing required.)
-        public static int Fit(float value, float divider) => (int)((value - (value % divider)) / divider); 
+        public static int AbsDivide(float value, float divider) => (int)(value / divider);
         /// <summary>
         /// no one cares about gradiants so i can just float values here yay (i could use a enum but again, no one cares about gradiants)
         /// </summary>
         /// <param name="degRotation"></param>
         /// <returns></returns>
-        public static float ToRadiants(float degRotation) => degRotation * 0.01745329f;
+        public static float ToRadiants(float degRotation) => degRotation * DR;
+        /// <summary>
+        /// Convert radiants to degrees.
+        /// </summary>
+        /// <param name="radRotation">The rotation in radiants.</param>
+        /// <returns>The input <paramref name="radRotation"/> in degrees.</returns>
         public static float ToDegrees(float radRotation) => radRotation * 57.2957795f;
-        public static float Diff(float value1, float value2) => System.Math.Abs(MathF.Max(value1, value2) - MathF.Min(value2, value1));
+        /// <summary>
+        /// Finds the difference between two values.
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns></returns>
+        public static float Diff(float value1, float value2) => System.Math.Abs(value1 - value2);
         /// <summary>
         /// Get the difference between two values as seen from a circle-plane contructed from the end and the start values.
         /// </summary>

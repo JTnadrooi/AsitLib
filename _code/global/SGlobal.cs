@@ -4,7 +4,6 @@ using System.Text;
 using System.Linq;
 using AsitLib;
 using System.IO;
-using AsitLib.SpellScript;
 #nullable enable
 
 namespace AsitLib
@@ -18,7 +17,7 @@ namespace AsitLib
     {
         
         /// <summary>
-        /// basicaly same as <see cref="Enumerable.Zip{TFirst, TSecond}(IEnumerable{TFirst}, IEnumerable{TSecond})"/>.. needs some work.
+        /// Basicaly same as <see cref="Enumerable.Zip{TFirst, TSecond}(IEnumerable{TFirst}, IEnumerable{TSecond})"/>.. needs some work.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
@@ -33,6 +32,30 @@ namespace AsitLib
             for (int i = 0; i < arrayKeys.Count(); i++)
                 keyValuePairs.Add(new KeyValuePair<TKey, TValue>(arrayKeys[i], arrayValues[i]));
             return keyValuePairs.ToArray();
+        }
+        //public static string ReplaceAt(this string input, Range range, char newChar)
+        //{
+        //    string toret = input;
+        //    AsitRange asitRange = range.ToAsitRange(input.Length);
+        //    foreach (int index in asitRange.Indexes)
+        //    {
+        //        toret = toret.ReplaceAt(index, newChar);
+        //    }
+        //    return toret;
+        //}
+        public static string ReplaceAt(this string input, Index index, char newChar)
+        {
+            if (input == null) throw new ArgumentNullException("input");
+            char[] chars = input.ToCharArray();
+            chars[index] = newChar;
+            return new string(chars);
+        }
+        public static string ReplaceAt(this string input, AsitRange range, char newChar)
+        {
+            char[] inputChars = input.ToCharArray();
+            for (int i = range.Start; i <= range.End; i++)
+                inputChars[i] = newChar;
+            return new string(inputChars);
         }
         public static void Fill(byte[] bytes, string s, int startindex, int endindex, Encoding e) //needs work
         {
@@ -67,30 +90,6 @@ namespace AsitLib
             }
             return ret;
 
-        }
-        /// <summary>
-        /// Cast a string to a designated <see cref="object"/>.
-        /// </summary>
-        /// <param name="input">Input <see cref="string"/>.</param>
-        /// <returns>The <paramref name="input"/> casted to a designated <see cref="object"/> via set.</returns>
-        /// <exception cref="InvalidCastException"></exception>
-        public static object Cast(string input, CastMethod castMethod)
-        {
-            switch (castMethod)
-            {
-                case CastMethod.CS:
-                    if (input.StartsWith("\"") && input.EndsWith("\"")) return ProccesEscapes(input[1..^1], DefaultEscapes);
-                    else if (Used.SafeNullIntParse(input) != null) return int.Parse(input);
-                    else if (Used.SafeNullBoolParse(input) != null) return Used.SafeNullBoolParse(input)!;
-                    else throw new InvalidCastException("invalid cast: <" + input + ">");
-                case CastMethod.SpellScript:
-                    if (input.StartsWith("\"") && input.EndsWith("\"")) return ProccesEscapes(input[1..^1], DefaultEscapes);
-                    else if (Used.SafeNullIntParse(input) != null) return int.Parse(input);
-                    else if (Used.SafeNullBoolParse(input) != null) return Used.SafeNullBoolParse(input)!;
-                    else if (input.All(c => c == '@') || input.All(c => c == '*') || input.TrimStart('*').All(c => char.IsDigit(c)) || input.TrimStart('@').All(c => char.IsDigit(c))) return new MemoryPointer(input);
-                    else throw new InvalidCastException("invalid cast: <" + input + ">");
-                default: throw new InvalidCastException("invalid castmethod: <" + castMethod.ToString() + ">");
-            }
         }
         public static string ProccesEscapes(string input, params KeyValuePair<string, string>[] escapes)
             => ProccesEscapes(input, new Dictionary<string, string>(escapes));
@@ -129,6 +128,17 @@ namespace AsitLib
                 index++;
             }
             throw new Exception();
+        }
+        public static int? GetFirstIndexWhereOrNull<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        {
+            try
+            {
+                return GetFirstIndexWhere(source, predicate);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
         public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, out int value)
         {

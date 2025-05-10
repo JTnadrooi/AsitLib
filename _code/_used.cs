@@ -19,7 +19,7 @@ namespace AsitLib
     /// <summary>
     /// Thanks stack! (Not for all)
     /// </summary>
-    internal static class Used
+    public static class Used
     {
         public static int[] GetIndexes<T>(this IEnumerable<T> values, Func<T, bool> validator)
             => Enumerable.Range(0, values.Count()).Where(i => validator.Invoke(values.ToArray()[i])).ToArray();
@@ -37,6 +37,23 @@ namespace AsitLib
             }
             //Console.WriteLine(toret.ToArray()[1..].ToJoinedString("//"));
             return toret.ToArray()[1..];
+        }
+        /// <summary>
+        /// Suprisingly usefull when in those <see langword="void"/> returning one-liner functions/methods!
+        /// </summary>
+        public static void DoNothing() { }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="exception"></param>
+        public static void ThrowException<T>(T exception) where T : Exception { }
+        public static IDictionary<TKey, TValue> CopyPartailly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, params TKey[] keys) where TValue : ICloneable
+        {
+            List<KeyValuePair<TKey, TValue>> toret = new List<KeyValuePair<TKey, TValue>>();
+            for (int i = 0; i < keys.Length; i++)
+                toret.Add(new KeyValuePair<TKey, TValue>(keys[i], (TValue)dictionary[keys[i]].Clone()));
+            return new Dictionary<TKey, TValue>(toret.ToArray());
         }
         //public static Stream ToStream(this string s)
         //{
@@ -393,6 +410,15 @@ namespace AsitLib
             if (options != StringSplitOptions.RemoveEmptyEntries || output.Length > 0)
                 yield return output.ToString();
         }
+        public static IEnumerable<byte> GetBytes(string path)
+        {
+            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            for (int x; (x = stream.ReadByte()) != -1;)
+            {
+                yield return (byte)x;
+            }
+            stream.Dispose();
+        }
     }
     internal static class ThreadHelperClass
     {
@@ -428,5 +454,6 @@ namespace AsitLib
                 ((RichTextBox)ctrl.Tag).ReadOnly = readOnly;
             }
         }
+        
     }
 }
