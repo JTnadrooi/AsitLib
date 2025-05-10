@@ -11,24 +11,6 @@ namespace AsitLib
 {
     public static class AsitGlobal
     {
-        
-        /// <summary>
-        /// Basicaly same as <see cref="Enumerable.Zip{TFirst, TSecond}(IEnumerable{TFirst}, IEnumerable{TSecond})"/>.. needs some work.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="arrayKeys"></param>
-        /// <param name="arrayValues"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static KeyValuePair<TKey, TValue>[] Merge<TKey, TValue>(TKey[] arrayKeys, TValue[] arrayValues)
-        {
-            if (arrayKeys.Length != arrayValues.Length) throw new InvalidOperationException("Array lenghts aren't the same: " + arrayKeys.Length + " | " + arrayValues.Length);
-            List<KeyValuePair<TKey, TValue>> keyValuePairs = new List<KeyValuePair<TKey, TValue>>();
-            for (int i = 0; i < arrayKeys.Count(); i++)
-                keyValuePairs.Add(new KeyValuePair<TKey, TValue>(arrayKeys[i], arrayValues[i]));
-            return keyValuePairs.ToArray();
-        }
         public static string ReplaceAt(this string input, Index index, char newChar)
         {
             if (input == null) throw new ArgumentNullException("input");
