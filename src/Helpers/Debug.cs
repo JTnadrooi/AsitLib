@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 #nullable enable
 
@@ -42,13 +43,19 @@ namespace AsitLib.Debug
         private int maxDepth;
 
         public bool Silent { get; set; } = false;
+        public TextWriter Out { get; set; }
+        public bool IsConsole {  get; set; }
+        public bool Flush { get; set; }
 
-        public DebugStream(IStyle? style = null, string? header = null, int maxDepth = 20)
+        public DebugStream(IStyle? style = null, TextWriter? @out = null, string? header = null, int maxDepth = 20)
         {
-            this.style = style ?? Default;
+            this.style = style ?? DebugStream.Default;
             if (!string.IsNullOrEmpty(header)) Header(header);
             this.maxDepth = maxDepth;
             stopwatches = new Stopwatch[maxDepth];
+            Out = @out ?? Console.Out;
+            IsConsole = @out == null;
+            Flush = !IsConsole;
         }
 
         public void Header(string msg)
@@ -80,7 +87,6 @@ namespace AsitLib.Debug
             {
                 case 's':
                     stopwatches[depth + 1] = Stopwatch.StartNew();
-                    Console.WriteLine(prefix);
                     break;
                 default: 
                     break;
@@ -103,15 +109,22 @@ namespace AsitLib.Debug
                 msg += " [" + list + "]";
             }
             string indentStr = style.GetIndentation(depth, prefix != null);
+            Out.WriteLine(indentStr + msg);
+            if (Flush) Out.Flush();
             depth = Math.Max(depth + delta, 0);
         }
 
         public void Warn(string msg, object[]? displays = null)
         {
             ConsoleColor origColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
+            if (IsConsole) Console.ForegroundColor = ConsoleColor.Red;
             WriteLine("warning: " + (msg ?? string.Empty), displays);
-            Console.ForegroundColor = origColor;
+            if (IsConsole) Console.ForegroundColor = origColor;
+        }
+        public void Fail()
+        {
+            WriteLine("<failed: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            stopwatches[depth] = null;
         }
 
         public void Succes()
