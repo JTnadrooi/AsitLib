@@ -56,7 +56,7 @@ namespace AsitLib.Debug
             Console.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
         }
 
-        public void Log(string? msg, object?[]? displays = null)
+        public void WriteLine(string? msg, object?[]? displays = null)
         {
             if (Silent) return;
 
@@ -110,13 +110,13 @@ namespace AsitLib.Debug
         {
             ConsoleColor origColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Log("warning: " + (msg ?? string.Empty), displays);
+            WriteLine("warning: " + (msg ?? string.Empty), displays);
             Console.ForegroundColor = origColor;
         }
 
         public void Succes()
         {
-            Log("<succes: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            WriteLine("<succes: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
             stopwatches[depth] = null;
         }
 

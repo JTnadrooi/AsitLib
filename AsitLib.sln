@@ -5,9 +5,7 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsitLib", "AsitLib.csproj", "{9882BC2E-98C5-4825-838F-C0DB9C2A8820}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsitLib.Tests", "..\AsitLib.Tests\AsitLib.Tests.csproj", "{305B77B1-51C8-4382-BDB8-B939B4FC6B16}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsitLib.ConsoleTests", "..\AsitLib.ConsoleTests\AsitLib.ConsoleTests.csproj", "{8BDBFC88-7806-4902-B282-30114B590612}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsitLib.ConsoleTests", "..\AsitLib.ConsoleTests\AsitLib.ConsoleTests.csproj", "{8BDBFC88-7806-4902-B282-30114B590612}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +17,6 @@ Global
 		{9882BC2E-98C5-4825-838F-C0DB9C2A8820}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9882BC2E-98C5-4825-838F-C0DB9C2A8820}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9882BC2E-98C5-4825-838F-C0DB9C2A8820}.Release|Any CPU.Build.0 = Release|Any CPU
-		{305B77B1-51C8-4382-BDB8-B939B4FC6B16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{305B77B1-51C8-4382-BDB8-B939B4FC6B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{305B77B1-51C8-4382-BDB8-B939B4FC6B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{305B77B1-51C8-4382-BDB8-B939B4FC6B16}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8BDBFC88-7806-4902-B282-30114B590612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8BDBFC88-7806-4902-B282-30114B590612}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BDBFC88-7806-4902-B282-30114B590612}.Release|Any CPU.ActiveCfg = Release|Any CPU
