@@ -60,7 +60,7 @@ namespace AsitLib.Debug
 
         public void Header(string msg)
         {
-            Console.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
+            Out.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
         }
 
         public void WriteLine(string? msg, object?[]? displays = null)
