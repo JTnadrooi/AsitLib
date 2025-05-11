@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 #nullable enable
 
@@ -14,48 +15,35 @@ namespace AsitLib.Debug
     {
         public string GetIndentation(int level)
         {
-            if (level <= 0)
-                return string.Empty;
-
-            // for each level >1 draw "│   ", then at current level "├──".
-            var prefix = string.Concat(Enumerable.Repeat("│   ", level - 1));
+            if (level <= 0) return string.Empty;
+            string prefix = string.Concat(Enumerable.Repeat("│   ", level - 1));
             return prefix + "├──";
         }
 
-        public string GetHeaderIndentation()
-        {
-            return "╭──";
-        }
+        public string GetHeaderIndentation() => "╭──";
     }
 
     public class DefaultStyle : IStyle
     {
         public string GetIndentation(int level)
         {
-            if (level <= 0)
-                return string.Empty;
-
-            var prefix = string.Concat(Enumerable.Repeat("   ", level - 1));
-            return prefix + "^--";
+            if (level <= 0) return string.Empty;
+            return string.Concat(Enumerable.Repeat("   ", level - 1)) + "^--";
         }
-
-        public string GetHeaderIndentation()
-        {
-            return "^";
-        }
+        public string GetHeaderIndentation() => "^";
     }
 
     public class DebugStream
     {
+        private IStyle style;
         private int indentation = 0;
+
         public bool Silent { get; set; } = false;
-        private readonly IStyle style;
 
         public DebugStream(string? styleId = null, string? header = null)
         {
             this.style = GetStyle(styleId);
-            if (!string.IsNullOrEmpty(header))
-                Header(header);
+            if (!string.IsNullOrEmpty(header)) Header(header);
         }
 
         public void Header(string msg)
@@ -92,18 +80,20 @@ namespace AsitLib.Debug
                 msg = msg.Substring(tabs);
             }
 
-            // trailing dots indicate indent after.
-            if (msg.EndsWith("..")) delta++;
-
             // append display info if provided.
             if (displays != null)
             {
-                string list = displays.Length > 0
-                    ? string.Join(", ", displays.Select(d =>
-                        d == null ? "undefined"
-                        : (d is string str ? $"\"{str}\""
-                                          : d.GetType().Name)))
-                    : "_EMPTY_ARRAY_";
+                string list;
+                if (displays.Length > 0)
+                {
+                    IEnumerable<string> displayTypes = displays.Select(d =>
+                    {
+                        if (d == null) return "undefined";
+                        return d is string str ? ("\"" + str + "\"") : d.ToString()!; 
+                    });
+                    list = string.Join(", ", displayTypes);
+                }
+                else list = "_EMPTY_ARRAY_";
                 msg += " [" + list + "]";
             }
 
@@ -114,18 +104,17 @@ namespace AsitLib.Debug
 
         public void Error(string msg, object[]? displays = null)
         {
-            var origColor = Console.ForegroundColor;
+            ConsoleColor origColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
             Log("WARNING: " + (msg ?? string.Empty), displays);
             Console.ForegroundColor = origColor;
         }
 
-        public static IStyle GetStyle(string? styleId = null)
-        {
-            return string.Equals(styleId, "box-drawing",
-                                 StringComparison.OrdinalIgnoreCase)
-                ? (IStyle)new BoxDrawingStyle()
-                : new DefaultStyle();
-        }
+        public static IStyle GetStyle(string? styleId = null) =>
+            styleId?.ToLowerInvariant() switch
+            {
+                "BoxDrawing" => new BoxDrawingStyle(),
+                _ => new DefaultStyle()
+            };
     }
 }
