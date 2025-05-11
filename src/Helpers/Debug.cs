@@ -6,11 +6,6 @@ using System.Linq;
 
 namespace AsitLib.Debug
 {
-    public interface IDebugStreamStyle
-    {
-        public string GetIndentation(int level, bool hasPrefix = false);
-        public string GetHeaderIndentation();
-    }
 
     //public class BoxDrawingStyle : IDebugStreamStyle
     //{
@@ -24,7 +19,7 @@ namespace AsitLib.Debug
     //    public string GetHeaderIndentation() => "╭──";
     //}
 
-    public class DefaultStyle : IDebugStreamStyle
+    public class DefaultStyle : DebugStream.IStyle
     {
         public string GetIndentation(int level, bool hasPrefix = false) => new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
         public string GetHeaderIndentation() => "^";
@@ -32,7 +27,13 @@ namespace AsitLib.Debug
 
     public class DebugStream
     {
-        private IDebugStreamStyle style;
+        public interface IStyle
+        {
+            public string GetIndentation(int level, bool hasPrefix = false);
+            public string GetHeaderIndentation();
+        }
+
+        private IStyle style;
         private int indentation = 0;
         private Stopwatch?[] stopwatches;
         private int maxDepth;
@@ -117,7 +118,7 @@ namespace AsitLib.Debug
             stopwatches[indentation] = null;
         }
 
-        public static IDebugStreamStyle GetStyle(string? styleId = null) =>
+        public static IStyle GetStyle(string? styleId = null) =>
             (styleId ?? "Default") switch
             {
                 // "BoxDrawing" => new BoxDrawingStyle(),
