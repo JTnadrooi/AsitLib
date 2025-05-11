@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace AsitLib.Debug
 {
-    public interface IStyle
+    public interface IDebugStreamStyle
     {
         public string GetIndentation(int level);
         public string GetHeaderIndentation();
     }
 
-    public class BoxDrawingStyle : IStyle
+    public class BoxDrawingStyle : IDebugStreamStyle
     {
         public string GetIndentation(int level)
         {
@@ -23,7 +23,7 @@ namespace AsitLib.Debug
         public string GetHeaderIndentation() => "╭──";
     }
 
-    public class DefaultStyle : IStyle
+    public class DefaultStyle : IDebugStreamStyle
     {
         public string GetIndentation(int level)
         {
@@ -35,7 +35,7 @@ namespace AsitLib.Debug
 
     public class DebugStream
     {
-        private IStyle style;
+        private IDebugStreamStyle style;
         private int indentation = 0;
 
         public bool Silent { get; set; } = false;
@@ -110,7 +110,7 @@ namespace AsitLib.Debug
             Console.ForegroundColor = origColor;
         }
 
-        public static IStyle GetStyle(string? styleId = null) =>
+        public static IDebugStreamStyle GetStyle(string? styleId = null) =>
             styleId?.ToLowerInvariant() switch
             {
                 "BoxDrawing" => new BoxDrawingStyle(),
