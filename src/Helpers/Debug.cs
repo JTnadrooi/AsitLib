@@ -19,11 +19,6 @@ namespace AsitLib.Debug
     //    public string GetHeaderIndentation() => "╭──";
     //}
 
-    public class DefaultStyle : DebugStream.IStyle
-    {
-        public string GetIndentation(int level, bool hasPrefix = false) => new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
-        public string GetHeaderIndentation() => "^";
-    }
 
     public class DebugStream
     {
@@ -33,16 +28,24 @@ namespace AsitLib.Debug
             public string GetHeaderIndentation();
         }
 
+        public class DefaultStyle : DebugStream.IStyle
+        {
+            public string GetIndentation(int level, bool hasPrefix = false) => new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
+            public string GetHeaderIndentation() => "^";
+        }
+
+        public static IStyle Default = new DefaultStyle();
+
         private IStyle style;
-        private int indentation = 0;
+        private int depth = 0;
         private Stopwatch?[] stopwatches;
         private int maxDepth;
 
         public bool Silent { get; set; } = false;
 
-        public DebugStream(string? styleId = null, string? header = null, int maxDepth = 20)
+        public DebugStream(IStyle? style = null, string? header = null, int maxDepth = 20)
         {
-            style = GetStyle(styleId);
+            this.style = style ?? Default;
             if (!string.IsNullOrEmpty(header)) Header(header);
             this.maxDepth = maxDepth;
             stopwatches = new Stopwatch[maxDepth];
@@ -71,12 +74,13 @@ namespace AsitLib.Debug
                 delta++;
                 msg = msg.Substring(1).TrimStart();
             }
+            if (delta + depth > maxDepth) throw new Exception("exeeded max indent depth");
             // prefix handling.
             char? prefix = (msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
             switch (prefix)
             {
                 case 's':
-                    stopwatches[indentation + 1] = Stopwatch.StartNew();
+                    stopwatches[depth + 1] = Stopwatch.StartNew();
                     Console.WriteLine(prefix);
                     break;
                 default: 
@@ -99,9 +103,9 @@ namespace AsitLib.Debug
                 else list = "_EMPTY_ARRAY_";
                 msg += " [" + list + "]";
             }
-            string indentStr = style.GetIndentation(indentation, prefix != null);
+            string indentStr = style.GetIndentation(depth, prefix != null);
             Console.WriteLine(indentStr + msg);
-            indentation = Math.Max(indentation + delta, 0);
+            depth = Math.Max(depth + delta, 0);
         }
 
         public void Warn(string msg, object[]? displays = null)
@@ -114,8 +118,8 @@ namespace AsitLib.Debug
 
         public void Succes()
         {
-            Log("<succes: time taken: " + (stopwatches[indentation]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
-            stopwatches[indentation] = null;
+            Log("<succes: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            stopwatches[depth] = null;
         }
 
         public static IStyle GetStyle(string? styleId = null) =>
