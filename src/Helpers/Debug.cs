@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
+#nullable enable
 
 namespace AsitLib.Debug
 {
     public interface IStyle
     {
-        string GetIndentation(int level);
-        string GetHeaderIndentation();
+        public string GetIndentation(int level);
+        public string GetHeaderIndentation();
     }
 
     public class BoxDrawingStyle : IStyle
@@ -16,7 +17,7 @@ namespace AsitLib.Debug
             if (level <= 0)
                 return string.Empty;
 
-            // for each level >1 draw "│   ", then at current level "├──"
+            // for each level >1 draw "│   ", then at current level "├──".
             var prefix = string.Concat(Enumerable.Repeat("│   ", level - 1));
             return prefix + "├──";
         }
@@ -50,7 +51,7 @@ namespace AsitLib.Debug
         public bool Silent { get; set; } = false;
         private readonly IStyle style;
 
-        public DebugStream(string styleId = null, string header = null)
+        public DebugStream(string? styleId = null, string? header = null)
         {
             this.style = GetStyle(styleId);
             if (!string.IsNullOrEmpty(header))
@@ -63,27 +64,27 @@ namespace AsitLib.Debug
             Console.WriteLine(style.GetHeaderIndentation() + "[" + msg.ToUpperInvariant() + "]");
         }
 
-        public void Log(string msg, object[] displays = null)
+        public void Log(string msg, object[]? displays = null)
         {
             if (Silent) return;
 
             msg = msg ?? string.Empty;
             int delta = 0;
 
-            // adjust delta for closing marker '<'
+            // adjust delta for closing marker '<'.
             if (msg.StartsWith("<"))
             {
                 delta--;
                 msg = msg.Substring(1).TrimStart();
             }
-            // adjust delta for opening marker '>'
+            // adjust delta for opening marker '>'.
             else if (msg.StartsWith(">"))
             {
                 delta++;
                 msg = msg.Substring(1).TrimStart();
             }
 
-            // count all leading tabs as additional indent
+            // count all leading tabs as additional indent.
             int tabs = msg.TakeWhile(c => c == '\t').Count();
             if (tabs > 0)
             {
@@ -91,13 +92,10 @@ namespace AsitLib.Debug
                 msg = msg.Substring(tabs);
             }
 
-            // trailing dots indicate indent after
-            if (msg.EndsWith(".."))
-            {
-                delta++;
-            }
+            // trailing dots indicate indent after.
+            if (msg.EndsWith("..")) delta++;
 
-            // append display info if provided
+            // append display info if provided.
             if (displays != null)
             {
                 string list = displays.Length > 0
@@ -109,15 +107,12 @@ namespace AsitLib.Debug
                 msg += " [" + list + "]";
             }
 
-            // print with current indentation
             string indentStr = style.GetIndentation(indentation);
             Console.WriteLine(indentStr + msg);
-
-            // update indentation (never negative)
             indentation = Math.Max(indentation + delta, 0);
         }
 
-        public void Error(string msg, object[] displays = null)
+        public void Error(string msg, object[]? displays = null)
         {
             var origColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
@@ -125,7 +120,7 @@ namespace AsitLib.Debug
             Console.ForegroundColor = origColor;
         }
 
-        public static IStyle GetStyle(string styleId = null)
+        public static IStyle GetStyle(string? styleId = null)
         {
             return string.Equals(styleId, "box-drawing",
                                  StringComparison.OrdinalIgnoreCase)
