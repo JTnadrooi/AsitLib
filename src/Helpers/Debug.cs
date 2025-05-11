@@ -111,10 +111,11 @@ namespace AsitLib.Debug
         }
 
         public static IDebugStreamStyle GetStyle(string? styleId = null) =>
-            styleId?.ToLowerInvariant() switch
+            (styleId ?? "default") switch
             {
-                "BoxDrawing" => new BoxDrawingStyle(),
-                _ => new DefaultStyle()
+                "boxdrawing" => new BoxDrawingStyle(),
+                "default" => new DefaultStyle(),
+                _ => throw new ArgumentException()
             };
     }
 }
