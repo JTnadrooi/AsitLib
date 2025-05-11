@@ -74,7 +74,7 @@ namespace AsitLib.Debug
                 delta++;
                 msg = msg.Substring(1).TrimStart();
             }
-            if (delta + depth > maxDepth) throw new Exception("exeeded max indent depth");
+            if (delta + depth > maxDepth) throw new Exception("exceeded max indent depth");
             // prefix handling.
             char? prefix = (msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
             switch (prefix)
