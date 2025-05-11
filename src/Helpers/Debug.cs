@@ -75,7 +75,6 @@ namespace AsitLib.Debug
                 msg = msg.Substring(1).TrimStart();
             }
             if (delta + depth > maxDepth) throw new Exception("exceeded max indent depth");
-            // prefix handling.
             char? prefix = (msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
             switch (prefix)
             {
@@ -104,7 +103,6 @@ namespace AsitLib.Debug
                 msg += " [" + list + "]";
             }
             string indentStr = style.GetIndentation(depth, prefix != null);
-            Console.WriteLine(indentStr + msg);
             depth = Math.Max(depth + delta, 0);
         }
 
