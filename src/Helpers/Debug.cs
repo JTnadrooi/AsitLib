@@ -27,8 +27,7 @@ namespace AsitLib.Debug
     {
         public string GetIndentation(int level)
         {
-            if (level <= 0) return string.Empty;
-            return string.Concat(Enumerable.Repeat("   ", level - 1)) + "^--";
+            return new string(' ', level * 4) + "^---";
         }
         public string GetHeaderIndentation() => "^";
     }
@@ -48,8 +47,7 @@ namespace AsitLib.Debug
 
         public void Header(string msg)
         {
-            msg = msg ?? string.Empty;
-            Console.WriteLine(style.GetHeaderIndentation() + "[" + msg.ToUpperInvariant() + "]");
+            Console.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
         }
 
         public void Log(string msg, object[]? displays = null)
@@ -111,10 +109,10 @@ namespace AsitLib.Debug
         }
 
         public static IDebugStreamStyle GetStyle(string? styleId = null) =>
-            (styleId ?? "default") switch
+            (styleId ?? "Default") switch
             {
-                "boxdrawing" => new BoxDrawingStyle(),
-                "default" => new DefaultStyle(),
+                "BoxDrawing" => new BoxDrawingStyle(),
+                "Default" => new DefaultStyle(),
                 _ => throw new ArgumentException()
             };
     }
