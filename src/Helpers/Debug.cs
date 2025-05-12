@@ -116,25 +116,32 @@ namespace AsitLib.Debug
             }
         }
 
-        public void Warn(string msg, object[]? displays = null)
+        private void LogWithColor(ConsoleColor? color, string message, object?[]? displays = null)
         {
-            ConsoleColor origColor = Console.ForegroundColor;
-            if (IsConsole) Console.ForegroundColor = ConsoleColor.Red;
-            Log("warning: " + (msg ?? string.Empty), displays);
-            if (IsConsole) Console.ForegroundColor = origColor;
-        }
-        public void Fail()
-        {
-            int idx = depth;
-            Log("<failed: time taken: " + (stopwatches[idx]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
-            stopwatches[idx] = null;
+            if (IsConsole && color.HasValue)
+            {
+                var orig = Console.ForegroundColor;
+                Console.ForegroundColor = color.Value;
+                try { Log(message, displays); }
+                finally { Console.ForegroundColor = orig; }
+            }
+            else
+            {
+                Log(message, displays);
+            }
         }
 
-        public void Succes()
+        private void LogResult(string? msg, bool isSuccess, ConsoleColor? color)
         {
             int idx = depth;
-            Log("<succes: time taken: " + (stopwatches[idx]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            Stopwatch? sw = stopwatches[idx];
+            string defaultMsg = isSuccess ? "success" : "failed";
+            string message = sw != null ? $"<{(msg ?? defaultMsg).TrimEnd('.')}: time taken: {sw.ElapsedMilliseconds}ms." : $"<{defaultMsg}";
+            LogWithColor(color, message);
             stopwatches[idx] = null;
         }
+        public void Fail(string? msg = null) => LogResult(msg, isSuccess: false, color: ConsoleColor.Red);
+        public void Success(string? msg = null) => LogResult(msg, isSuccess: true, color: null);
+        public void Warn(string msg, object?[]? displays = null) => LogWithColor(ConsoleColor.Red, $"warning: {msg ?? string.Empty}", displays);
     }
 }
