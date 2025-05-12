@@ -57,12 +57,7 @@ namespace AsitLib.Debug
             this.maxDepth = maxDepth;
             stopwatches = new Stopwatch[maxDepth];
         }
-
-        public void Header(string msg)
-        {
-            Out.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
-        }
-
+        public void Header(string msg) => Out.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
         public void Log(string? msg, object?[]? displays = null)
         {
             if (Silent) return;
@@ -93,12 +88,12 @@ namespace AsitLib.Debug
                     IEnumerable<string> displayTypes = displays.Select(d =>
                     {
                         if (d == null) return "_NULL_";
-                        return d is string str ? ("\"" + str + "\"") : d.ToString()!; 
+                        return d is string str ? ($"\"{str}\"") : d.ToString()!; 
                     });
                     list = string.Join(", ", displayTypes);
                 }
                 else list = "_EMPTY_ARRAY_";
-                msg += " [" + list + "]";
+                msg += $" [{list}]";
             }
             string indentStr = style.GetIndentation(depth, prefix != null);
             Out.WriteLine(indentStr + msg);
@@ -115,7 +110,6 @@ namespace AsitLib.Debug
                     break;
             }
         }
-
         private void LogWithColor(ConsoleColor? color, string message, object?[]? displays = null)
         {
             if (IsConsole && color.HasValue)
@@ -125,12 +119,8 @@ namespace AsitLib.Debug
                 try { Log(message, displays); }
                 finally { Console.ForegroundColor = orig; }
             }
-            else
-            {
-                Log(message, displays);
-            }
+            else Log(message, displays);
         }
-
         private void LogResult(string? msg, bool isSuccess, ConsoleColor? color)
         {
             int idx = depth;
