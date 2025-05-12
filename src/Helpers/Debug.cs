@@ -82,7 +82,7 @@ namespace AsitLib.Debug
                 msg = msg.Substring(1).TrimStart();
             }
             if (delta + depth > maxDepth) throw new Exception("exceeded max indent depth");
-            char? prefix = (msg.Length > 3 && (msg[0] == '[' && msg[2] == ']')) ? msg[1] : null;
+            char? prefix = (msg.Length > 3 && msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
 
             if (delta > 0) msg = msg.TrimEnd('.') + "..";
             if (displays != null)
@@ -136,13 +136,5 @@ namespace AsitLib.Debug
             WriteLine("<succes: time taken: " + (stopwatches[idx]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
             stopwatches[idx] = null;
         }
-
-        public static IStyle GetStyle(string? styleId = null) =>
-            (styleId ?? "Default") switch
-            {
-                // "BoxDrawing" => new BoxDrawingStyle(),
-                "Default" => new DefaultStyle(),
-                _ => throw new ArgumentException()
-            };
     }
 }
