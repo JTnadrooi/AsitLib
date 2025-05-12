@@ -45,17 +45,17 @@ namespace AsitLib.Debug
         public bool Silent { get; set; } = false;
         public TextWriter Out { get; set; }
         public bool IsConsole {  get; set; }
-        public bool Flush { get; set; }
+        public bool AutoFlush { get; set; }
 
         public DebugStream(IStyle? style = null, TextWriter? @out = null, string? header = null, int maxDepth = 20)
         {
             this.style = style ?? DebugStream.Default;
+            Out = @out ?? Console.Out;
+            IsConsole = @out == null;
+            AutoFlush = !IsConsole;
             if (!string.IsNullOrEmpty(header)) Header(header);
             this.maxDepth = maxDepth;
             stopwatches = new Stopwatch[maxDepth];
-            Out = @out ?? Console.Out;
-            IsConsole = @out == null;
-            Flush = !IsConsole;
         }
 
         public void Header(string msg)
@@ -82,15 +82,7 @@ namespace AsitLib.Debug
                 msg = msg.Substring(1).TrimStart();
             }
             if (delta + depth > maxDepth) throw new Exception("exceeded max indent depth");
-            char? prefix = (msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
-            switch (prefix)
-            {
-                case 's':
-                    stopwatches[depth + 1] = Stopwatch.StartNew();
-                    break;
-                default: 
-                    break;
-            }
+            char? prefix = (msg.Length > 3 && (msg[0] == '[' && msg[2] == ']')) ? msg[1] : null;
 
             if (delta > 0) msg = msg.TrimEnd('.') + "..";
             if (displays != null)
@@ -109,9 +101,19 @@ namespace AsitLib.Debug
                 msg += " [" + list + "]";
             }
             string indentStr = style.GetIndentation(depth, prefix != null);
-            Out.WriteLine(indentStr + msg);
-            if (Flush) Out.Flush();
+            Out.WriteLine(depth + indentStr + msg);
+            if (AutoFlush) Out.Flush();
+
             depth = Math.Max(depth + delta, 0);
+
+            switch (prefix)
+            {
+                case 's':
+                    stopwatches[depth] = Stopwatch.StartNew();
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void Warn(string msg, object[]? displays = null)
@@ -123,14 +125,16 @@ namespace AsitLib.Debug
         }
         public void Fail()
         {
-            WriteLine("<failed: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
-            stopwatches[depth] = null;
+            int idx = depth;
+            WriteLine("<failed: time taken: " + (stopwatches[idx]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            stopwatches[idx] = null;
         }
 
         public void Succes()
         {
-            WriteLine("<succes: time taken: " + (stopwatches[depth]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
-            stopwatches[depth] = null;
+            int idx = depth;
+            WriteLine("<succes: time taken: " + (stopwatches[idx]?.ElapsedMilliseconds.ToString() ?? "??") + "ms.");
+            stopwatches[idx] = null;
         }
 
         public static IStyle GetStyle(string? styleId = null) =>
