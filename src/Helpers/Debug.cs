@@ -101,7 +101,7 @@ namespace AsitLib.Debug
                 msg += " [" + list + "]";
             }
             string indentStr = style.GetIndentation(depth, prefix != null);
-            Out.WriteLine(depth + indentStr + msg);
+            Out.WriteLine(indentStr + msg);
             if (AutoFlush) Out.Flush();
 
             depth = Math.Max(depth + delta, 0);
