@@ -11,8 +11,8 @@ namespace AsitLib.Debug
     {
         public interface IStyle
         {
-            string GetIndentation(int level, bool hasPrefix = false);
-            string GetHeaderIndentation();
+            public string GetIndentation(int level, bool hasPrefix = false);
+            public string GetHeaderIndentation();
         }
 
         public sealed class DefaultStyle : IStyle
@@ -144,9 +144,7 @@ namespace AsitLib.Debug
         {
             if (displays.Length == 0) return baseMsg + " [_EMPTY_ARRAY_]";
 
-            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity)
-                .Append(baseMsg)
-                .Append(" [");
+            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity).Append(baseMsg).Append(" [");
 
             for (int i = 0; i < displays.Length; i++)
             {
