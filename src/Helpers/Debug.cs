@@ -2,136 +2,159 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Text;
 #nullable enable
 
 namespace AsitLib.Debug
 {
-
-    //public class BoxDrawingStyle : IDebugStreamStyle
-    //{
-    //    public string GetIndentation(int level)
-    //    {
-    //        if (level <= 0) return string.Empty;
-    //        string prefix = string.Concat(Enumerable.Repeat("│   ", level - 1));
-    //        return prefix + "├──";
-    //    }
-
-    //    public string GetHeaderIndentation() => "╭──";
-    //}
-
-
-    public class DebugStream
+    public sealed class DebugStream
     {
         public interface IStyle
         {
-            public string GetIndentation(int level, bool hasPrefix = false);
-            public string GetHeaderIndentation();
+            string GetIndentation(int level, bool hasPrefix = false);
+            string GetHeaderIndentation();
         }
 
-        public class DefaultStyle : DebugStream.IStyle
+        public sealed class DefaultStyle : IStyle
         {
-            public string GetIndentation(int level, bool hasPrefix = false) => new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
+            public string GetIndentation(int level, bool hasPrefix = false)
+            {
+                if (level <= 0) return hasPrefix ? "^" : "^---";
+                return new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
+            }
+
             public string GetHeaderIndentation() => "^";
         }
 
-        public static IStyle Default = new DefaultStyle();
+        public static IStyle Default { get; } = new DefaultStyle();
 
-        private IStyle style;
-        private int depth = 0;
-        private Stopwatch?[] stopwatches;
-        private int maxDepth;
+        private readonly IStyle _style;
+        private readonly Stack<Stopwatch?> _timers;
+        private readonly int _maxDepth;
 
-        public bool Silent { get; set; } = false;
-        public TextWriter Out { get; set; }
-        public bool IsConsole {  get; set; }
-        public bool AutoFlush { get; set; }
+        private int _depth;
 
-        public DebugStream(IStyle? style = null, TextWriter? @out = null, string? header = null, int maxDepth = 20)
+        public bool Silent { get; set; }
+        public TextWriter Out { get; }
+        public bool IsConsole { get; }
+        public bool AutoFlush { get; }
+
+        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20)
         {
-            this.style = style ?? DebugStream.Default;
-            Out = @out ?? Console.Out;
-            IsConsole = @out == null;
+            _style = style ?? Default;
+            Out = output ?? Console.Out;
+            IsConsole = output is null;
             AutoFlush = !IsConsole;
+
+            _maxDepth = maxDepth;
+            _timers = new Stack<Stopwatch?>(maxDepth);
+
             if (!string.IsNullOrEmpty(header)) Header(header);
-            this.maxDepth = maxDepth;
-            stopwatches = new Stopwatch[maxDepth];
         }
-        public void Header(string msg) => Out.WriteLine(style.GetHeaderIndentation() + "[" + (msg ?? string.Empty).ToUpperInvariant() + "]");
-        public void Log(string? msg, object?[]? displays = null)
+
+        public void Header(string msg) => Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
+
+        public void Log(string? msg, ReadOnlySpan<object?> displays = default)
         {
             if (Silent) return;
+            if (string.IsNullOrEmpty(msg)) msg = "_NULL_";
 
-            int delta = 0;
+            string normalizedMsg = NormalizeMessage(msg!, out int delta, out char? prefix);
 
-            msg = msg ?? "_NULL_";
-            if (msg.StartsWith("\t")) throw new Exception();
-            if (msg.StartsWith("<"))
+            if (_depth + delta > _maxDepth) throw new InvalidOperationException("Exceeded max indent depth");
+            if (!displays.IsEmpty) normalizedMsg = AppendDisplays(normalizedMsg, displays);
+
+            Out.WriteLine(_style.GetIndentation(_depth, prefix is not null) + normalizedMsg);
+            if (AutoFlush) Out.Flush();
+
+            _depth = Math.Max(_depth + delta, 0);
+
+            if (prefix == 's') BeginTiming();
+        }
+
+        public void Fail(string? msg = null)
+        {
+            Stopwatch? sw = EndTiming();
+            string defaultMsg = "failed";
+            string message = sw is not null
+                ? "<" + (msg ?? defaultMsg).TrimEnd('.') + ": time taken: " + sw.ElapsedMilliseconds + "ms."
+                : "<" + (msg ?? defaultMsg);
+            LogWithColor(ConsoleColor.Red, message);
+        }
+
+        public void Success(string? msg = null)
+        {
+            Stopwatch? sw = EndTiming();
+            string defaultMsg = "success";
+            string message = sw is not null
+                ? "<" + (msg ?? defaultMsg).TrimEnd('.') + ": time taken: " + sw.ElapsedMilliseconds + "ms."
+                : "<" + (msg ?? defaultMsg);
+            Log(message);
+        }
+
+        public void Warn(string msg, ReadOnlySpan<object?> displays = default)
+            => LogWithColor(ConsoleColor.Red, "warning: " + (msg ?? string.Empty), displays);
+
+        private void LogWithColor(ConsoleColor? color, string message, ReadOnlySpan<object?> displays = default)
+        {
+            if (IsConsole && color.HasValue)
+            {
+                ConsoleColor original = Console.ForegroundColor;
+                Console.ForegroundColor = color.Value;
+                try { Log(message, displays); }
+                finally { Console.ForegroundColor = original; }
+            }
+            else Log(message, displays);
+        }
+
+        private void BeginTiming()
+        {
+            if (_timers.Count < _maxDepth) _timers.Push(Stopwatch.StartNew());
+        }
+
+        private Stopwatch? EndTiming() => _timers.Count > 0 ? _timers.Pop() : null;
+
+        private static string NormalizeMessage(string msg, out int delta, out char? prefix)
+        {
+            delta = 0;
+            prefix = null;
+
+            if (msg.Length > 0 && msg[0] == '<')
             {
                 delta--;
                 msg = msg.Substring(1).TrimStart();
             }
-            else if (msg.StartsWith(">"))
+            else if (msg.Length > 0 && msg[0] == '>')
             {
                 delta++;
                 msg = msg.Substring(1).TrimStart();
+                if (msg.Length > 0) msg = msg.TrimEnd('.') + "..";
             }
-            if (delta + depth > maxDepth) throw new Exception("exceeded max indent depth");
-            char? prefix = (msg.Length > 3 && msg[0] == '[' && msg[2] == ']') ? msg[1] : null;
 
-            if (delta > 0) msg = msg.TrimEnd('.') + "..";
-            if (displays != null)
-            {
-                string list;
-                if (displays.Length > 0)
-                {
-                    IEnumerable<string> displayTypes = displays.Select(d =>
-                    {
-                        if (d == null) return "_NULL_";
-                        return d is string str ? ($"\"{str}\"") : d.ToString()!; 
-                    });
-                    list = string.Join(", ", displayTypes);
-                }
-                else list = "_EMPTY_ARRAY_";
-                msg += $" [{list}]";
-            }
-            string indentStr = style.GetIndentation(depth, prefix != null);
-            Out.WriteLine(indentStr + msg);
-            if (AutoFlush) Out.Flush();
+            if (msg.Length > 3 && msg[0] == '[' && msg[2] == ']') prefix = msg[1];
 
-            depth = Math.Max(depth + delta, 0);
-
-            switch (prefix)
-            {
-                case 's':
-                    stopwatches[depth] = Stopwatch.StartNew();
-                    break;
-                default:
-                    break;
-            }
+            return msg;
         }
-        private void LogWithColor(ConsoleColor? color, string message, object?[]? displays = null)
+
+        private static string AppendDisplays(string baseMsg, ReadOnlySpan<object?> displays)
         {
-            if (IsConsole && color.HasValue)
+            if (displays.Length == 0) return baseMsg + " [_EMPTY_ARRAY_]";
+
+            StringBuilder sb = new StringBuilder(baseMsg.Length + 64);
+            sb.Append(baseMsg);
+            sb.Append(" [");
+
+            for (int i = 0; i < displays.Length; i++)
             {
-                var orig = Console.ForegroundColor;
-                Console.ForegroundColor = color.Value;
-                try { Log(message, displays); }
-                finally { Console.ForegroundColor = orig; }
+                if (i > 0) sb.Append(", ");
+                object? d = displays[i];
+                if (d is null) sb.Append("_NULL_");
+                else if (d is string str) sb.Append('"').Append(str).Append('"');
+                else sb.Append(d);
             }
-            else Log(message, displays);
+
+            sb.Append(']');
+            return sb.ToString();
         }
-        private void LogResult(string? msg, bool isSuccess, ConsoleColor? color)
-        {
-            int idx = depth;
-            Stopwatch? sw = stopwatches[idx];
-            string defaultMsg = isSuccess ? "success" : "failed";
-            string message = sw != null ? $"<{(msg ?? defaultMsg).TrimEnd('.')}: time taken: {sw.ElapsedMilliseconds}ms." : $"<{defaultMsg}";
-            LogWithColor(color, message);
-            stopwatches[idx] = null;
-        }
-        public void Fail(string? msg = null) => LogResult(msg, isSuccess: false, color: ConsoleColor.Red);
-        public void Success(string? msg = null) => LogResult(msg, isSuccess: true, color: null);
-        public void Warn(string msg, object?[]? displays = null) => LogWithColor(ConsoleColor.Red, $"warning: {msg ?? string.Empty}", displays);
     }
 }
