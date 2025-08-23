@@ -46,6 +46,7 @@ namespace AsitLib.Debug
             Out = output ?? Console.Out;
             IsConsole = output is null;
             AutoFlush = !IsConsole;
+            DisplaysCapasity = displaysCapasity;
 
             _maxDepth = maxDepth;
             _timers = new Stack<Stopwatch?>(maxDepth);
