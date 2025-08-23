@@ -38,8 +38,9 @@ namespace AsitLib.Debug
         public TextWriter Out { get; }
         public bool IsConsole { get; }
         public bool AutoFlush { get; }
+        public int DisplaysCapasity { get; }
 
-        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20)
+        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64)
         {
             _style = style ?? Default;
             Out = output ?? Console.Out;
@@ -114,7 +115,7 @@ namespace AsitLib.Debug
 
         private Stopwatch? EndTiming() => _timers.Count > 0 ? _timers.Pop() : null;
 
-        private static string NormalizeMessage(string msg, out int delta, out char? prefix)
+        private string NormalizeMessage(string msg, out int delta, out char? prefix)
         {
             delta = 0;
             prefix = null;
@@ -136,11 +137,11 @@ namespace AsitLib.Debug
             return msg;
         }
 
-        private static string AppendDisplays(string baseMsg, ReadOnlySpan<object?> displays)
+        private string AppendDisplays(string baseMsg, ReadOnlySpan<object?> displays)
         {
             if (displays.Length == 0) return baseMsg + " [_EMPTY_ARRAY_]";
 
-            StringBuilder sb = new StringBuilder(baseMsg.Length + 64);
+            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity);
             sb.Append(baseMsg);
             sb.Append(" [");
 
