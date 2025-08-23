@@ -65,36 +65,38 @@ namespace AsitLib.Debug
             if (_depth + delta > _maxDepth) throw new InvalidOperationException("Exceeded max indent depth");
             if (!displays.IsEmpty) normalizedMsg = AppendDisplays(normalizedMsg, displays);
 
-            Out.WriteLine(_style.GetIndentation(_depth, prefix is not null) + normalizedMsg);
+            Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
             if (AutoFlush) Out.Flush();
 
             _depth = Math.Max(_depth + delta, 0);
 
             if (prefix == 's') BeginTiming();
         }
-
-        public void Fail(string? msg = null)
+        private string BuildStatusMsg(string? msg, string status)
         {
             Stopwatch? sw = EndTiming();
-            string defaultMsg = "failed";
-            string message = sw is not null
-                ? "<" + (msg ?? defaultMsg).TrimEnd('.') + ": time taken: " + sw.ElapsedMilliseconds + "ms."
-                : "<" + (msg ?? defaultMsg);
-            LogWithColor(ConsoleColor.Red, message);
+            StringBuilder content = new StringBuilder().Append("<").Append(status);
+
+            if (msg != null) content.Append("; ").Append(msg.TrimEnd('.'));
+            if (sw != null) content.Append(": time taken: ").Append(sw.ElapsedMilliseconds).Append("ms.");
+
+            return content.ToString();
         }
 
+        public void Fail(string? msg = null)
+            => LogWithColor(ConsoleColor.Red, BuildStatusMsg(msg, "failed"));
+
         public void Success(string? msg = null)
+            => Log(BuildStatusMsg(msg, "success"));
+
+        public void SuccessIf(bool succes, string? msg = null)
         {
-            Stopwatch? sw = EndTiming();
-            string defaultMsg = "success";
-            string message = sw is not null
-                ? "<" + (msg ?? defaultMsg).TrimEnd('.') + ": time taken: " + sw.ElapsedMilliseconds + "ms."
-                : "<" + (msg ?? defaultMsg);
-            Log(message);
+            if (succes) Success();
+            else Fail();
         }
 
         public void Warn(string msg, ReadOnlySpan<object?> displays = default)
-            => LogWithColor(ConsoleColor.Red, "warning: " + (msg ?? string.Empty), displays);
+            => LogWithColor(ConsoleColor.Red, "warning: " + msg, displays);
 
         private void LogWithColor(ConsoleColor? color, string message, ReadOnlySpan<object?> displays = default)
         {
@@ -141,9 +143,9 @@ namespace AsitLib.Debug
         {
             if (displays.Length == 0) return baseMsg + " [_EMPTY_ARRAY_]";
 
-            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity);
-            sb.Append(baseMsg);
-            sb.Append(" [");
+            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity)
+                .Append(baseMsg)
+                .Append(" [");
 
             for (int i = 0; i < displays.Length; i++)
             {
