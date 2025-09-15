@@ -40,13 +40,14 @@ namespace AsitLib.Debug
         public bool AutoFlush { get; }
         public int DisplaysCapasity { get; }
 
-        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64)
+        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             _style = style ?? Default;
             Out = output ?? Console.Out;
             IsConsole = output is null;
             AutoFlush = !IsConsole;
             DisplaysCapasity = displaysCapasity;
+            Silent = silent;
 
             _maxDepth = maxDepth;
             _timers = new Stack<Stopwatch?>(maxDepth);
@@ -54,7 +55,11 @@ namespace AsitLib.Debug
             if (!string.IsNullOrEmpty(header)) Header(header);
         }
 
-        public void Header(string msg) => Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
+        public void Header(string msg)
+        {
+            if (Silent) return;
+            Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
+        }
 
         public void Log(string? msg, ReadOnlySpan<object?> displays = default)
         {
