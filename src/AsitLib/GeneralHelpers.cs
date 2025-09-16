@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 #nullable enable
 
 namespace AsitLib
@@ -130,7 +129,8 @@ namespace AsitLib
             var verbatimStrings = @"@(""[^""]*"")+";
             string noComments = Regex.Replace(str,
                 blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
-                me => {
+                me =>
+                {
                     if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
                         return me.Value.StartsWith("//") ? Environment.NewLine : "";
                     // Keep the literal strings
@@ -583,43 +583,6 @@ namespace AsitLib
 
     public static class TextHelpers
     {
-
-    }
-
-    internal static class ThreadHelperClass
-    {
-        delegate void SetTextCallback(Form f, Control ctrl, string text);
-        public static void SetText(Form form, Control ctrl, string text)
-        {
-            // InvokeRequired required compares the thread ID of the 
-            // calling thread to the thread ID of the creating thread. 
-            // If these threads are different, it returns true. 
-            if (ctrl.InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetText);
-                form.Invoke(d, new object[] { form, ctrl, text });
-            }
-            else
-            {
-                ctrl.Text = text;
-            }
-        }
-        delegate void SetReadOnlyCallback(Form f, Control ctrl, bool readOnly);
-        public static void SetRead(Form form, Control ctrl, bool readOnly)
-        {
-            // InvokeRequired required compares the thread ID of the 
-            // calling thread to the thread ID of the creating thread. 
-            // If these threads are different, it returns true. 
-            if (ctrl.InvokeRequired)
-            {
-                SetReadOnlyCallback d = new SetReadOnlyCallback(SetRead);
-                form.Invoke(d, new object[] { form, ctrl, readOnly });
-            }
-            else
-            {
-                ((RichTextBox)ctrl.Tag).ReadOnly = readOnly;
-            }
-        }
 
     }
 }
