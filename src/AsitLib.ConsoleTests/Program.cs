@@ -1,11 +1,19 @@
 ﻿using System;
 using AsitLib.Debug;
+using AsitLib.Stele;
 
 namespace AsitLib.ConsoleTests
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Stele.Stele.Run();
+
+            Console.Read();
+        }
+
+        public static void LogShowCase()
         {
             DebugStream debug = new DebugStream(header: "test");
 
@@ -18,7 +26,6 @@ namespace AsitLib.ConsoleTests
             debug.Success();
             debug.Warn("missing optional feature.");
             debug.Success();
-            Console.Read();
         }
     }
 }
