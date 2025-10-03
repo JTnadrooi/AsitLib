@@ -14,8 +14,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<ApplicationIcon>Icon.ico</ApplicationIcon>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>

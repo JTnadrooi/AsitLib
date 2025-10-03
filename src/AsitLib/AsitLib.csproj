@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -14,8 +14,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<ApplicationIcon>Icon.ico</ApplicationIcon>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
