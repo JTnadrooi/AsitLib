@@ -185,12 +185,9 @@ namespace AsitLib
             {
                 if (!str.Contains(FirstString) || !str.Contains(LastString) || str.IndexOf(FirstString) >= str.IndexOf(LastString)) break;
 
-
-
                 string betw = str.Between(FirstString, LastString);
                 toret.Add(betw); //add
                 str = str.ReplaceFirst(FirstString + betw + LastString, string.Empty); //remove
-
             }
             return toret.ToArray();
         }
@@ -305,7 +302,7 @@ namespace AsitLib
                 AddValuesTo(ref source, source);
             }
         }
-        public static void SetSize<T>(ref T[] source, int newSize)
+        public static void SetSize<T>(ref T?[] source, int newSize)
         {
             if (source.Length == newSize) return;
             else if (source.Length > newSize)
@@ -315,7 +312,7 @@ namespace AsitLib
             }
             else
             {
-                List<T> values = new List<T>(source);
+                List<T?> values = new List<T?>(source);
                 int diff = (int)MathFI.Diff(source.Length, newSize);
                 for (int i = 0; i < diff; i++) values.Add(default(T));
                 source = values.ToArray();
@@ -561,28 +558,5 @@ namespace AsitLib
             }
             stream.Dispose();
         }
-    }
-
-    public static class ControlHelpers
-    {
-        /// <summary>
-        /// Allows thread safe updates of UI components
-        /// </summary>
-        public static void InvokeEx<T>(T @this, Action<T> action) where T : ISynchronizeInvoke
-        {
-            if (@this.InvokeRequired)
-            {
-                @this.Invoke(action, new object[] { @this });
-            }
-            else
-            {
-                action(@this);
-            }
-        }
-    }
-
-    public static class TextHelpers
-    {
-
     }
 }
