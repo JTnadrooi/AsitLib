@@ -39,14 +39,14 @@ namespace AsitLib.Stele
             Rgba32[] data = new Rgba32[img.Width * img.Height];
             img.CopyPixelDataTo(data);
 
-            for (int i = 0; i < 10; i++)
-            {
-                var pixel = data[i];
-                Console.WriteLine($"Pixel {i}: {pixel.R}, {pixel.G}, {pixel.B}, {pixel.A}");
-            }
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    var pixel = data[i];
+            //    Console.WriteLine($"Pixel {i}: {pixel.R}, {pixel.G}, {pixel.B}, {pixel.A}");
+            //}
             Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
 
-            // start
+            #region NO_RLE
 
             if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
             else File.WriteAllBytes(OutPath, Array.Empty<byte>());
@@ -59,21 +59,31 @@ namespace AsitLib.Stele
 
             Console.WriteLine($"new(stele, NO_RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swNoRLE.ElapsedMilliseconds + "ms");
 
-            //File.WriteAllBytes(OutPath, Array.Empty<byte>());
+            #endregion
 
-            //Stopwatch swRLE = Stopwatch.StartNew();
+            #region RLE
 
-            //Encode(OutPath, data, img.Width, img.Height, true);
+            File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-            //swRLE.Stop();
+            Stopwatch swRLE = Stopwatch.StartNew();
 
-            //Console.WriteLine($"new(stele, RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swRLE.ElapsedMilliseconds + "ms");
+            Encode(OutPath, data, img.Width, img.Height, true);
 
-            // decoding
+            swRLE.Stop();
+
+            Console.WriteLine($"new(stele, RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swRLE.ElapsedMilliseconds + "ms");
+
+            #endregion
+
+            #region DECODE
 
             Stopwatch swDecode = Stopwatch.StartNew();
 
             Rgba32[] outData = new Rgba32[img.Width * img.Height];
+            //for (int i = 0; i < outData.Length; i++)
+            //{
+            //    outData[i] = new Rgba32(1, 1, 1, 1);
+            //}
             Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
 
             swDecode.Stop();
@@ -81,10 +91,12 @@ namespace AsitLib.Stele
             Console.WriteLine($"dec(stele) time taken: ~" + swDecode.ElapsedMilliseconds + "ms");
             Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
 
-            for (int i = 0; i < 100; i++)
-            {
-                Console.WriteLine(data[i] + " - " + outData[i]);
-            }
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    Console.WriteLine(data[i] + " - " + outData[i] + " " + i);
+            //}
+
+            #endregion
 
             //Console.WriteLine($"{Convert.ToString(0b0000_0001 << 3, toBase: 2)}");
         }
@@ -168,7 +180,7 @@ namespace AsitLib.Stele
                     switch (repeatEntitled)
                     {
                         case 0:
-                            if (buffer == REPEAT_C1)
+                            if (buffer == REPEAT_C1 && repeatCount < byte.MaxValue)
                             {
                                 repeatCount++;
                                 break;
@@ -178,7 +190,7 @@ namespace AsitLib.Stele
                                 goto case -1;
                             }
                         case 1:
-                            if (buffer == REPEAT_C2)
+                            if (buffer == REPEAT_C2 && repeatCount < byte.MaxValue)
                             {
                                 repeatCount++;
                                 break;
@@ -188,10 +200,14 @@ namespace AsitLib.Stele
                                 goto case -1;
                             }
                         case -1:
-                            if (repeatCount > 1)
+                            if (repeatCount > 0)
                             {
                                 writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
                                 writer.Write((byte)repeatCount);
+                                if (repeatCount > byte.MaxValue)
+                                {
+                                    throw new Exception("there we go"); // THIS CALLS FUTURE NADROOI
+                                }
                             }
                             else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
 
@@ -257,6 +273,11 @@ namespace AsitLib.Stele
                 1 => c2,
                 _ => throw new Exception(),
             };
+            //void AddPixel(Rgba32 p, int index)
+            //{
+            //    outData[index] = p;
+            //    pixelIndex++;
+            //}
 
             while (fs.Position != fs.Length)
             {
@@ -267,11 +288,34 @@ namespace AsitLib.Stele
                 values[2] = ReadBuffer(ref buffer, 2);
                 values[3] = ReadBuffer(ref buffer, 3);
 
-                for (int i = 0; i < values.Length; i++)
+                for (int bufferIndex = 0; bufferIndex < values.Length; bufferIndex++)
                 {
-                    outData[pixelIndex] = ValueToColor(ref values[i]);
-                    pixelIndex++;
+                    if (values[bufferIndex] == 3) // 1#=last value, 2#=value indicating run start.
+                    {
+                        //if (bufferIndex != 3) throw new Exception(); // rle marker can only be last 2 bits of byte. (11)
+
+                        Rgba32 c = outData[pixelIndex - 1]; // get last written pixel.
+                        byte runLenght = reader.ReadByte(); // get run lenght
+
+                        for (int i = 0; i < runLenght * 4 + 1; i++) // for each pixel in the run, add it to the data. Also include the replaced-by-the-marker pixel.
+                        {
+                            outData[pixelIndex] = c;
+                            pixelIndex++;
+                        }
+
+                        break;
+                    }
+                    else
+                    {
+                        outData[pixelIndex] = ValueToColor(ref values[bufferIndex]);
+                        pixelIndex++;
+                    }
                 }
+            }
+
+            if (pixelIndex != outData.Length)
+            {
+                throw new Exception("uh oh");
             }
         }
     }
