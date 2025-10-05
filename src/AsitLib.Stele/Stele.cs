@@ -1,5 +1,6 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Diagnostics;
@@ -19,6 +20,7 @@ namespace AsitLib.Stele
 
         private static readonly string InPath = CorePath + ".png";
         private static readonly string OutPath = CorePath + "." + FILE_EXTENSION;
+        private static readonly string OutPath2 = CorePath + "2." + FILE_EXTENSION;
 
         private static string B(byte b)
         {
@@ -28,16 +30,20 @@ namespace AsitLib.Stele
 
         public static void Run() // debug
         {
+            Stopwatch pngDec = Stopwatch.StartNew();
             using Image<Rgba32> img = Image.Load<Rgba32>(InPath);
+            pngDec.Stop();
+
+            Console.WriteLine($"dec(png) time taken: ~" + pngDec.ElapsedMilliseconds + "ms");
 
             Rgba32[] data = new Rgba32[img.Width * img.Height];
             img.CopyPixelDataTo(data);
 
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    var pixel = data[i];
-            //    Console.WriteLine($"Pixel {i}: {pixel.R}, {pixel.G}, {pixel.B}, {pixel.A}");
-            //}
+            for (int i = 0; i < 10; i++)
+            {
+                var pixel = data[i];
+                Console.WriteLine($"Pixel {i}: {pixel.R}, {pixel.G}, {pixel.B}, {pixel.A}");
+            }
             Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
 
             // start
@@ -45,29 +51,45 @@ namespace AsitLib.Stele
             if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
             else File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-            Stopwatch s = Stopwatch.StartNew();
+            Stopwatch swNoRLE = Stopwatch.StartNew();
 
             Encode(OutPath, data, img.Width, img.Height, false);
 
-            s.Stop();
+            swNoRLE.Stop();
 
-            Console.WriteLine($"new(stele, NO_RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + s.ElapsedMilliseconds + "ms");
+            Console.WriteLine($"new(stele, NO_RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swNoRLE.ElapsedMilliseconds + "ms");
 
-            if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
-            else File.WriteAllBytes(OutPath, Array.Empty<byte>());
+            //File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-            Stopwatch s2 = Stopwatch.StartNew();
+            //Stopwatch swRLE = Stopwatch.StartNew();
 
-            Encode(OutPath, data, img.Width, img.Height, true);
+            //Encode(OutPath, data, img.Width, img.Height, true);
 
-            s2.Stop();
+            //swRLE.Stop();
 
-            Console.WriteLine($"new(stele, RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + s2.ElapsedMilliseconds + "ms");
+            //Console.WriteLine($"new(stele, RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swRLE.ElapsedMilliseconds + "ms");
+
+            // decoding
+
+            Stopwatch swDecode = Stopwatch.StartNew();
+
+            Rgba32[] outData = new Rgba32[img.Width * img.Height];
+            Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
+
+            swDecode.Stop();
+
+            Console.WriteLine($"dec(stele) time taken: ~" + swDecode.ElapsedMilliseconds + "ms");
+            Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
+
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(data[i] + " - " + outData[i]);
+            }
 
             //Console.WriteLine($"{Convert.ToString(0b0000_0001 << 3, toBase: 2)}");
         }
 
-        public static void Encode(string path, Rgba32[] data, int width, int height, bool useRLE)
+        public static void Encode(string path, Rgba32[] data, int width, int height, bool useRLE) // missing transparent rle
         {
             if (width % 4 != 0 || width < 4) throw new ArgumentException(nameof(width));
             if (height % 4 != 0 || height < 4) throw new ArgumentException(nameof(height));
@@ -81,8 +103,10 @@ namespace AsitLib.Stele
             // header.
 
             writer.Write((byte)VERSION);
-            writer.Write((ushort)(width / 4 - 4));
-            writer.Write((ushort)(height / 4 - 4));
+            //writer.Write((ushort)(width / 4 - 4));
+            //writer.Write((ushort)(height / 4 - 4))
+            writer.Write((ushort)(width));
+            writer.Write((ushort)(height));
 
             // body.
 
@@ -105,7 +129,7 @@ namespace AsitLib.Stele
                 _ => throw new Exception(),
             };
             byte GetPixelOverlay(ref Rgba32 pixel, int index) => GetValueOverlay(GetColorValue(ref pixel), index);
-            byte GetValueOverlay(in byte value, int index) => (byte)(value << index * 2);
+            byte GetValueOverlay(in byte value, int index) => (byte)(value << (index * 2));
             byte GetRepeatByte(in int color) => color switch
             {
                 0 => REPEAT_C1,
@@ -136,10 +160,10 @@ namespace AsitLib.Stele
 
                 for (int i = 3; i < data.Length; i += 4)
                 {
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 0));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 1));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 2));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 3));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
 
                     switch (repeatEntitled)
                     {
@@ -192,10 +216,15 @@ namespace AsitLib.Stele
             {
                 for (int i = 3; i < data.Length; i += 4)
                 {
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 0));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 1));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 2));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 3));
+                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 0));
+                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 1));
+                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 2));
+                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 3));
+
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
+                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
 
                     writer.Write(buffer);
                     buffer = 0b_0000_0000;
@@ -204,6 +233,46 @@ namespace AsitLib.Stele
 
             writer.Flush();
             fs.Flush();
+        }
+
+        public static void Decode(string path, Rgba32 c1, Rgba32 c2, Rgba32[] outData)
+        {
+            using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            using BinaryReader reader = new BinaryReader(fs);
+
+            byte version = reader.ReadByte();
+            ushort width = (ushort)(reader.ReadUInt16());
+            ushort height = (ushort)(reader.ReadUInt16());
+
+            if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
+
+            int[] values = new int[4];
+            byte buffer = 0b_0000_0000;
+            int pixelIndex = 0;
+
+            int ReadBuffer(ref byte b, int index) => (b >> index * 2) & 0b_0000_0011;
+            Rgba32 ValueToColor(ref int value) => value switch
+            {
+                0 => c1,
+                1 => c2,
+                _ => throw new Exception(),
+            };
+
+            while (fs.Position != fs.Length)
+            {
+                buffer = reader.ReadByte();
+
+                values[0] = ReadBuffer(ref buffer, 0);
+                values[1] = ReadBuffer(ref buffer, 1);
+                values[2] = ReadBuffer(ref buffer, 2);
+                values[3] = ReadBuffer(ref buffer, 3);
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    outData[pixelIndex] = ValueToColor(ref values[i]);
+                    pixelIndex++;
+                }
+            }
         }
     }
 }
