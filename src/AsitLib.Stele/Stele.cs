@@ -80,10 +80,6 @@ namespace AsitLib.Stele
             Stopwatch swDecode = Stopwatch.StartNew();
 
             Rgba32[] outData = new Rgba32[img.Width * img.Height];
-            //for (int i = 0; i < outData.Length; i++)
-            //{
-            //    outData[i] = new Rgba32(1, 1, 1, 1);
-            //}
             Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
 
             swDecode.Stop();
@@ -97,8 +93,6 @@ namespace AsitLib.Stele
             //}
 
             #endregion
-
-            //Console.WriteLine($"{Convert.ToString(0b0000_0001 << 3, toBase: 2)}");
         }
 
         public static void Encode(string path, Rgba32[] data, int width, int height, bool useRLE) // missing transparent rle
@@ -115,8 +109,6 @@ namespace AsitLib.Stele
             // header.
 
             writer.Write((byte)VERSION);
-            //writer.Write((ushort)(width / 4 - 4));
-            //writer.Write((ushort)(height / 4 - 4))
             writer.Write((ushort)(width));
             writer.Write((ushort)(height));
 
@@ -127,12 +119,6 @@ namespace AsitLib.Stele
             const byte REPEAT_C2 = 0b_0101_0101;
             const byte INVALID = 0b1111_1111; // bytes like this are impossible for the algoritm to create as it would require the REPEAT flag to exist in other places that the last 2 bits.
 
-            //byte GetPixelOverlay(ref Rgba32 pixel, int index) => (byte)((pixel.A == 0 ? (byte)3 : (pixel.R switch
-            //{
-            //    R1 => (byte)0,
-            //    R2 => (byte)1,
-            //    _ => throw new Exception(),
-            //})) << (index * 2));
             byte GetColorValue(ref Rgba32 pixel) => pixel.R switch
             {
                 _ when pixel.A == 0 => (byte)2,
@@ -155,12 +141,6 @@ namespace AsitLib.Stele
                 _ => -1
             };
 
-            //Console.WriteLine("a " + IsRepeatEntitled(0b_0000_0000));
-            //Console.WriteLine("a " + IsRepeatEntitled(0b_0100_0001));
-            //Console.WriteLine("a " + IsRepeatEntitled(0b_1000_0011));
-
-            //Console.WriteLine("a " + B(GetValueOverlay(1, 1)));
-
             byte buffer = 0b_0000_0000;
 
             if (useRLE)
@@ -180,34 +160,18 @@ namespace AsitLib.Stele
                     switch (repeatEntitled)
                     {
                         case 0:
-                            if (buffer == REPEAT_C1 && repeatCount < byte.MaxValue)
-                            {
-                                repeatCount++;
-                                break;
-                            }
-                            else
-                            {
-                                goto case -1;
-                            }
                         case 1:
-                            if (buffer == REPEAT_C2 && repeatCount < byte.MaxValue)
+                            if (buffer == GetRepeatByte(repeatEntitled) && repeatCount < byte.MaxValue)
                             {
                                 repeatCount++;
                                 break;
                             }
-                            else
-                            {
-                                goto case -1;
-                            }
+                            else goto case -1;
                         case -1:
                             if (repeatCount > 0)
                             {
                                 writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
                                 writer.Write((byte)repeatCount);
-                                if (repeatCount > byte.MaxValue)
-                                {
-                                    throw new Exception("there we go"); // THIS CALLS FUTURE NADROOI
-                                }
                             }
                             else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
 
@@ -232,11 +196,6 @@ namespace AsitLib.Stele
             {
                 for (int i = 3; i < data.Length; i += 4)
                 {
-                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 0));
-                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 1));
-                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 2));
-                    //    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 3));
-
                     buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
                     buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
                     buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
@@ -273,11 +232,6 @@ namespace AsitLib.Stele
                 1 => c2,
                 _ => throw new Exception(),
             };
-            //void AddPixel(Rgba32 p, int index)
-            //{
-            //    outData[index] = p;
-            //    pixelIndex++;
-            //}
 
             while (fs.Position != fs.Length)
             {
@@ -290,7 +244,7 @@ namespace AsitLib.Stele
 
                 for (int bufferIndex = 0; bufferIndex < values.Length; bufferIndex++)
                 {
-                    if (values[bufferIndex] == 3) // 1#=last value, 2#=value indicating run start.
+                    if (values[bufferIndex] == 3)
                     {
                         //if (bufferIndex != 3) throw new Exception(); // rle marker can only be last 2 bits of byte. (11)
 
@@ -313,10 +267,7 @@ namespace AsitLib.Stele
                 }
             }
 
-            if (pixelIndex != outData.Length)
-            {
-                throw new Exception("uh oh");
-            }
+            if (pixelIndex != outData.Length) throw new Exception("uh oh");
         }
     }
 }
