@@ -79,12 +79,16 @@ namespace AsitLib.Stele
 
             Stopwatch swDecode = Stopwatch.StartNew();
 
-            Rgba32[] outData = new Rgba32[img.Width * img.Height];
-            Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
+            Rgba32[] outData = Array.Empty<Rgba32>();
+            outData = new Rgba32[img.Width * img.Height];
+            for (int i = 0; i < 1000; i++)
+            {
+                Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
+            }
 
             swDecode.Stop();
 
-            Console.WriteLine($"dec(stele) time taken: ~" + swDecode.ElapsedMilliseconds + "ms");
+            Console.WriteLine($"dec(stele) time taken: ~" + (swDecode.ElapsedMilliseconds / 1000f) + "ms");
             Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
 
             //for (int i = 0; i < 1000; i++)
@@ -210,7 +214,7 @@ namespace AsitLib.Stele
             fs.Flush();
         }
 
-        public static void Decode(string path, Rgba32 c1, Rgba32 c2, Rgba32[] outData)
+        public static void Decode(string path, Rgba32 c1, Rgba32 c2, Rgba32[] outData, int bufferLength = 16384)
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new BinaryReader(fs);
@@ -223,51 +227,67 @@ namespace AsitLib.Stele
 
             int[] values = new int[4];
             byte buffer = 0b_0000_0000;
+            byte[] largeBuffer = new byte[bufferLength];
             int pixelIndex = 0;
+            int bytesRead;
 
-            int ReadBuffer(ref byte b, int index) => (b >> index * 2) & 0b_0000_0011;
+            int ReadBuffer(ref byte b, int index) => (b >> (index * 2)) & 0b_0000_0011;
             Rgba32 ValueToColor(ref int value) => value switch
             {
                 0 => c1,
                 1 => c2,
-                _ => throw new Exception(),
+                _ => throw new Exception("Invalid color value."),
             };
 
-            while (fs.Position != fs.Length)
+            while ((bytesRead = reader.Read(largeBuffer)) > 0)
             {
-                buffer = reader.ReadByte();
-
-                values[0] = ReadBuffer(ref buffer, 0);
-                values[1] = ReadBuffer(ref buffer, 1);
-                values[2] = ReadBuffer(ref buffer, 2);
-                values[3] = ReadBuffer(ref buffer, 3);
-
-                for (int bufferIndex = 0; bufferIndex < values.Length; bufferIndex++)
+                //Console.WriteLine(nameof(bytesRead) + ": " + bytesRead);
+                for (int bufferIndex = 0; bufferIndex < bytesRead; bufferIndex++)
                 {
-                    if (values[bufferIndex] == 3)
+                    buffer = largeBuffer[bufferIndex];
+
+                    values[0] = ReadBuffer(ref buffer, 0);
+                    values[1] = ReadBuffer(ref buffer, 1);
+                    values[2] = ReadBuffer(ref buffer, 2);
+                    values[3] = ReadBuffer(ref buffer, 3);
+
+                    for (int valueIndex = 0; valueIndex < values.Length; valueIndex++)
                     {
-                        //if (bufferIndex != 3) throw new Exception(); // rle marker can only be last 2 bits of byte. (11)
-
-                        Rgba32 c = outData[pixelIndex - 1]; // get last written pixel.
-                        byte runLenght = reader.ReadByte(); // get run lenght
-
-                        for (int i = 0; i < runLenght * 4 + 1; i++) // for each pixel in the run, add it to the data. Also include the replaced-by-the-marker pixel.
+                        if (values[valueIndex] == 3) // RLE marker (can only be the last 2 bits of the byte).
                         {
-                            outData[pixelIndex] = c;
+                            Rgba32 c = outData[pixelIndex - 1]; // get the last written pixel.
+                            byte runLength;
+                            if (bufferIndex != largeBuffer.Length - 1)
+                            {
+                                runLength = largeBuffer[bufferIndex + 1];
+                            }
+                            else
+                            {
+                                runLength = reader.ReadByte();
+                                //Console.WriteLine("ah comoooon");
+                            }
+                            bufferIndex++;
+
+                            for (int i = 0; i < runLength * 4 + 1; i++) // apply run-length encoding.
+                            {
+                                outData[pixelIndex] = c;
+                                pixelIndex++;
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            //Console.WriteLine(pixelIndex + " " + bufferIndex);
+                            outData[pixelIndex] = ValueToColor(ref values[valueIndex]);
                             pixelIndex++;
                         }
-
-                        break;
-                    }
-                    else
-                    {
-                        outData[pixelIndex] = ValueToColor(ref values[bufferIndex]);
-                        pixelIndex++;
                     }
                 }
             }
 
-            if (pixelIndex != outData.Length) throw new Exception("uh oh");
+            if (pixelIndex != outData.Length) throw new Exception("Output data size mismatch.");
         }
+
     }
 }
