@@ -83,7 +83,7 @@ namespace AsitLib.Stele
             outData = new Rgba32[img.Width * img.Height];
             for (int i = 0; i < 1000; i++)
             {
-                Decode(OutPath, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235), outData);
+                Decode(OutPath, outData, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235));
             }
 
             swDecode.Stop();
@@ -214,7 +214,7 @@ namespace AsitLib.Stele
             writer.Flush();
             fs.Flush();
         }
-        public static void Decode(string path, Rgba32 c1, Rgba32 c2, Rgba32[] outData, int bufferLength = 16384)
+        public static void Decode<T>(string path, T[] outData, T value1, T value2, int bufferLength = 16384) where T : struct
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new BinaryReader(fs);
@@ -226,11 +226,11 @@ namespace AsitLib.Stele
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
 
             byte[] largeBuffer = new byte[Math.Min(outData.Length / 4, bufferLength)];
-            int pixelIndex = 0;
+            int outIndex = 0;
             int bytesRead;
             int runLength;
 
-            Rgba32[] colorMap = { c1, c2 };
+            T[] map = [value1, value2];
 
             while ((bytesRead = reader.Read(largeBuffer, 0, bufferLength)) > 0)
             {
@@ -240,30 +240,30 @@ namespace AsitLib.Stele
 
                     for (int i = 0; i < 4; i++)
                     {
-                        int value = (buffer >> (i * 2)) & 0b_0000_0011;
+                        int halfNib = (buffer >> (i * 2)) & 0b_0000_0011;
 
-                        if (value == 3) // RLE marker (last 2 bits)
+                        if (halfNib == 3) // RLE marker (last 2 bits)
                         {
-                            Rgba32 lastColor = outData[pixelIndex - 1]; // get last written pixel.
+                            T lastValue = outData[outIndex - 1]; // get last written value.
 
                             runLength = ((bufferIndex < bytesRead - 1) ? largeBuffer[bufferIndex + 1] : reader.ReadByte()) * 4 + 1;
 
                             bufferIndex++;
-                            Array.Fill(outData, lastColor, pixelIndex, runLength);
+                            Array.Fill(outData, lastValue, outIndex, runLength);
 
-                            pixelIndex += runLength;
+                            outIndex += runLength;
                             break;
                         }
                         else
                         {
-                            outData[pixelIndex] = colorMap[value];
-                            pixelIndex++;
+                            outData[outIndex] = map[halfNib];
+                            outIndex++;
                         }
                     }
                 }
             }
 
-            if (pixelIndex != outData.Length) throw new Exception("Output data size mismatch.");
+            if (outIndex != outData.Length) throw new Exception("Output data size mismatch.");
         }
     }
 }
