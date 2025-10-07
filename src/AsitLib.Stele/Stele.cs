@@ -90,6 +90,7 @@ namespace AsitLib.Stele
 
             Console.WriteLine($"dec(stele) time taken: ~" + (swDecode.ElapsedMilliseconds / 1000f) + "ms");
             Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
+            Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / (swDecode.ElapsedMilliseconds / 1000f)) + "x");
 
             //for (int i = 0; i < 1000; i++)
             //{
@@ -213,73 +214,49 @@ namespace AsitLib.Stele
             writer.Flush();
             fs.Flush();
         }
-
         public static void Decode(string path, Rgba32 c1, Rgba32 c2, Rgba32[] outData, int bufferLength = 16384)
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new BinaryReader(fs);
 
             byte version = reader.ReadByte();
-            ushort width = (ushort)(reader.ReadUInt16());
-            ushort height = (ushort)(reader.ReadUInt16());
+            ushort width = reader.ReadUInt16();
+            ushort height = reader.ReadUInt16();
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
 
-            int[] values = new int[4];
-            byte buffer = 0b_0000_0000;
-            byte[] largeBuffer = new byte[bufferLength];
+            byte[] largeBuffer = new byte[Math.Min(outData.Length / 4, bufferLength)];
             int pixelIndex = 0;
             int bytesRead;
+            int runLength;
 
-            int ReadBuffer(ref byte b, int index) => (b >> (index * 2)) & 0b_0000_0011;
-            Rgba32 ValueToColor(ref int value) => value switch
-            {
-                0 => c1,
-                1 => c2,
-                _ => throw new Exception("Invalid color value."),
-            };
+            Rgba32[] colorMap = { c1, c2 };
 
-            while ((bytesRead = reader.Read(largeBuffer)) > 0)
+            while ((bytesRead = reader.Read(largeBuffer, 0, bufferLength)) > 0)
             {
-                //Console.WriteLine(nameof(bytesRead) + ": " + bytesRead);
                 for (int bufferIndex = 0; bufferIndex < bytesRead; bufferIndex++)
                 {
-                    buffer = largeBuffer[bufferIndex];
+                    byte buffer = largeBuffer[bufferIndex];
 
-                    values[0] = ReadBuffer(ref buffer, 0);
-                    values[1] = ReadBuffer(ref buffer, 1);
-                    values[2] = ReadBuffer(ref buffer, 2);
-                    values[3] = ReadBuffer(ref buffer, 3);
-
-                    for (int valueIndex = 0; valueIndex < values.Length; valueIndex++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        if (values[valueIndex] == 3) // RLE marker (can only be the last 2 bits of the byte).
+                        int value = (buffer >> (i * 2)) & 0b_0000_0011;
+
+                        if (value == 3) // RLE marker (last 2 bits)
                         {
-                            Rgba32 c = outData[pixelIndex - 1]; // get the last written pixel.
-                            byte runLength;
-                            if (bufferIndex != largeBuffer.Length - 1)
-                            {
-                                runLength = largeBuffer[bufferIndex + 1];
-                            }
-                            else
-                            {
-                                runLength = reader.ReadByte();
-                                //Console.WriteLine("ah comoooon");
-                            }
+                            Rgba32 lastColor = outData[pixelIndex - 1]; // get last written pixel.
+
+                            runLength = ((bufferIndex < bytesRead - 1) ? largeBuffer[bufferIndex + 1] : reader.ReadByte()) * 4 + 1;
+
                             bufferIndex++;
+                            Array.Fill(outData, lastColor, pixelIndex, runLength);
 
-                            for (int i = 0; i < runLength * 4 + 1; i++) // apply run-length encoding.
-                            {
-                                outData[pixelIndex] = c;
-                                pixelIndex++;
-                            }
-
+                            pixelIndex += runLength;
                             break;
                         }
                         else
                         {
-                            //Console.WriteLine(pixelIndex + " " + bufferIndex);
-                            outData[pixelIndex] = ValueToColor(ref values[valueIndex]);
+                            outData[pixelIndex] = colorMap[value];
                             pixelIndex++;
                         }
                     }
@@ -288,6 +265,5 @@ namespace AsitLib.Stele
 
             if (pixelIndex != outData.Length) throw new Exception("Output data size mismatch.");
         }
-
     }
 }
