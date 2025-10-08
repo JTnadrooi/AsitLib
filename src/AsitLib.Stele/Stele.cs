@@ -27,85 +27,55 @@ namespace AsitLib.Stele
             string binary = Convert.ToString(b, 2).PadLeft(8, '0');
             return binary.Substring(0, 4) + "_" + binary.Substring(4);
         }
-
         public static void Run() // debug
         {
-            Stopwatch pngDec = Stopwatch.StartNew();
-            using Image<Rgba32> img = Image.Load<Rgba32>(InPath);
-            pngDec.Stop();
-
-            Console.WriteLine($"dec(png) time taken: ~" + pngDec.ElapsedMilliseconds + "ms");
-
-            Rgba32[] data = new Rgba32[img.Width * img.Height];
-            img.CopyPixelDataTo(data);
-
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    var pixel = data[i];
-            //    Console.WriteLine($"Pixel {i}: {pixel.R}, {pixel.G}, {pixel.B}, {pixel.A}");
-            //}
-            Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
-
-            #region NO_RLE
-
-            if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
-            else File.WriteAllBytes(OutPath, Array.Empty<byte>());
-
-            Stopwatch swNoRLE = Stopwatch.StartNew();
-
-            Encode(OutPath, data, img.Width, img.Height, false);
-
-            swNoRLE.Stop();
-
-            Console.WriteLine($"new(stele, NO_RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swNoRLE.ElapsedMilliseconds + "ms");
-
-            #endregion
-
-            #region RLE
-
-            File.WriteAllBytes(OutPath, Array.Empty<byte>());
-
-            Stopwatch swRLE = Stopwatch.StartNew();
-
-            Encode(OutPath, data, img.Width, img.Height, true);
-
-            swRLE.Stop();
-
-            Console.WriteLine($"new(stele, RLE) filesize: {new FileInfo(OutPath).Length}, time taken: ~" + swRLE.ElapsedMilliseconds + "ms");
-
-            #endregion
-
-            #region DECODE
-
-            Stopwatch swDecode = Stopwatch.StartNew();
-
-            Rgba32[] outData = Array.Empty<Rgba32>();
-            outData = new Rgba32[img.Width * img.Height];
-            for (int i = 0; i < 1000; i++)
+            float Test(Action action, string id, int count, bool showFileSize = true)
             {
-                Decode(OutPath, outData, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235));
+                Stopwatch sw = Stopwatch.StartNew();
+                for (int i = 0; i < count; i++) action();
+                sw.Stop();
+
+                long fileSize = new FileInfo(OutPath).Length;
+                Console.WriteLine($"{id} time taken: ~" + (sw.ElapsedMilliseconds / (float)count) + $"ms{(showFileSize ? $", filesize: {fileSize} bytes" : string.Empty)}");
+                return (sw.ElapsedMilliseconds / (float)count);
             }
 
-            swDecode.Stop();
+            Stopwatch pngDec = Stopwatch.StartNew();
+            using (Image<Rgba32> img = Image.Load<Rgba32>(InPath))
+            {
+                pngDec.Stop();
+                Console.WriteLine($"dec(png) time taken: ~" + pngDec.ElapsedMilliseconds + "ms");
 
-            Console.WriteLine($"dec(stele) time taken: ~" + (swDecode.ElapsedMilliseconds / 1000f) + "ms");
-            Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
-            Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / (swDecode.ElapsedMilliseconds / 1000f)) + "x");
+                Rgba32[] data = new Rgba32[img.Width * img.Height];
+                img.CopyPixelDataTo(data);
 
-            //for (int i = 0; i < 1000; i++)
-            //{
-            //    Console.WriteLine(data[i] + " - " + outData[i] + " " + i);
-            //}
+                Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
 
-            #endregion
+                if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
+                else File.WriteAllBytes(OutPath, Array.Empty<byte>());
+
+                float swNoRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height, false), "new(stele, NO_RLE)", 100);
+
+                File.WriteAllBytes(OutPath, Array.Empty<byte>());
+
+                float swRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height, true), "new(stele, RLE)", 100);
+
+                Rgba32[] outData = new Rgba32[img.Width * img.Height];
+                float swDecodeMs = Test(() => Decode(OutPath, outData, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)), "dec(stele)", 1000, false);
+                Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
+                Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
+            }
         }
+
+
 
         public static void Encode(string path, Rgba32[] data, int width, int height, bool useRLE) // missing transparent rle
         {
             if (width % 4 != 0 || width < 4) throw new ArgumentException(nameof(width));
             if (height % 4 != 0 || height < 4) throw new ArgumentException(nameof(height));
 
-            using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Write);
+            //using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Write);
+            using FileStream fs = File.Create(path);
             using BinaryWriter writer = new BinaryWriter(fs);
 
             const int R1 = 23;
@@ -232,7 +202,7 @@ namespace AsitLib.Stele
 
             T[] map = [value1, value2];
 
-            while ((bytesRead = reader.Read(largeBuffer, 0, bufferLength)) > 0)
+            while ((bytesRead = reader.Read(largeBuffer, 0, largeBuffer.Length)) > 0)
             {
                 for (int bufferIndex = 0; bufferIndex < bytesRead; bufferIndex++)
                 {
