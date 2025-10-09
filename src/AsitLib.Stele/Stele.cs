@@ -54,22 +54,18 @@ namespace AsitLib.Stele
                 if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
                 else File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-                float swNoRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height, false), "new(stele, NO_RLE)", 100);
-
-                File.WriteAllBytes(OutPath, Array.Empty<byte>());
-
-                float swRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height, true), "new(stele, RLE)", 100);
+                float swRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height), "new(stele, RLE)", 100);
 
                 Rgba32[] outData = new Rgba32[img.Width * img.Height];
                 float swDecodeMs = Test(() => Decode(OutPath, outData, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)), "dec(stele)", 1000, false);
                 Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
-                Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
+                //Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
             }
         }
 
 
 
-        public static void Encode(string path, Rgba32[] data, int width, int height, bool useRLE) // missing transparent rle
+        public static void Encode(string path, Rgba32[] data, int width, int height, int bufferLength = 16384) // missing transparent rle
         {
             if (width % 4 != 0 || width < 4) throw new ArgumentException(nameof(width));
             if (height % 4 != 0 || height < 4) throw new ArgumentException(nameof(height));
@@ -117,69 +113,54 @@ namespace AsitLib.Stele
             };
 
             byte buffer = 0b_0000_0000;
+            byte[] largeBuffer = new byte[bufferLength];
 
-            if (useRLE)
+            int repeatCount = 0;
+            byte pendingPixelBuffer = INVALID;
+
+            int repeatEntitled = -1;
+
+            for (int i = 3; i < data.Length; i += 4)
             {
-                int repeatCount = 0;
-                byte pendingPixelBuffer = INVALID;
+                buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
+                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
+                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
+                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
 
-                int repeatEntitled = -1;
-
-                for (int i = 3; i < data.Length; i += 4)
+                switch (repeatEntitled)
                 {
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
-
-                    switch (repeatEntitled)
-                    {
-                        case 0:
-                        case 1:
-                            if (buffer == GetRepeatByte(repeatEntitled) && repeatCount < byte.MaxValue)
-                            {
-                                repeatCount++;
-                                break;
-                            }
-                            else goto case -1;
-                        case -1:
-                            if (repeatCount > 0)
-                            {
-                                writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
-                                writer.Write((byte)repeatCount);
-                            }
-                            else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
-
-                            repeatCount = 0;
-                            repeatEntitled = IsRepeatEntitled(buffer);
-                            pendingPixelBuffer = buffer;
-
+                    case 0:
+                    case 1:
+                        if (buffer == GetRepeatByte(repeatEntitled) && repeatCount < byte.MaxValue)
+                        {
+                            repeatCount++;
                             break;
-                    }
+                        }
+                        else goto case -1;
+                    case -1:
+                        if (repeatCount > 0)
+                        {
+                            writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
+                            writer.Write((byte)repeatCount);
+                        }
+                        else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
 
-                    buffer = 0b_0000_0000;
+                        repeatCount = 0;
+                        repeatEntitled = IsRepeatEntitled(buffer);
+                        pendingPixelBuffer = buffer;
+
+                        break;
                 }
 
-                if (repeatCount > 1)
-                {
-                    writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
-                    writer.Write((byte)repeatCount);
-                }
-                else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
+                buffer = 0b_0000_0000;
             }
-            else
+
+            if (repeatCount > 1)
             {
-                for (int i = 3; i < data.Length; i += 4)
-                {
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
-                    buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
-
-                    writer.Write(buffer);
-                    buffer = 0b_0000_0000;
-                }
+                writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
+                writer.Write((byte)repeatCount);
             }
+            else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
 
             writer.Flush();
             fs.Flush();
