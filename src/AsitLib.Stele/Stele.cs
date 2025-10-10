@@ -3,6 +3,9 @@ using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,6 +13,32 @@ using System.Threading;
 
 namespace AsitLib.Stele
 {
+    public class SteleMap<T> where T : notnull
+    {
+        public FrozenDictionary<T, int> Map { get; }
+        public ReadOnlyCollection<T> InverseMap { get; }
+        public int Count => Map.Count;
+        public T this[int i] => InverseMap[i];
+        public int this[T value] => Map[value];
+
+        private SteleMap(FrozenDictionary<T, int> source)
+        {
+            Map = source;
+
+            InverseMap = Map.OrderBy(x => x.Value)
+                .Select(x => x.Key)
+                .ToList().AsReadOnly();
+        }
+
+        public static SteleMap<T> Create(IEnumerable<T> values) => CreateFromUnique(values.Distinct());
+        public static SteleMap<T> CreateFromUnique(IEnumerable<T> values)
+        {
+            int count = values.Count();
+            if (count > 3 || count < 2) throw new ArgumentException("Invalid source array size.", nameof(values));
+            return new SteleMap<T>(values.Select((v, i) => new KeyValuePair<T, int>(v, i)).ToFrozenDictionary());
+        }
+    }
+
     public static class Stele
     {
         private static readonly string CorePath = $@"C:\Users\{Environment.UserName}\source\repos\STOLON\.ignore\silo-512";
@@ -48,24 +77,25 @@ namespace AsitLib.Stele
 
                 Rgba32[] data = new Rgba32[img.Width * img.Height];
                 img.CopyPixelDataTo(data);
+                var map = SteleMap<Rgba32>.CreateFromUnique([new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)]);
 
                 Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
 
                 if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
                 else File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-                float swRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height), "new(stele, RLE)", 100);
+                float swRLEMs = Test(() => Encode(OutPath, data, img.Width, img.Height, map), "new(stele, RLE)", 100);
 
                 Rgba32[] outData = new Rgba32[img.Width * img.Height];
-                float swDecodeMs = Test(() => Decode(OutPath, outData, new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)), "dec(stele)", 1000, false);
+                float swDecodeMs = Test(() => Decode(OutPath, outData, map), "dec(stele)", 1000, false);
                 Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
-                //Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
+                Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
             }
         }
 
 
 
-        public static void Encode(string path, Rgba32[] data, int width, int height, int bufferLength = 16384) // missing transparent rle
+        public static void Encode<T>(string path, T[] data, int width, int height, SteleMap<T> map, int bufferLength = 16384) where T : struct
         {
             if (width % 4 != 0 || width < 4) throw new ArgumentException(nameof(width));
             if (height % 4 != 0 || height < 4) throw new ArgumentException(nameof(height));
@@ -73,9 +103,6 @@ namespace AsitLib.Stele
             //using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Write);
             using FileStream fs = File.Create(path);
             using BinaryWriter writer = new BinaryWriter(fs);
-
-            const int R1 = 23;
-            const int R2 = 242;
 
             // header.
 
@@ -86,23 +113,22 @@ namespace AsitLib.Stele
             // body.
 
             const byte REPEAT_OVERLAY = 0b_1100_0000;
-            const byte REPEAT_C1 = 0b_0000_0000;
-            const byte REPEAT_C2 = 0b_0101_0101;
+            const byte MAX_UNIQUE = 3;
+            const byte REPEAT_VALUE1 = 0b_0000_0000;
+            const byte REPEAT_VALUE2 = 0b_0101_0101;
+            const byte REPEAT_VALUE3 = 0b_1010_1010;
             const byte INVALID = 0b1111_1111; // bytes like this are impossible for the algoritm to create as it would require the REPEAT flag to exist in other places that the last 2 bits.
 
-            byte GetColorValue(ref Rgba32 pixel) => pixel.R switch
-            {
-                _ when pixel.A == 0 => (byte)2,
-                R1 => (byte)0,
-                R2 => (byte)1,
-                _ => throw new Exception(),
-            };
-            byte GetPixelOverlay(ref Rgba32 pixel, int index) => GetValueOverlay(GetColorValue(ref pixel), index);
-            byte GetValueOverlay(in byte value, int index) => (byte)(value << (index * 2));
+            HashSet<T> seen = new HashSet<T>(MAX_UNIQUE);
+            List<T> uniqueValues = new List<T>(MAX_UNIQUE);
+
+            byte GetOverlay(ref T pixel, int index) => GetValueOverlay(map[pixel], index);
+            byte GetValueOverlay(in int value, int index) => (byte)(value << (index * 2));
             byte GetRepeatByte(in int color) => color switch
             {
-                0 => REPEAT_C1,
-                1 => REPEAT_C2,
+                0 => REPEAT_VALUE1,
+                1 => REPEAT_VALUE2,
+                3 => REPEAT_VALUE3,
                 _ => throw new Exception(),
             };
             int IsRepeatEntitled(byte buffer) => (byte)(buffer & 0b1111_0000) switch
@@ -116,16 +142,16 @@ namespace AsitLib.Stele
             byte[] largeBuffer = new byte[bufferLength];
 
             int repeatCount = 0;
-            byte pendingPixelBuffer = INVALID;
+            byte pendingBuffer = INVALID;
 
             int repeatEntitled = -1;
 
             for (int i = 3; i < data.Length; i += 4)
             {
-                buffer = (byte)(buffer | GetPixelOverlay(ref data[i], 3));
-                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 1], 2));
-                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 2], 1));
-                buffer = (byte)(buffer | GetPixelOverlay(ref data[i - 3], 0));
+                buffer = (byte)(buffer | GetOverlay(ref data[i], 3));
+                buffer = (byte)(buffer | GetOverlay(ref data[i - 1], 2));
+                buffer = (byte)(buffer | GetOverlay(ref data[i - 2], 1));
+                buffer = (byte)(buffer | GetOverlay(ref data[i - 3], 0));
 
                 switch (repeatEntitled)
                 {
@@ -140,14 +166,14 @@ namespace AsitLib.Stele
                     case -1:
                         if (repeatCount > 0)
                         {
-                            writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
+                            writer.Write((byte)(pendingBuffer | REPEAT_OVERLAY));
                             writer.Write((byte)repeatCount);
                         }
-                        else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
+                        else if (pendingBuffer != INVALID) writer.Write(pendingBuffer);
 
                         repeatCount = 0;
                         repeatEntitled = IsRepeatEntitled(buffer);
-                        pendingPixelBuffer = buffer;
+                        pendingBuffer = buffer;
 
                         break;
                 }
@@ -157,15 +183,15 @@ namespace AsitLib.Stele
 
             if (repeatCount > 1)
             {
-                writer.Write((byte)(pendingPixelBuffer | REPEAT_OVERLAY));
+                writer.Write((byte)(pendingBuffer | REPEAT_OVERLAY));
                 writer.Write((byte)repeatCount);
             }
-            else if (pendingPixelBuffer != INVALID) writer.Write(pendingPixelBuffer);
+            else if (pendingBuffer != INVALID) writer.Write(pendingBuffer);
 
             writer.Flush();
             fs.Flush();
         }
-        public static void Decode<T>(string path, T[] outData, T value1, T value2, int bufferLength = 16384) where T : struct
+        public static void Decode<T>(string path, T[] outData, SteleMap<T> map, int bufferLength = 16384) where T : struct
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new BinaryReader(fs);
@@ -180,14 +206,13 @@ namespace AsitLib.Stele
             int outIndex = 0;
             int bytesRead;
             int runLength;
-
-            T[] map = [value1, value2];
+            byte buffer;
 
             while ((bytesRead = reader.Read(largeBuffer, 0, largeBuffer.Length)) > 0)
             {
                 for (int bufferIndex = 0; bufferIndex < bytesRead; bufferIndex++)
                 {
-                    byte buffer = largeBuffer[bufferIndex];
+                    buffer = largeBuffer[bufferIndex];
 
                     for (int i = 0; i < 4; i++)
                     {
