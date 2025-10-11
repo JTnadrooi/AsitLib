@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsitLib.Stele
@@ -56,6 +57,7 @@ namespace AsitLib.Stele
             string binary = Convert.ToString(b, 2).PadLeft(8, '0');
             return binary.Substring(0, 4) + "_" + binary.Substring(4);
         }
+
         public static void Run() // debug
         {
             float Test(Action action, string id, int count, bool showFileSize = true)
@@ -94,105 +96,81 @@ namespace AsitLib.Stele
             }
         }
 
-
-
         public static void Encode<T>(string path, T[] data, int width, int height, SteleMap<T> map, int bufferLength = 16384) where T : struct
         {
-            if (width % 4 != 0 || width < 4) throw new ArgumentException(nameof(width));
-            if (height % 4 != 0 || height < 4) throw new ArgumentException(nameof(height));
+            if ((width % 4) != 0 || width < 4) throw new ArgumentException(nameof(width));
+            if ((height % 4) != 0 || height < 4) throw new ArgumentException(nameof(height));
 
-            //using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Write);
-            using FileStream fs = File.Create(path);
+            using FileStream fs = File.Create(path, bufferLength, FileOptions.None);
             using BinaryWriter writer = new BinaryWriter(fs);
 
-            // header.
-
             writer.Write((byte)VERSION);
-            writer.Write((ushort)(width));
-            writer.Write((ushort)(height));
-
-            // body.
+            writer.Write((ushort)width);
+            writer.Write((ushort)height);
 
             const byte REPEAT_OVERLAY = 0b_1100_0000;
-            const byte MAX_UNIQUE = 3;
-            const byte REPEAT_VALUE1 = 0b_0000_0000;
-            const byte REPEAT_VALUE2 = 0b_0101_0101;
-            const byte REPEAT_VALUE3 = 0b_1010_1010;
-            const byte INVALID = 0b1111_1111; // bytes like this are impossible for the algoritm to create as it would require the REPEAT flag to exist in other places that the last 2 bits.
+            const byte INVALID = 0b_1111_1111;
 
-            HashSet<T> seen = new HashSet<T>(MAX_UNIQUE);
-            List<T> uniqueValues = new List<T>(MAX_UNIQUE);
-
-            byte GetOverlay(ref T pixel, int index) => GetValueOverlay(map[pixel], index);
-            byte GetValueOverlay(in int value, int index) => (byte)(value << (index * 2));
-            byte GetRepeatByte(in int color) => color switch
-            {
-                0 => REPEAT_VALUE1,
-                1 => REPEAT_VALUE2,
-                3 => REPEAT_VALUE3,
-                _ => throw new Exception(),
-            };
-            int IsRepeatEntitled(byte buffer) => (byte)(buffer & 0b1111_0000) switch
-            {
-                0b1010_0000 => 2,
-                0b0101_0000 => 1,
-                0b0000_0000 => 0,
-                _ => -1
-            };
-
-            byte buffer = 0b_0000_0000;
-            byte[] largeBuffer = new byte[bufferLength];
-
+            byte prev = INVALID;
             int repeatCount = 0;
-            byte pendingBuffer = INVALID;
-
             int repeatEntitled = -1;
+            byte current;
 
             for (int i = 3; i < data.Length; i += 4)
             {
-                buffer = (byte)(buffer | GetOverlay(ref data[i], 3));
-                buffer = (byte)(buffer | GetOverlay(ref data[i - 1], 2));
-                buffer = (byte)(buffer | GetOverlay(ref data[i - 2], 1));
-                buffer = (byte)(buffer | GetOverlay(ref data[i - 3], 0));
+                current = (byte)((map[data[i - 3]] << 0)
+                          | (map[data[i - 2]] << 2)
+                          | (map[data[i - 1]] << 4)
+                          | (map[data[i]] << 6));
 
                 switch (repeatEntitled)
                 {
-                    case 0:
-                    case 1:
-                        if (buffer == GetRepeatByte(repeatEntitled) && repeatCount < byte.MaxValue)
+                    case 0 or 1:
+                        if (current == (repeatEntitled switch
+                        {
+                            0 => 0b_0000_0000,
+                            1 => 0b_0101_0101,
+                            3 => 0b_1010_1010,
+                            _ => INVALID
+                        }) && repeatCount < byte.MaxValue)
                         {
                             repeatCount++;
-                            break;
+                            continue;
                         }
-                        else goto case -1;
-                    case -1:
+                        goto default;
+                    default:
                         if (repeatCount > 0)
                         {
-                            writer.Write((byte)(pendingBuffer | REPEAT_OVERLAY));
+                            writer.Write((byte)(prev | REPEAT_OVERLAY));
                             writer.Write((byte)repeatCount);
                         }
-                        else if (pendingBuffer != INVALID) writer.Write(pendingBuffer);
+                        else if (prev != INVALID) writer.Write((byte)prev);
 
                         repeatCount = 0;
-                        repeatEntitled = IsRepeatEntitled(buffer);
-                        pendingBuffer = buffer;
-
+                        repeatEntitled = (current & 0b1111_0000) switch
+                        {
+                            0b_1010_0000 => 2,
+                            0b_0101_0000 => 1,
+                            0b_0000_0000 => 0,
+                            _ => -1
+                        };
+                        prev = current;
                         break;
                 }
-
-                buffer = 0b_0000_0000;
             }
 
             if (repeatCount > 1)
             {
-                writer.Write((byte)(pendingBuffer | REPEAT_OVERLAY));
+                writer.Write((byte)(prev | REPEAT_OVERLAY));
                 writer.Write((byte)repeatCount);
             }
-            else if (pendingBuffer != INVALID) writer.Write(pendingBuffer);
+            else if (prev != INVALID) writer.Write((byte)prev);
 
             writer.Flush();
             fs.Flush();
         }
+
+
         public static void Decode<T>(string path, T[] outData, SteleMap<T> map, int bufferLength = 16384) where T : struct
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
