@@ -170,7 +170,6 @@ namespace AsitLib.Stele
             fs.Flush();
         }
 
-
         public static void Decode<T>(string path, T[] outData, SteleMap<T> map, int bufferLength = 16384) where T : struct
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
@@ -182,27 +181,25 @@ namespace AsitLib.Stele
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
 
-            byte[] largeBuffer = new byte[Math.Min(outData.Length / 4, bufferLength)];
+            byte[] buffer = new byte[Math.Min(outData.Length / 4, bufferLength)];
             int outIndex = 0;
             int bytesRead;
             int runLength;
-            byte buffer;
+            byte current;
 
-            while ((bytesRead = reader.Read(largeBuffer, 0, largeBuffer.Length)) > 0)
+            while ((bytesRead = reader.Read(buffer, 0, buffer.Length)) > 0)
             {
                 for (int bufferIndex = 0; bufferIndex < bytesRead; bufferIndex++)
                 {
-                    buffer = largeBuffer[bufferIndex];
+                    current = buffer[bufferIndex];
 
                     for (int i = 0; i < 4; i++)
                     {
-                        int halfNib = (buffer >> (i * 2)) & 0b_0000_0011;
+                        int halfNib = (current >> (i * 2)) & 0b_0000_0011;
 
                         if (halfNib == 3) // RLE marker (last 2 bits)
                         {
-                            //T lastValue = outData[outIndex - 1]; // get last written value.
-
-                            runLength = ((bufferIndex < bytesRead - 1) ? largeBuffer[bufferIndex + 1] : reader.ReadByte()) * 4 + 1;
+                            runLength = ((bufferIndex < bytesRead - 1) ? buffer[bufferIndex + 1] : reader.ReadByte()) * 4 + 1;
 
                             bufferIndex++;
                             Array.Fill(outData, outData[outIndex - 1], outIndex, runLength);
