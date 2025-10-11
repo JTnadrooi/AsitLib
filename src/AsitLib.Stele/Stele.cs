@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace AsitLib.Stele
 {
-    public class SteleMap<T> where T : notnull
+    public class SteleMap<T> where T : struct
     {
         public FrozenDictionary<T, int> Map { get; }
         public ReadOnlyCollection<T> InverseMap { get; }
@@ -78,6 +78,7 @@ namespace AsitLib.Stele
                 Rgba32[] data = new Rgba32[img.Width * img.Height];
                 img.CopyPixelDataTo(data);
                 var map = SteleMap<Rgba32>.CreateFromUnique([new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)]);
+                Console.WriteLine($"pixelcount: {data.Length}.");
 
                 Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
 
@@ -133,6 +134,7 @@ namespace AsitLib.Stele
             };
             int IsRepeatEntitled(byte buffer) => (byte)(buffer & 0b1111_0000) switch
             {
+                0b1010_0000 => 2,
                 0b0101_0000 => 1,
                 0b0000_0000 => 0,
                 _ => -1
@@ -220,12 +222,12 @@ namespace AsitLib.Stele
 
                         if (halfNib == 3) // RLE marker (last 2 bits)
                         {
-                            T lastValue = outData[outIndex - 1]; // get last written value.
+                            //T lastValue = outData[outIndex - 1]; // get last written value.
 
                             runLength = ((bufferIndex < bytesRead - 1) ? largeBuffer[bufferIndex + 1] : reader.ReadByte()) * 4 + 1;
 
                             bufferIndex++;
-                            Array.Fill(outData, lastValue, outIndex, runLength);
+                            Array.Fill(outData, outData[outIndex - 1], outIndex, runLength);
 
                             outIndex += runLength;
                             break;
