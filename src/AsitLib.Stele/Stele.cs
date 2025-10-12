@@ -31,7 +31,18 @@ namespace AsitLib.Stele
                 .ToList().AsReadOnly();
         }
 
-        public static SteleMap<T> Create(IEnumerable<T> values) => CreateFromUnique(values.Distinct());
+        public static SteleMap<T> Create(IEnumerable<T> values)
+        {
+            HashSet<T> uniqueValues = new HashSet<T>();
+
+            foreach (T value in values)
+            {
+                uniqueValues.Add(value);
+                if (uniqueValues.Count == 3) break;
+            }
+
+            return CreateFromUnique(uniqueValues);
+        }
         public static SteleMap<T> CreateFromUnique(IEnumerable<T> values)
         {
             int count = values.Count();
@@ -79,7 +90,8 @@ namespace AsitLib.Stele
 
                 Rgba32[] data = new Rgba32[img.Width * img.Height];
                 img.CopyPixelDataTo(data);
-                var map = SteleMap<Rgba32>.CreateFromUnique([new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)]);
+                //SteleMap<Rgba32> map = SteleMap<Rgba32>.CreateFromUnique([new Rgba32(23, 18, 25), new Rgba32(242, 251, 235)]);
+                SteleMap<Rgba32> map = SteleMap<Rgba32>.Create(data);
                 Console.WriteLine($"pixelcount: {data.Length}.");
 
                 Console.WriteLine($"og(png) filesize: {new FileInfo(InPath).Length}.");
