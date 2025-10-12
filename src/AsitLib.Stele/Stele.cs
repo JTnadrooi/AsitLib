@@ -15,7 +15,7 @@ using AsitLib;
 
 namespace AsitLib.Stele
 {
-    public class SteleMap<T> where T : struct
+    public sealed class SteleMap<T> where T : struct
     {
         public FrozenDictionary<T, int> Map { get; }
         public ReadOnlyCollection<T> InverseMap { get; }
