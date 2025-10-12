@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using AsitLib;
 
 namespace AsitLib.Stele
 {
@@ -30,6 +31,10 @@ namespace AsitLib.Stele
                 .Select(x => x.Key)
                 .ToList().AsReadOnly();
         }
+
+        public override bool Equals(object? obj) => (obj is SteleMap<T> other) ? Map.SequenceEqual(other.Map) : false;
+        public override int GetHashCode() => Map.GetHashCode();
+        public override string ToString() => $"[{InverseMap.ToJoinedString(", ")}]";
 
         public static SteleMap<T> Create(IEnumerable<T> values)
         {
