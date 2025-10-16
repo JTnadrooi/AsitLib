@@ -21,8 +21,8 @@ namespace AsitLib.Stele
         //private static readonly string CorePath = $@"C:\Users\{Environment.UserName}\source\repos\STOLON\.ignore\fax-128";
 
         private static readonly string InPath = CorePath + ".png";
-        private static readonly string OutPath = CorePath + "." + SteleFile.FILE_EXTENSION;
-        private static readonly string OutPath2 = CorePath + "2." + SteleFile.FILE_EXTENSION;
+        private static readonly string OutPath = CorePath + "." + SteleData.FILE_EXTENSION;
+        private static readonly string OutPath2 = CorePath + "2." + SteleData.FILE_EXTENSION;
 
         private static string B(byte b)
         {
@@ -60,10 +60,10 @@ namespace AsitLib.Stele
                 if (!File.Exists(OutPath)) File.Create(OutPath).Dispose();
                 else File.WriteAllBytes(OutPath, Array.Empty<byte>());
 
-                float swRLEMs = Test(() => SteleFile<Rgba32>.Encode(OutPath, data, img.Width, img.Height, map), "new(stele, RLE)", 100);
+                float swRLEMs = Test(() => SteleData<Rgba32>.Encode(OutPath, data, img.Width, img.Height, map), "new(stele, RLE)", 100);
 
                 Rgba32[] outData = new Rgba32[img.Width * img.Height];
-                float swDecodeMs = Test(() => SteleFile<Rgba32>.GetData(OutPath, outData, map), "dec(stele)", 1000, false);
+                float swDecodeMs = Test(() => SteleData<Rgba32>.GetData(OutPath, outData, map), "dec(stele)", 1000, false);
                 Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
                 Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
             }
