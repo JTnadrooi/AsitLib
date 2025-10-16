@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,8 +13,9 @@ namespace AsitLib.Stele
     public static class SteleData
     {
         public const string FILE_EXTENSION = "stele";
-        public const int VERSION = 0;
-        public const int DEFAULT_BUFFER_SIZE = 2 ^ 13; // 8192
+        public const int VERSION = 1;
+        public const int DEFAULT_BUFFER_SIZE = 8192; // 2 ^ 13
+        public const int METADATA_SIZE = sizeof(byte) + sizeof(ushort) + sizeof(ushort);
     }
 
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
@@ -21,15 +23,14 @@ namespace AsitLib.Stele
         public FileInfo? FileInfo => _lazyFileInfo?.Value;
         public int Width { get; }
         public int Height { get; }
-        public float Ratio { get; }
-        public int DataSize { get; }
-        public int PixelCount { get; }
+        public int PixelCount => Width * Height;
         public int Depth => 2;
 
-        //public int GetRawSize(int bbp)
-        //{
+        public int GetRawSize(int bbp) // uncompressed size in bytes
+            => PixelCount * bbp + METADATA_SIZE;
 
-        //}
+        public float GetRatio(int bbp, int size)
+            => GetRawSize(bbp) / (float)size;
 
         private Stream _sourceStream;
         private BinaryReader _reader;
@@ -44,20 +45,27 @@ namespace AsitLib.Stele
         })
         { }
         public SteleData(string path, FileStreamOptions options) : this(new FileStream(path, options)) { }
-        public SteleData(FileStream source) : this((Stream)source)
-        {
-            _lazyFileInfo = new Lazy<FileInfo>(() => new FileInfo(source.Name));
-        }
+        public SteleData(FileStream source) : this((Stream)source) => _lazyFileInfo = new Lazy<FileInfo>(() => new FileInfo(source.Name));
         public SteleData(Stream source)
         {
             _sourceStream = source;
             _reader = new BinaryReader(_sourceStream);
             _lazyFileInfo = null;
+
+            int version = _reader.ReadByte();
+            switch (version)
+            {
+                case VERSION: break; // only 1 supported version.
+                default: throw new InvalidDataException();
+            }
+
+            Width = _reader.ReadUInt16();
+            Height = _reader.ReadUInt16();
         }
 
         public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
-            GetData(_sourceStream, outData, map, bufferSize);
+            InternalGetData(_reader, outData, map, bufferSize, VERSION, Width, Height);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -182,10 +190,15 @@ namespace AsitLib.Stele
         }
 
         public static void GetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
+            => InternalGetData(reader, outData, map, bufferSize);
+        private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, byte version = 0, int width = -1, int height = -1)
         {
-            byte version = reader.ReadByte();
-            ushort width = reader.ReadUInt16();
-            ushort height = reader.ReadUInt16();
+            if (version == 0)
+            {
+                version = reader.ReadByte();
+                width = reader.ReadUInt16();
+                height = reader.ReadUInt16();
+            }
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
 
