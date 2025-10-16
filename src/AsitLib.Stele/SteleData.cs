@@ -15,8 +15,19 @@ namespace AsitLib.Stele
         public const string FILE_EXTENSION = "stele";
         public const int VERSION = 1;
         public const int DEFAULT_BUFFER_SIZE = 8192; // 2 ^ 13
+        /// <summary>
+        /// Calculated as follows: <code>sizeof(byte) + sizeof(ushort) + sizeof(ushort)</code>
+        /// </summary>
         public const int METADATA_SIZE = sizeof(byte) + sizeof(ushort) + sizeof(ushort);
 
+        /// <summary>
+        /// Reads the STELE header/metadata.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="throwVersionError">If this should throw an error if the version is invalid or cannot be decoded.</param>
+        /// <param name="version">The STELE version. Cannot be 0 and must be less than <see cref="byte.MaxValue"/>.</param>
+        /// <param name="width">The image width. Cannot be less than 4 and must be divisible by 4.</param>
+        /// <param name="height">The image height. Cannot be less than 4 and must be divisible by 4.</param>
         public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
         {
             version = reader.ReadByte();
@@ -37,16 +48,28 @@ namespace AsitLib.Stele
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
     {
         public FileInfo? FileInfo => _lazyFileInfo?.Value;
+        /// <summary>
+        /// The width of the image.
+        /// </summary>
         public int Width => width;
+        /// <summary>
+        /// The height of the image.
+        /// </summary>
         public int Height => height;
+        /// <summary>
+        /// The amount of pixels this SteleData blob stores.
+        /// </summary>
         public int PixelCount => Width * Height;
+        /// <summary>
+        /// The amount of bits per pixel as stored in stele. In the current version this is always <see langword="2"/>.
+        /// </summary>
         public int Depth => 2;
 
-        public int GetRawSize(int bbp) // uncompressed size in bytes
-            => PixelCount * bbp + METADATA_SIZE;
+        //public int GetRawSize(int bbp) // uncompressed size in bytes
+        //    => PixelCount * bbp + METADATA_SIZE;
 
-        public float GetRatio(int bbp, int size)
-            => GetRawSize(bbp) / (float)size;
+        //public float GetRatio(int bbp, int size)
+        //    => GetRawSize(bbp) / (float)size;
 
         private Stream _sourceStream;
         private BinaryReader _reader;
