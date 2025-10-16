@@ -16,6 +16,22 @@ namespace AsitLib.Stele
         public const int VERSION = 1;
         public const int DEFAULT_BUFFER_SIZE = 8192; // 2 ^ 13
         public const int METADATA_SIZE = sizeof(byte) + sizeof(ushort) + sizeof(ushort);
+
+        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
+        {
+            version = reader.ReadByte();
+            if (throwVersionError)
+                switch (version)
+                {
+                    case 0: throw new InvalidDataException("Version 0 is not supported.");
+                    case > byte.MaxValue: throw new InvalidDataException($"Version {version} exceeds the maximum allowed version ({byte.MaxValue}).");
+                    case VERSION: break; // only 1 supported version.
+                    default: throw new InvalidDataException($"Version {version} is invalid.");
+                }
+
+            width = reader.ReadUInt16();
+            height = reader.ReadUInt16();
+        }
     }
 
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
@@ -79,22 +95,6 @@ namespace AsitLib.Stele
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
-
-        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
-        {
-            version = reader.ReadByte();
-            if (throwVersionError)
-                switch (version)
-                {
-                    case 0: throw new InvalidDataException("Version 0 is not supported.");
-                    case > byte.MaxValue: throw new InvalidDataException($"Version {version} exceeds the maximum allowed version ({byte.MaxValue}).");
-                    case VERSION: break; // only 1 supported version.
-                    default: throw new InvalidDataException($"Version {version} is invalid.");
-                }
-
-            width = reader.ReadUInt16();
-            height = reader.ReadUInt16();
         }
 
         public static void Encode(string path, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
