@@ -21,8 +21,8 @@ namespace AsitLib.Stele
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
     {
         public FileInfo? FileInfo => _lazyFileInfo?.Value;
-        public int Width { get; }
-        public int Height { get; }
+        public int Width => width;
+        public int Height => height;
         public int PixelCount => Width * Height;
         public int Depth => 2;
 
@@ -36,6 +36,8 @@ namespace AsitLib.Stele
         private BinaryReader _reader;
         private Lazy<FileInfo>? _lazyFileInfo;
         private bool disposedValue;
+        private readonly int height;
+        private readonly int width;
 
         public SteleData(string path, FileMode mode, int bufferSize = DEFAULT_BUFFER_SIZE) : this(path, new FileStreamOptions()
         {
@@ -52,15 +54,7 @@ namespace AsitLib.Stele
             _reader = new BinaryReader(_sourceStream);
             _lazyFileInfo = null;
 
-            int version = _reader.ReadByte();
-            switch (version)
-            {
-                case VERSION: break; // only 1 supported version.
-                default: throw new InvalidDataException();
-            }
-
-            Width = _reader.ReadUInt16();
-            Height = _reader.ReadUInt16();
+            ReadMetadata(_reader, true, out _, out width, out height);
         }
 
         public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
@@ -85,6 +79,19 @@ namespace AsitLib.Stele
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
+        {
+            version = reader.ReadByte();
+            switch (version)
+            {
+                case VERSION: break; // only 1 supported version.
+                default: throw new InvalidDataException();
+            }
+
+            width = reader.ReadUInt16();
+            height = reader.ReadUInt16();
         }
 
         public static void Encode(string path, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
@@ -191,13 +198,11 @@ namespace AsitLib.Stele
 
         public static void GetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
             => InternalGetData(reader, outData, map, bufferSize);
-        private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, byte version = 0, int width = -1, int height = -1)
+        private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, int version = 0, int width = -1, int height = -1)
         {
             if (version == 0)
             {
-                version = reader.ReadByte();
-                width = reader.ReadUInt16();
-                height = reader.ReadUInt16();
+                ReadMetadata(reader, true, out version, out width, out height);
             }
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
