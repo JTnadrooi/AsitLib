@@ -84,13 +84,13 @@ namespace AsitLib.Stele
         public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
         {
             version = reader.ReadByte();
-
             if (throwVersionError)
                 switch (version)
                 {
+                    case 0: throw new InvalidDataException("Version 0 is not supported.");
+                    case > byte.MaxValue: throw new InvalidDataException($"Version {version} exceeds the maximum allowed version ({byte.MaxValue}).");
                     case VERSION: break; // only 1 supported version.
-                    case 0: throw new InvalidDataException();
-                    default: throw new InvalidDataException();
+                    default: throw new InvalidDataException($"Version {version} is invalid.");
                 }
 
             width = reader.ReadUInt16();
