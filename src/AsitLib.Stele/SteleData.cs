@@ -87,6 +87,7 @@ namespace AsitLib.Stele
             switch (version)
             {
                 case VERSION: break; // only 1 supported version.
+                case 0: throw new InvalidDataException();
                 default: throw new InvalidDataException();
             }
 
