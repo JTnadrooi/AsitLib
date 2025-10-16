@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.Stele
 {
-    public sealed class SteleMap<TPixel> where TPixel : struct
+    public sealed class SteleMap<TPixel> where TPixel : struct, IEquatable<TPixel>
     {
         public FrozenDictionary<TPixel, int> Map { get; }
         public ReadOnlyCollection<TPixel> InverseMap { get; }
