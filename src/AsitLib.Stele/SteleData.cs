@@ -22,8 +22,8 @@ namespace AsitLib.Stele
         public int Width { get; }
         public int Height { get; }
         public float Ratio { get; }
-        public int FileSize { get; }
-        public int Count { get; }
+        public int DataSize { get; }
+        public int PixelCount { get; }
         public int Depth => 2;
 
         //public int GetRawSize(int bbp)
@@ -31,7 +31,7 @@ namespace AsitLib.Stele
 
         //}
 
-        private Stream _source;
+        private Stream _sourceStream;
         private BinaryReader _reader;
         private Lazy<FileInfo>? _lazyFileInfo;
         private bool disposedValue;
@@ -50,14 +50,14 @@ namespace AsitLib.Stele
         }
         public SteleData(Stream source)
         {
-            _source = source;
-            _reader = new BinaryReader(_source);
+            _sourceStream = source;
+            _reader = new BinaryReader(_sourceStream);
             _lazyFileInfo = null;
         }
 
         public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
-            GetData(_source, outData, map, bufferSize);
+            GetData(_sourceStream, outData, map, bufferSize);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -66,7 +66,7 @@ namespace AsitLib.Stele
             {
                 if (disposing)
                 {
-                    _source.Dispose();
+                    _sourceStream.Dispose();
                     _reader.Dispose();
                 }
                 disposedValue = true;
