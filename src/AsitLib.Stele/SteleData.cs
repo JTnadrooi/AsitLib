@@ -24,11 +24,12 @@ namespace AsitLib.Stele
         /// Reads the STELE header/metadata.
         /// </summary>
         /// <param name="reader"></param>
-        /// <param name="throwVersionError">If this should throw an error if the version is invalid or cannot be decoded.</param>
+        /// <param name="throwVersionError">If <see langword="true"/>, this throws an error if the version is invalid or cannot be decoded.</param>
+        /// <param name="throwDimensionsError">If <see langword="true"/>, this throws an error if the dimensions are invalid.</param>
         /// <param name="version">The STELE version. Cannot be 0 and must be less than <see cref="byte.MaxValue"/>.</param>
         /// <param name="width">The image width. Cannot be less than 4 and must be divisible by 4.</param>
         /// <param name="height">The image height. Cannot be less than 4 and must be divisible by 4.</param>
-        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, out int version, out int width, out int height)
+        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, bool throwDimensionsError, out int version, out int width, out int height)
         {
             version = reader.ReadByte();
             if (throwVersionError)
@@ -42,6 +43,14 @@ namespace AsitLib.Stele
 
             width = reader.ReadUInt16();
             height = reader.ReadUInt16();
+            if (throwDimensionsError)
+            {
+                if (width < 4) throw new InvalidDataException($"Width ({width}) cannot be less than 4.");
+                if (width % 4 != 0) throw new InvalidDataException($"Width ({width}) must be divisible by 4.");
+
+                if (height < 4) throw new InvalidDataException($"Height ({height}) cannot be less than 4.");
+                if (height % 4 != 0) throw new InvalidDataException($"Height ({height}) must be divisible by 4.");
+            }
         }
     }
 
@@ -93,7 +102,7 @@ namespace AsitLib.Stele
             _reader = new BinaryReader(_sourceStream);
             _lazyFileInfo = null;
 
-            ReadMetadata(_reader, true, out _, out width, out height);
+            ReadMetadata(_reader, true, true, out _, out width, out height);
         }
 
         public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
@@ -228,7 +237,7 @@ namespace AsitLib.Stele
         {
             if (version == 0)
             {
-                ReadMetadata(reader, true, out version, out width, out height);
+                ReadMetadata(reader, true, true, out version, out width, out height);
             }
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));
