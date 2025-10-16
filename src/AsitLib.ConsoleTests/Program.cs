@@ -8,7 +8,7 @@ namespace AsitLib.ConsoleTests
     {
         public static void Main(string[] args)
         {
-            Stele.Stele.Run();
+            Stele.SteleTests.Run();
 
             Console.Read();
         }
