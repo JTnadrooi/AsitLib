@@ -10,6 +10,10 @@ using static AsitLib.Stele.SteleData;
 
 namespace AsitLib.Stele
 {
+    /// <summary>
+    /// Contains static Stele related functions that do not take the TPixel type parameter. 
+    /// For functions that do, see the <see cref="SteleData{TPixel}"/> and <see cref="SteleMap{TPixel}"/> static functions.
+    /// </summary>
     public static class SteleData
     {
         public const string FILE_EXTENSION = "stele";
@@ -54,6 +58,12 @@ namespace AsitLib.Stele
         }
     }
 
+    /// <summary>
+    /// TODO: STELE INFO <br/><br/>
+    /// Also holds a collection of usefull static helper functions.<br/>
+    /// <strong>For reading from multiple Stele data streams, these functions may be faster as they do not allocate a <see cref="SteleData{TPixel}"/> object.</strong>
+    /// </summary>
+    /// <typeparam name="TPixel">The IEquatable-implementing pixel struct type.</typeparam>
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
     {
         public FileInfo? FileInfo => _lazyFileInfo?.Value;
