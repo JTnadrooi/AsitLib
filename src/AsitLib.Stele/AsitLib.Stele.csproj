@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<TargetFramework>net8.0</TargetFramework>
@@ -23,7 +22,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\AsitLib\AsitLib.csproj" />
+		<ProjectReference Include="..\AsitLib\AsitLib.csproj" />
 	</ItemGroup>
-
 </Project>
