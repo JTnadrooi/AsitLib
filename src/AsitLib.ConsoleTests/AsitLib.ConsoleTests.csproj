@@ -19,7 +19,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\AsitLib.Stele\AsitLib.Stele.csproj" />
 		<ProjectReference Include="..\AsitLib\AsitLib.csproj" />
 	</ItemGroup>
 
