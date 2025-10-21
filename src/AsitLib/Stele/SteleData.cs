@@ -66,7 +66,6 @@ namespace AsitLib.Stele
     /// <typeparam name="TPixel">The IEquatable-implementing pixel struct type.</typeparam>
     public class SteleData<TPixel> : IDisposable where TPixel : struct, IEquatable<TPixel>
     {
-        public FileInfo? FileInfo => _lazyFileInfo?.Value;
         /// <summary>
         /// The width of the image.
         /// </summary>
@@ -97,15 +96,13 @@ namespace AsitLib.Stele
         private readonly int height;
         private readonly int width;
 
-        public SteleData(string path, FileMode mode, int bufferSize = DEFAULT_BUFFER_SIZE) : this(path, new FileStreamOptions()
+        public SteleData(string path, int bufferSize = DEFAULT_BUFFER_SIZE) : this(new FileStream(path, new FileStreamOptions()
         {
-            Mode = mode,
+            Mode = FileMode.Open,
             BufferSize = bufferSize,
             Access = FileAccess.Write,
-        })
+        }))
         { }
-        public SteleData(string path, FileStreamOptions options) : this(new FileStream(path, options)) { }
-        public SteleData(FileStream source) : this((Stream)source) => _lazyFileInfo = new Lazy<FileInfo>(() => new FileInfo(source.Name));
         public SteleData(Stream source)
         {
             _sourceStream = source;
@@ -140,13 +137,11 @@ namespace AsitLib.Stele
         }
 
         public static void Encode(string path, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
-            => Encode(path, FileMode.Open, data, width, height, map, bufferSize);
-        public static void Encode(string path, FileMode mode, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
             using FileStream fs = new FileStream(path, new FileStreamOptions()
             {
                 BufferSize = bufferSize,
-                Mode = mode,
+                Mode = FileMode.Create,
                 Access = FileAccess.Write,
             });
             Encode(fs, data, width, height, map, bufferSize);
@@ -155,11 +150,7 @@ namespace AsitLib.Stele
         public static void Encode(Stream source, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
             using BinaryWriter writer = new BinaryWriter(source);
-            Encode(writer, data, width, height, map, bufferSize);
-        }
 
-        public static void Encode(BinaryWriter writer, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
-        {
             if ((width % 4) != 0 || width < 4) throw new ArgumentException(nameof(width));
             if ((height % 4) != 0 || height < 4) throw new ArgumentException(nameof(height));
 
@@ -238,11 +229,11 @@ namespace AsitLib.Stele
         public static void GetData(Stream source, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
             using BinaryReader reader = new BinaryReader(source);
-            GetData(reader, outData, map, bufferSize);
+            InternalGetData(reader, outData, map, bufferSize);
         }
 
-        public static void GetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
-            => InternalGetData(reader, outData, map, bufferSize);
+        //public static void GetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
+        //    => InternalGetData(reader, outData, map, bufferSize);
         private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, int version = 0, int width = -1, int height = -1)
         {
             if (version == 0)
