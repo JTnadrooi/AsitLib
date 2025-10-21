@@ -102,7 +102,7 @@ namespace AsitLib.Debug
         }
 
         public void Warn(string msg, ReadOnlySpan<object?> displays = default)
-            => LogWithColor(ConsoleColor.Red, "warning: " + msg, displays);
+            => LogWithColor(ConsoleColor.Yellow, "warning: " + msg, displays);
 
         public void LogWithColor(ConsoleColor? color, string message, ReadOnlySpan<object?> displays = default)
         {
