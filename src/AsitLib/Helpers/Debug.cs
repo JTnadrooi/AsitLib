@@ -29,7 +29,7 @@ namespace AsitLib.Debug
         public static IStyle Default { get; } = new DefaultStyle();
 
         private readonly IStyle _style;
-        private readonly Stack<Stopwatch?> _timers;
+        private readonly Stopwatch?[] _timers;
         private readonly int _maxDepth;
 
         private int _depth;
@@ -50,7 +50,7 @@ namespace AsitLib.Debug
             Silent = silent;
 
             _maxDepth = maxDepth;
-            _timers = new Stack<Stopwatch?>(maxDepth);
+            _timers = new Stopwatch?[maxDepth];
 
             if (!string.IsNullOrEmpty(header)) Header(header);
         }
@@ -116,12 +116,14 @@ namespace AsitLib.Debug
             else Log(message, displays);
         }
 
-        private void BeginTiming()
-        {
-            if (_timers.Count < _maxDepth) _timers.Push(Stopwatch.StartNew());
-        }
+        private void BeginTiming() => _timers[_depth] = Stopwatch.StartNew();
 
-        private Stopwatch? EndTiming() => _timers.Count > 0 ? _timers.Pop() : null;
+        private Stopwatch? EndTiming()
+        {
+            Stopwatch? toret = _timers[_depth];
+            _timers[_depth] = null;
+            return toret;
+        }
 
         private string NormalizeMessage(string msg, out int delta, out char? prefix)
         {

@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace AsitLib.ConsoleTests
 {
@@ -13,7 +14,7 @@ namespace AsitLib.ConsoleTests
     {
         public static void Main(string[] args)
         {
-            SteleTests.Run();
+            LogShowCase();
 
             Console.Read();
         }
@@ -24,8 +25,10 @@ namespace AsitLib.ConsoleTests
 
             debug.Log(">[s]initializing system.");
             debug.Log("by nadrooi.");
-            debug.Log(">[s]loading config.");
+            debug.Log(">loading config.");
+            //Thread.Sleep(40);
             debug.Log(">connecting to DB.");
+            //Thread.Sleep(100);
             debug.Log("a");
             debug.Log("<connection successful.", new object?[] { "Server=127.0.0.1", null });
             debug.Success();
