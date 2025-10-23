@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Text;
 #nullable enable
@@ -61,23 +62,36 @@ namespace AsitLib.Debug
             Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
         }
 
-        public void Log(string? msg, ReadOnlySpan<object?> displays = default)
+        public void Log(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
-            if (Silent) return;
-            if (string.IsNullOrEmpty(msg)) msg = "_NULL_";
+            void InternalLog(ReadOnlySpan<object?> displays = default)
+            {
+                if (Silent) return;
+                if (string.IsNullOrEmpty(msg)) msg = "_NULL_";
 
-            string normalizedMsg = NormalizeMessage(msg!, out int delta, out char? prefix);
+                string normalizedMsg = NormalizeMessage(msg!, out int delta, out char? prefix);
 
-            if (_depth + delta > _maxDepth) throw new InvalidOperationException("Exceeded max indent depth");
-            if (!displays.IsEmpty) normalizedMsg = AppendDisplays(normalizedMsg, displays);
+                if (_depth + delta > _maxDepth) throw new InvalidOperationException("Exceeded max indent depth");
+                if (!displays.IsEmpty) normalizedMsg = AppendDisplays(normalizedMsg, displays);
 
-            Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
-            if (AutoFlush) Out.Flush();
+                Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
+                if (AutoFlush) Out.Flush();
 
-            _depth = Math.Max(_depth + delta, 0);
+                _depth = Math.Max(_depth + delta, 0);
 
-            if (prefix == 's') BeginTiming();
+                if (prefix == 's') BeginTiming();
+            }
+
+            if (IsConsole && color.HasValue)
+            {
+                ConsoleColor original = Console.ForegroundColor;
+                Console.ForegroundColor = color.Value;
+                try { InternalLog(displays); }
+                finally { Console.ForegroundColor = original; }
+            }
+            else InternalLog(displays);
         }
+
         private string BuildStatusMsg(string? msg, string status)
         {
             Stopwatch? sw = EndTiming();
@@ -90,7 +104,7 @@ namespace AsitLib.Debug
         }
 
         public void Fail(string? msg = null)
-            => LogWithColor(ConsoleColor.Red, BuildStatusMsg(msg, "failed"));
+            => Log(BuildStatusMsg(msg, "failed"), color: ConsoleColor.Red);
 
         public void Success(string? msg = null)
             => Log(BuildStatusMsg(msg, "success"));
@@ -102,19 +116,7 @@ namespace AsitLib.Debug
         }
 
         public void Warn(string msg, ReadOnlySpan<object?> displays = default)
-            => LogWithColor(ConsoleColor.Yellow, "warning: " + msg, displays);
-
-        public void LogWithColor(ConsoleColor? color, string message, ReadOnlySpan<object?> displays = default)
-        {
-            if (IsConsole && color.HasValue)
-            {
-                ConsoleColor original = Console.ForegroundColor;
-                Console.ForegroundColor = color.Value;
-                try { Log(message, displays); }
-                finally { Console.ForegroundColor = original; }
-            }
-            else Log(message, displays);
-        }
+            => Log("warning: " + msg, displays, color: ConsoleColor.Yellow);
 
         private void BeginTiming() => _timers[_depth] = Stopwatch.StartNew();
 
