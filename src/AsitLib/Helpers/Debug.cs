@@ -66,7 +66,6 @@ namespace AsitLib.Debug
         {
             void InternalLog(ReadOnlySpan<object?> displays = default)
             {
-                if (Silent) return;
                 if (msg == null) msg = "_NULL_";
                 if (msg == string.Empty) msg = "_EMPTY_";
 
@@ -75,8 +74,11 @@ namespace AsitLib.Debug
                 if (_depth + delta > _maxDepth) throw new InvalidOperationException("Exceeded max indent depth");
                 if (!displays.IsEmpty) normalizedMsg = AppendDisplays(normalizedMsg, displays);
 
-                Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
-                if (AutoFlush) Out.Flush();
+                if (!Silent)
+                {
+                    Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
+                    if (AutoFlush) Out.Flush();
+                }
 
                 _depth = Math.Max(_depth + delta, 0);
 
