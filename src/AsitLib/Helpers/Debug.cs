@@ -93,6 +93,22 @@ namespace AsitLib.Debug
             else InternalLog(displays);
         }
 
+        public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default)
+        {
+            if (!string.IsNullOrEmpty(msg))
+            {
+                NormalizeMessage(msg!, out int delta, out char? prefix);
+                if (delta != 0) throw new InvalidOperationException("Cannot change depth when thread-safe logging.");
+                switch (prefix)
+                {
+                    case null: break;
+                    default: throw new InvalidOperationException("Invalid prefix for thread-safe logging.");
+                }
+            }
+
+            Log(msg, displays);
+        }
+
         private string BuildStatusMsg(string? msg, string status)
         {
             Stopwatch? sw = EndTiming();
