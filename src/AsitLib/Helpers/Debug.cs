@@ -21,7 +21,13 @@ namespace AsitLib.Debug
             public string GetIndentation(int level, bool hasPrefix = false)
             {
                 if (level <= 0) return hasPrefix ? "^" : "^---";
-                return new string(' ', level * 4) + "^" + (hasPrefix ? string.Empty : "---");
+
+                StringBuilder builder = new StringBuilder(level * 4 + (hasPrefix ? 1 : 4))
+                    .Append(' ', level * 4)
+                    .Append('^');
+                if (!hasPrefix) builder.Append("---");
+
+                return builder.ToString();
             }
 
             public string GetHeaderIndentation() => "^";
