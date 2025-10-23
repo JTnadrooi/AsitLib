@@ -133,10 +133,10 @@ namespace AsitLib.Debug
         }
 
         public void Fail(string? msg = null)
-            => Log(BuildStatusMsg(msg, "failed"), color: ConsoleColor.Red);
+            => Log(BuildStatusMsg(msg, "failed."), color: ConsoleColor.Red);
 
         public void Success(string? msg = null)
-            => Log(BuildStatusMsg(msg, "success"));
+            => Log(BuildStatusMsg(msg, "success."));
 
         public void SuccessIf(bool succes, string? msg = null)
         {
