@@ -67,7 +67,8 @@ namespace AsitLib.Debug
             void InternalLog(ReadOnlySpan<object?> displays = default)
             {
                 if (Silent) return;
-                if (string.IsNullOrEmpty(msg)) msg = "_NULL_";
+                if (msg == null) msg = "_NULL_";
+                if (msg == string.Empty) msg = "_EMPTY_";
 
                 string normalizedMsg = NormalizeMessage(msg!, out int delta, out char? prefix);
 
