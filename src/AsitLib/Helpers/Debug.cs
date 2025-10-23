@@ -146,8 +146,13 @@ namespace AsitLib.Debug
 
         public void Warn(string msg, ReadOnlySpan<object?> displays = default)
             => Log("warning: " + msg, displays, color: ConsoleColor.Yellow);
+        public void WarnThreadSafe(string msg, ReadOnlySpan<object?> displays = default)
+            => LogThreadSafe("warning: " + msg, displays, color: ConsoleColor.Yellow);
+
         public void Error(string msg, ReadOnlySpan<object?> displays = default)
-            => Log("warning: " + msg, displays, color: ConsoleColor.Red);
+            => Log("error: " + msg, displays, color: ConsoleColor.Red);
+        public void ErrorThreadSafe(string msg, ReadOnlySpan<object?> displays = default)
+            => LogThreadSafe("error: " + msg, displays, color: ConsoleColor.Red);
 
         private void BeginTiming() => _timers[_depth] = Stopwatch.StartNew();
 
