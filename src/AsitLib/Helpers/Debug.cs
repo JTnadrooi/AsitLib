@@ -50,7 +50,7 @@ namespace AsitLib.Debug
         public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             _style = style ?? Default;
-            Out = output ?? Console.Out;
+            Out = TextWriter.Synchronized(output ?? Console.Out);
             IsConsole = output is null;
             AutoFlush = !IsConsole;
             DisplaysCapasity = displaysCapasity;
