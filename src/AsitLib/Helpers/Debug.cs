@@ -38,6 +38,7 @@ namespace AsitLib.Debug
         private readonly IStyle _style;
         private readonly Stopwatch?[] _timers;
         private readonly int _maxDepth;
+        private static readonly object _consoleLock = new object();
 
         private int _depth;
 
@@ -93,15 +94,18 @@ namespace AsitLib.Debug
 
             if (IsConsole && color.HasValue)
             {
-                ConsoleColor original = Console.ForegroundColor;
-                Console.ForegroundColor = color.Value;
-                try { InternalLog(displays); }
-                finally { Console.ForegroundColor = original; }
+                lock (_consoleLock)
+                {
+                    ConsoleColor original = Console.ForegroundColor;
+                    Console.ForegroundColor = color.Value;
+                    try { InternalLog(displays); }
+                    finally { Console.ForegroundColor = original; }
+                }
             }
             else InternalLog(displays);
         }
 
-        public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default)
+        public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
             if (!string.IsNullOrEmpty(msg))
             {
@@ -114,7 +118,7 @@ namespace AsitLib.Debug
                 }
             }
 
-            Log(msg, displays);
+            Log(msg, displays, color);
         }
 
         private string BuildStatusMsg(string? msg, string status)
