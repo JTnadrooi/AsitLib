@@ -44,10 +44,9 @@ namespace AsitLib.Collections
     public class ChunkEnumerable<T> : IEnumerable<T[]>, IDisposable
     {
         private int index;
-        public ReadOnlyCollection<T> MostRecent => Array.AsReadOnly(viewArray.Copy());
+        public ReadOnlyCollection<T> MostRecent => viewArray.Copy().AsReadOnly();
         private T[] viewArray;
         private IEnumerator<T> sourceEnumerator;
-        private bool prevSucces = true;
         /// <summary>
         /// The view width.
         /// </summary>
@@ -80,13 +79,14 @@ namespace AsitLib.Collections
         /// </returns>
         public (bool succes, T[] returned, int index) Next()
         {
-            T[] temp = viewArray.Copy();
+            T[] temp = new T[viewArray.Length];
+            Array.Copy(viewArray, temp, temp.Length);
             int added = 0;
             viewArray = new T[Width];
             for (int i = 0; i < viewArray.Length; i++)
             {
-                if (!sourceEnumerator.MoveNext()) 
-                    if(added == 0) return (false, viewArray, index);
+                if (!sourceEnumerator.MoveNext())
+                    if (added == 0) return (false, viewArray, index);
                     else break;
                 viewArray[i] = sourceEnumerator.Current;
                 added++;

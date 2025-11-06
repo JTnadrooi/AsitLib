@@ -91,7 +91,6 @@ namespace AsitLib.Stele
 
         private Stream _sourceStream;
         private BinaryReader _reader;
-        private Lazy<FileInfo>? _lazyFileInfo;
         private bool disposedValue;
         private readonly int height;
         private readonly int width;
@@ -107,7 +106,6 @@ namespace AsitLib.Stele
         {
             _sourceStream = source;
             _reader = new BinaryReader(_sourceStream);
-            _lazyFileInfo = null;
 
             ReadMetadata(_reader, true, true, out _, out width, out height);
         }
