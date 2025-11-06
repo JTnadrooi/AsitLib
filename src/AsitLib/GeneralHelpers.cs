@@ -260,8 +260,6 @@ namespace AsitLib
         }
 
         public static T[] ToSingleArray<T>(this T value) => [value]; // still needed in rare cases where [] doesn't work.
-        public static T[,] CreateRectangularArray<T>(this Collections.WideEnumerable<T> source)
-            => source.ToArray().CreateRectangularArray();
         public static T[,] CreateRectangularArray<T>(this T[][] arrays)
         {
             // TODO: Validation and special-casing for arrays.Count == 0
