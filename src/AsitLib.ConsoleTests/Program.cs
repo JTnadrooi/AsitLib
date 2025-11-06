@@ -21,19 +21,19 @@ namespace AsitLib.ConsoleTests
 
         public static void LogShowCase()
         {
-            DebugStream debug = new DebugStream(header: "test");
+            Logger logger = new Logger(header: "test");
 
-            debug.Log(">[s]initializing system.");
-            debug.Log("by nadrooi.");
-            debug.Log(">loading config.");
+            logger.Log(">[s]initializing system.");
+            logger.Log("by nadrooi.");
+            logger.Log(">loading config.");
             //Thread.Sleep(40);
-            debug.Log(">connecting to DB.");
+            logger.Log(">connecting to DB.");
             //Thread.Sleep(100);
-            debug.Log("a");
-            debug.Log("<connection successful.", new object?[] { "Server=127.0.0.1", null });
-            debug.Success();
-            debug.Warn("missing optional feature.");
-            debug.Success();
+            logger.Log("a");
+            logger.Log("<connection successful.", new object?[] { "Server=127.0.0.1", null });
+            logger.Success();
+            logger.Warn("missing optional feature.");
+            logger.Success();
         }
     }
 

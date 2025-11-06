@@ -8,7 +8,7 @@ using System.Text;
 
 namespace AsitLib.Debug
 {
-    public sealed class DebugStream
+    public sealed class Logger
     {
         public interface IStyle
         {
@@ -48,7 +48,7 @@ namespace AsitLib.Debug
         public bool AutoFlush { get; }
         public int DisplaysCapasity { get; }
 
-        public DebugStream(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
+        public Logger(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             _style = style ?? Default;
             Out = TextWriter.Synchronized(output ?? Console.Out);
