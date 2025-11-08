@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
@@ -11,6 +12,7 @@ namespace AsitLib.CommandLine
     {
         public readonly string? ParameterName;
         public readonly int? ParameterIndex;
+        public readonly bool ShortHand => UsesExplicitName && !ParameterName!.StartsWith("--");
 
         public bool UsesExplicitName => ParameterName != null;
 
@@ -66,6 +68,7 @@ namespace AsitLib.CommandLine
             {
                 Argument arg = this.Arguments[i];
                 sb.AppendLine($"\t\tTarget: {arg.Target}");
+                sb.AppendLine($"\t\tShortHand: {arg.Target.ShortHand}");
                 sb.AppendLine("\t\tTokens:");
                 foreach (string token in arg.Tokens) sb.AppendLine($"\t\t\t{token}");
             }
@@ -78,6 +81,7 @@ namespace AsitLib.CommandLine
 
     internal static class ParseHelper
     {
+        public static string PascalToKebabCase(this string value) => Regex.Replace(value, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
         public static ArgumentsInfo Parse(string[] args)
         {
             if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
@@ -87,6 +91,7 @@ namespace AsitLib.CommandLine
             string? currentName = null;
             int position = 0;
             bool noMoreParams = false;
+            string token = string.Empty;
 
             void PushArgument()
             {
@@ -95,14 +100,15 @@ namespace AsitLib.CommandLine
 
             for (int i = 1; i < args.Length; i++)
             {
-                string token = args[i];
+                token = args[i];
+
                 if (!noMoreParams && token == "--")
                 {
                     noMoreParams = true;
                     continue;
                 }
 
-                if (!noMoreParams && token.StartsWith("--"))
+                if (!noMoreParams && token.StartsWith("-"))
                 {
                     if (currentName != null)
                     {
@@ -110,7 +116,7 @@ namespace AsitLib.CommandLine
                         currentValues.Clear();
                     }
 
-                    currentName = token[2..];
+                    currentName = token;
                 }
                 else
                 {
