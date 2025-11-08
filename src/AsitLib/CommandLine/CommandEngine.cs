@@ -21,7 +21,7 @@ namespace AsitLib.CommandLine
         {
             public DefaultInfoFactory() { }
             public CommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-                => new CommandInfo(ParseHelpers.ToKebabCase(methodInfo.Name), attribute.Description, methodInfo, provider);
+                => new CommandInfo(provider.Namespace + "-" + ParseHelpers.ParseSignature(methodInfo.Name), attribute.Description, methodInfo, provider);
         }
 
         public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();

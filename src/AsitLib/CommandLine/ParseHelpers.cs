@@ -81,7 +81,7 @@ namespace AsitLib.CommandLine
 
     public static class ParseHelpers
     {
-        public static string ToKebabCase(this string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+        public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
         public static string[] Split(string str)
         {

@@ -5,24 +5,24 @@ namespace AsitLib.Tests
     [TestClass]
     public class ParseHelperTests
     {
-        #region TO_KEBAB_CASE
+        #region PARSE_SIGNATURE
 
         [TestMethod]
         public void ToKebabCase_PascalCase_ReturnsKebabCase()
         {
-            Assert.AreEqual("hello-world", "HelloWorld".ToKebabCase());
+            Assert.AreEqual("hello-world", ParseHelpers.ParseSignature("HelloWorld"));
         }
 
         [TestMethod]
         public void ToKebabCase_MixedCase_ReturnsLowercaseKebabCase()
         {
-            Assert.AreEqual("http-request", "HTTPRequest".ToKebabCase());
+            Assert.AreEqual("http-request", ParseHelpers.ParseSignature("HTTPRequest"));
         }
 
         [TestMethod]
         public void ToKebabCase_SingleWord_ReturnsLowercaseWord()
         {
-            Assert.AreEqual("word", "Word".ToKebabCase());
+            Assert.AreEqual("word", ParseHelpers.ParseSignature("Word"));
         }
 
         #endregion
