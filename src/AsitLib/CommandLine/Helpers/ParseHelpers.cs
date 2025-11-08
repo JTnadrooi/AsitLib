@@ -81,15 +81,6 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
     }
 
-    public static class CommandHelpers
-    {
-        public static string CreateCommandId(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-        {
-            if (methodInfo.Name == "_M") return provider.Namespace;
-            else return (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + ParseHelpers.ParseSignature(attribute.Id ?? methodInfo.Name.ToLower());
-        }
-    }
-
     public static class ParseHelpers
     {
         public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
