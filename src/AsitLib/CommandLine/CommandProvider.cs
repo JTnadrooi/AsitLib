@@ -12,23 +12,14 @@ namespace AsitLib.CommandLine
     public abstract class CommandProvider
     {
         public string Namespace { get; }
-        /// <summary>
-        /// Gets the full namespace used in id prefixing. This may equal the <see cref="Namespace"/> but it this class is nested in a <see cref="CommandProvider"/>, the parent <see cref="CommandProvider.FullNamespace"/> gets prefixed to this.
-        /// </summary>
-        public string FullNamespace { get; internal set; }
-        /// <summary>
-        /// Gets a value indicating if this <see cref="CommandProvider"/> is nested in another <see cref="CommandProvider"/>.
-        /// </summary>
-        public bool IsNested => FullNamespace != Namespace;
 
         public CommandProvider(string @namespace)
         {
             Namespace = @namespace;
-            FullNamespace = @namespace;
         }
 
         public virtual void AddCommands(CommandBuilder builder) { }
 
-        public override string ToString() => $"{{Namespace: {FullNamespace}, IsNested: {IsNested}}}";
+        public override string ToString() => $"{{Namespace: {Namespace}}}";
     }
 }

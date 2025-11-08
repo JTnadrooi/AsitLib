@@ -6,10 +6,27 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using static AsitLib.CommandLine.ParseHelper;
+using static AsitLib.CommandLine.ParseHelpers;
 
 namespace AsitLib.CommandLine
 {
+    public interface ICommandInfoFactory<in TAttribute, out TCommandInfo> where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
+    {
+        public TCommandInfo Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
+    }
+
+    public static class CommandInfoFactory
+    {
+        public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, CommandInfo>
+        {
+            public DefaultInfoFactory() { }
+            public CommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+                => new CommandInfo(ParseHelpers.ToKebabCase(methodInfo.Name), attribute.Description, methodInfo, provider);
+        }
+
+        public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();
+    }
+
     public static class CommandEngine
     {
         public const string MAIN_COMMAND_ID = "_M";
@@ -17,49 +34,75 @@ namespace AsitLib.CommandLine
         internal static InvalidOperationException GetNotInitializedException() => new InvalidOperationException("CommandEngine is not yet initialized.");
     }
 
-    public class CommandEngine<TCommandInfo> : IDisposable where TCommandInfo : CommandInfo
+    public class CommandEngine<TAttribute, TCommandInfo> : IDisposable where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
-        private bool disposedValue;
+        private bool _disposedValue;
+        private bool _initialized;
 
-        private readonly FrozenDictionary<string, FlagHandler>? flagHandlers;
-        private readonly FrozenDictionary<string, CommandProvider>? providers;
-        private readonly FrozenDictionary<string, TCommandInfo>? commands;
+        //private readonly FrozenDictionary<string, flagHandler>? flagHandlers;
+        private FrozenDictionary<string, CommandProvider>? _providers;
+        private FrozenDictionary<string, TCommandInfo>? _commands;
+        private ICommandInfoFactory<TAttribute, TCommandInfo> _infoFactory;
 
-        public FrozenDictionary<string, TCommandInfo> Commands => commands ?? throw CommandEngine.GetNotInitializedException();
-        public FrozenDictionary<string, CommandProvider> Providers => providers ?? throw CommandEngine.GetNotInitializedException();
-        public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
+        public FrozenDictionary<string, TCommandInfo> Commands => _commands ?? throw CommandEngine.GetNotInitializedException();
+        public FrozenDictionary<string, CommandProvider> Providers => _providers ?? throw CommandEngine.GetNotInitializedException();
+        //public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
 
-        public CommandEngine()
+        private List<CommandProvider> _tempProviders;
+        private List<TCommandInfo> _tempCommands;
+        private HashSet<string> _addedProviders;
+
+
+        public CommandEngine(ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory)
         {
-
+            _infoFactory = infoFactory;
+            _tempProviders = new List<CommandProvider>();
+            _addedProviders = new HashSet<string>();
+            _tempCommands = new List<TCommandInfo>();
         }
 
-        public CommandEngine<TCommandInfo> RegisterAttribute<TAttribute>(Func<TAttribute, MethodInfo, CommandProvider, CommandInfo> infoFactory) where TAttribute : Attribute
+
+        public CommandEngine<TAttribute, TCommandInfo> RegisterProvider(CommandProvider provider)
         {
+            _tempProviders.Add(provider);
+            _addedProviders.Add(provider.Namespace);
             return this;
         }
 
-        public CommandEngine<TCommandInfo> RegisterProvider(CommandProvider provider)
-        {
-            return this;
-        }
+        //public CommandEngine<TCommandInfo> RegisterFlagHandler(CommandProvider provider)
+        //{
+        //    return this;
+        //}
 
-        public CommandEngine<TCommandInfo> RegisterFlagHandler(CommandProvider provider)
+        public CommandEngine<TAttribute, TCommandInfo> Initialize()
         {
-            return this;
-        }
+            foreach (CommandProvider provider in _tempProviders)
+            {
+                MethodInfo[] commandMethods = provider.GetType().GetMethods();
+                foreach (MethodInfo methodInfo in commandMethods)
+                    if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
+                    {
+                        if (methodInfo.ReturnType != typeof(void)) throw new InvalidOperationException("Commands must have a void return type.");
 
-        public CommandEngine<TCommandInfo> Initialize()
-        {
+                        string cmdId;
+                        if (methodInfo.Name == "_M") cmdId = provider.Namespace;
+                        else cmdId = (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id?.ToLower() ?? methodInfo.Name.ToLower());
+
+                        TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
+                        _tempCommands.Add(info);
+                    }
+            }
+
+            _providers = _tempProviders.ToDictionary(p => p.Namespace).ToFrozenDictionary();
+            _commands = _tempCommands.ToDictionary(c => c.Id).ToFrozenDictionary();
+
             return this;
         }
 
         public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
         {
-            Console.WriteLine(args.ToJoinedString(", "));
-            Console.WriteLine(Parse(args).ToDisplayString());
-            Console.WriteLine("--" + "noCamelCase".ToKebabCase());
+            Console.WriteLine(Commands.ToJoinedString());
         }
 
         /// <summary>
@@ -72,7 +115,7 @@ namespace AsitLib.CommandLine
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -81,7 +124,7 @@ namespace AsitLib.CommandLine
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
