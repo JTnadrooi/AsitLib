@@ -180,27 +180,38 @@ namespace AsitLib.CommandLine
 
             return new ArgumentsInfo(args[0], arguments.ToArray());
         }
+
         public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets)
         {
             object?[] result = new object?[targets.Length];
+            NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
 
             for (int i = 0; i < targets.Length; i++)
             {
                 ParameterInfo target = targets[i];
                 Argument? matchingArgument = null;
+                NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
 
-                // try to find the matching argument
-                foreach (Argument arg in info.Arguments)
-                {
-                    if (arg.Target.ParameterIndex == i || (arg.Target.SanitizedParameterToken == target.Name && arg.Target.UsesExplicitName))
+                foreach (Argument arg in info.Arguments) // try to find the matching argument.
+                    if ((arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == target.Name) ||
+                        (arg.Target.ParameterIndex == i))
                     {
                         matchingArgument = arg;
                         break;
                     }
-                }
 
-                if (matchingArgument == null) // no matching argument found
+                if (matchingArgument == null) // no matching argument found.
                 {
+                    if (target.HasDefaultValue) // but has default value, so set default value.
+                    {
+                        result[i] = target.DefaultValue;
+                        continue;
+                    }
+                    if (nullabilityInfo.WriteState == NullabilityState.Nullable) // but can be null, so set null.
+                    {
+                        result[i] = null;
+                        continue;
+                    }
                     throw new CommandException($"No matching value found for parameter '{target.Name}' (Index {i}).");
                 }
 

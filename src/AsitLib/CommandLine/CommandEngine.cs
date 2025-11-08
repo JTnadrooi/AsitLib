@@ -106,9 +106,9 @@ namespace AsitLib.CommandLine
             TCommandInfo commandInfo = Commands[info.CommandId];
             object?[] conformed = Conform(info, commandInfo.MethodInfo.GetParameters());
 
-            Console.WriteLine(Commands.ToJoinedString());
+            Console.WriteLine(Commands.ToJoinedString(", "));
             Console.WriteLine(info.ToDisplayString());
-            Console.WriteLine(conformed.ToJoinedString());
+            Console.WriteLine(conformed.ToJoinedString(", "));
         }
 
         /// <summary>
