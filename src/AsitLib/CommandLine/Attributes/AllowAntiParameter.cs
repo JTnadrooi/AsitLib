@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class AllowAntiParameter : Attribute
+    public class AllowAntiArgumentAttribute : Attribute
     {
-        public AllowAntiParameter() { }
+        public AllowAntiArgumentAttribute() { }
     }
 }

@@ -13,7 +13,7 @@ namespace AsitLib.Tests
         }
 
         [Command("desc", inheritNamespace: false)]
-        public string Tv([AllowAntiParameter] bool color = true)
+        public string Tv([AllowAntiArgumentAttribute] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }

@@ -195,7 +195,7 @@ namespace AsitLib.CommandLine
 
                 if (matchingArgument == null) // no matching argument found.
                 {
-                    if (target.ParameterType == typeof(bool) && target.GetCustomAttribute<AllowAntiParameter>() != null)
+                    if (target.ParameterType == typeof(bool) && target.GetCustomAttribute<AllowAntiArgumentAttribute>() != null)
                     {
                         foreach (Argument arg in info.Arguments)
                         {
