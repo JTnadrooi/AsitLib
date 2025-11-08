@@ -2,23 +2,6 @@
 
 namespace AsitLib.Tests
 {
-    public class TestCommandProvider : CommandProvider
-    {
-        public TestCommandProvider() : base("test") { }
-
-        [Command("desc", inheritNamespace: false)]
-        public string Print(string input, bool upperCase = false)
-        {
-            return upperCase ? input.ToUpper() : input;
-        }
-
-        [Command("desc", inheritNamespace: false)]
-        public string Tv([AllowAntiArgumentAttribute] bool color = true)
-        {
-            return "Tv" + (color ? " in color!" : ".");
-        }
-    }
-
     [TestClass]
     public class AsitLibTests
     {

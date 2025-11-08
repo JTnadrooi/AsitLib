@@ -180,7 +180,8 @@ namespace AsitLib.CommandLine
             for (int i = 0; i < targets.Length; i++)
             {
                 ParameterInfo target = targets[i];
-                string targetName = ParseSignature(target.Name!);
+                ParameterNameAttribute? parameterNameAttribute = target.GetCustomAttribute<ParameterNameAttribute>();
+                string targetName = parameterNameAttribute?.Name ?? ParseSignature(target.Name!);
                 //Console.WriteLine(targetName);
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
