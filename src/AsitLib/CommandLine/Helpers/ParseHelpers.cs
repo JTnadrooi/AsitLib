@@ -180,11 +180,13 @@ namespace AsitLib.CommandLine
             for (int i = 0; i < targets.Length; i++)
             {
                 ParameterInfo target = targets[i];
+                string targetName = ParseSignature(target.Name!);
+                //Console.WriteLine(targetName);
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
 
                 foreach (Argument arg in info.Arguments) // try to find the matching argument.
-                    if ((arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == target.Name) ||
+                    if ((arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == targetName) ||
                         (arg.Target.ParameterIndex == i))
                     {
                         matchingArgument = arg;
@@ -203,7 +205,7 @@ namespace AsitLib.CommandLine
                         result[i] = null;
                         continue;
                     }
-                    throw new CommandException($"No matching value found for parameter '{target.Name}' (Index {i}).");
+                    throw new CommandException($"No matching value found for parameter '{targetName}' (Index {i}).");
                 }
 
                 Type parameterType = target.ParameterType;
