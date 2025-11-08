@@ -54,9 +54,12 @@ namespace AsitLib.CommandLine
             return this;
         }
 
+        public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
         {
+            Console.WriteLine(args.ToJoinedString(", "));
             Console.WriteLine(Parse(args).ToDisplayString());
+            Console.WriteLine("--" + "noCamelCase".ToKebabCase());
         }
 
         /// <summary>

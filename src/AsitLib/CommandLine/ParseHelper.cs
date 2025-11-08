@@ -81,7 +81,47 @@ namespace AsitLib.CommandLine
 
     internal static class ParseHelper
     {
-        public static string PascalToKebabCase(this string value) => Regex.Replace(value, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+        public static string ToKebabCase(this string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+
+        public static string[] Split(string str)
+        {
+            List<string> result = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            bool inQuotes = false;
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                bool escaped = i > 0 && str[i - 1] == '\\';
+
+                if (c == '"')
+                {
+                    if (!escaped)
+                    {
+                        inQuotes = !inQuotes;
+                        continue;
+                    }
+                    else if (sb.Length > 0 && sb[^1] == '\\') sb.Remove(sb.Length - 1, 1);
+                }
+                else if (char.IsWhiteSpace(c) && !inQuotes)
+                {
+                    if (sb.Length > 0)
+                    {
+                        result.Add(sb.ToString());
+                        sb.Clear();
+                    }
+                    continue;
+                }
+
+                sb.Append(c);
+            }
+
+            if (sb.Length > 0) result.Add(sb.ToString());
+
+            return result.ToArray();
+        }
+
+        public static ArgumentsInfo Parse(string args) => Parse(Split(args));
         public static ArgumentsInfo Parse(string[] args)
         {
             if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));

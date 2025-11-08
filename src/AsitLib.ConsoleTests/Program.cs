@@ -120,7 +120,8 @@ namespace AsitLib.ConsoleTests
                 .RegisterAttribute<CommandAttribute>((a, m, p) => new CommandInfo(m.Name.ToLower(), a.Description, m, p))
                 .Initialize();
 
-            engine.Execute(["cmd", "--b", "yay", "AYO", "--", "--", "--a"]);
+            //engine.Execute(["cmd", "--b", "yay", "AYO", "--", "--", "--a"]);
+            engine.Execute("cmd --b \"yay A\\\"YO\" -- -- --a");
         }
     }
 
