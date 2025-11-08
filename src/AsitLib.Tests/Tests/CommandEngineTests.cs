@@ -62,7 +62,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void PrintCommand_AntiArgument_HandlesCorrectly()
         {
-            AssertExecute("Hi me!", "greet --name me");
+            AssertExecute("Hi, me!", "greet --name me");
         }
     }
 }
