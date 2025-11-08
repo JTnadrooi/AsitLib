@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,25 +11,26 @@ namespace AsitLib.CommandLine
 {
     public readonly struct ArgumentTarget
     {
-        public readonly string? ParameterName;
+        public readonly string? ParameterToken;
         public readonly int? ParameterIndex;
-        public readonly bool ShortHand => UsesExplicitName && !ParameterName!.StartsWith("--");
+        public readonly bool ShortHand => UsesExplicitName && !ParameterToken!.StartsWith("--");
+        public readonly string? SanitizedParameterToken => ParameterToken?.TrimStart('-');
 
-        public bool UsesExplicitName => ParameterName != null;
+        public bool UsesExplicitName => ParameterToken != null;
 
         public ArgumentTarget(string parameterName)
         {
-            ParameterName = parameterName;
+            ParameterToken = parameterName;
             ParameterIndex = null;
         }
 
         public ArgumentTarget(int parameterIndex)
         {
-            ParameterName = null;
+            ParameterToken = null;
             ParameterIndex = parameterIndex;
         }
 
-        public override string ToString() => UsesExplicitName ? ParameterName! : ParameterIndex!.ToString()!;
+        public override string ToString() => UsesExplicitName ? ParameterToken! : ParameterIndex!.ToString()!;
 
     }
 
@@ -77,6 +79,15 @@ namespace AsitLib.CommandLine
         }
 
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
+    }
+
+    public static class CommandHelpers
+    {
+        public static string CreateCommandId(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+        {
+            if (methodInfo.Name == "_M") return provider.Namespace;
+            else return (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + ParseHelpers.ParseSignature(attribute.Id ?? methodInfo.Name.ToLower());
+        }
     }
 
     public static class ParseHelpers
@@ -168,6 +179,36 @@ namespace AsitLib.CommandLine
             if (currentName != null) PushArgument();
 
             return new ArgumentsInfo(args[0], arguments.ToArray());
+        }
+        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets)
+        {
+            object?[] result = new object?[targets.Length];
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                ParameterInfo target = targets[i];
+                Argument? matchingArgument = null;
+
+                // try to find the matching argument
+                foreach (Argument arg in info.Arguments)
+                {
+                    if (arg.Target.ParameterIndex == i || (arg.Target.SanitizedParameterToken == target.Name && arg.Target.UsesExplicitName))
+                    {
+                        matchingArgument = arg;
+                        break;
+                    }
+                }
+
+                if (matchingArgument == null) // no matching argument found
+                {
+                    throw new CommandException($"No matching value found for parameter '{target.Name}' (Index {i}).");
+                }
+
+                Type parameterType = target.ParameterType;
+                result[i] = Convert.ChangeType(matchingArgument.Value.Tokens[0], parameterType);
+            }
+
+            return result;
         }
     }
 }

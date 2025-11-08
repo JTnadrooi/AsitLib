@@ -21,7 +21,7 @@ namespace AsitLib.CommandLine
         {
             public DefaultInfoFactory() { }
             public CommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-                => new CommandInfo(provider.Namespace + "-" + ParseHelpers.ParseSignature(methodInfo.Name), attribute.Description, methodInfo, provider);
+                => new CommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo), attribute.Description, methodInfo, provider);
         }
 
         public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();
@@ -85,7 +85,7 @@ namespace AsitLib.CommandLine
                         if (methodInfo.ReturnType != typeof(void)) throw new InvalidOperationException("Commands must have a void return type.");
 
                         string cmdId;
-                        if (methodInfo.Name == "_M") cmdId = provider.Namespace;
+                        if (methodInfo.Name == CommandEngine.MAIN_COMMAND_ID) cmdId = provider.Namespace;
                         else cmdId = (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id?.ToLower() ?? methodInfo.Name.ToLower());
 
                         TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
@@ -102,7 +102,13 @@ namespace AsitLib.CommandLine
         public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
         {
+            ArgumentsInfo info = Parse(args);
+            TCommandInfo commandInfo = Commands[info.CommandId];
+            object?[] conformed = Conform(info, commandInfo.MethodInfo.GetParameters());
+
             Console.WriteLine(Commands.ToJoinedString());
+            Console.WriteLine(info.ToDisplayString());
+            Console.WriteLine(conformed.ToJoinedString());
         }
 
         /// <summary>

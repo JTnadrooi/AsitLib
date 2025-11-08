@@ -46,10 +46,10 @@ namespace AsitLib.ConsoleTests
         {
             public TestCommandProvider() : base("test") { }
 
-            [Command("desc")]
-            public void A()
+            [Command("desc", inheritNamespace: false)]
+            public void Print(string input)
             {
-                Console.WriteLine("Hello world");
+                Console.WriteLine(input);
             }
         }
 
@@ -60,7 +60,7 @@ namespace AsitLib.ConsoleTests
                 .Initialize();
 
             //engine.Execute(["cmd", "--b", "yay", "AYO", "--", "--", "--a"]);
-            engine.Execute("cmd --b \"yay A\\\"YO\" -- -- --a");
+            engine.Execute("print --input bonjour");
         }
     }
 
