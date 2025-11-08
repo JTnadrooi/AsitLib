@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsitLib", "src\AsitLib\Asit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsitLib.ConsoleTests", "src\AsitLib.ConsoleTests\AsitLib.ConsoleTests.csproj", "{8BDBFC88-7806-4902-B282-30114B590612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsitLib.Tests", "AsitLib.Tests\AsitLib.Tests.csproj", "{1385BA96-4FEA-495C-8E83-D85E2415CD53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsitLib.Tests", "src\AsitLib.Tests\AsitLib.Tests.csproj", "{1385BA96-4FEA-495C-8E83-D85E2415CD53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\src\AsitLib\AsitLib.csproj" />
+		<ProjectReference Include="..\AsitLib\AsitLib.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
