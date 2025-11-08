@@ -9,7 +9,7 @@ namespace AsitLib.Tests
         [Command("desc", inheritNamespace: false)]
         public void Print(string input, bool upperCase = false)
         {
-            Console.WriteLine(input);
+            Console.WriteLine(upperCase ? input.ToUpper() : input);
         }
     }
 
