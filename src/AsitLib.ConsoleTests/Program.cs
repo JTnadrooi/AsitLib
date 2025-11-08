@@ -1,6 +1,7 @@
 ﻿using AsitLib.CommandLine;
 using AsitLib.Debug;
 using AsitLib.Stele;
+using AsitLib.Tests;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -17,7 +18,7 @@ namespace AsitLib.ConsoleTests
         public static void Main(string[] args)
         {
             //LogShowCase();
-            CLITests.Run();
+            AsitLibTests.Run();
 
             Console.Read();
         }

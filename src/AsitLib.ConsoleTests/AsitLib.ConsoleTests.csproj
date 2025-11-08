@@ -19,7 +19,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\AsitLib\AsitLib.csproj" />
+		<ProjectReference Include="..\AsitLib.Tests\AsitLib.Tests.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

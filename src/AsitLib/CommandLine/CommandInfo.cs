@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,7 +13,12 @@ namespace AsitLib.CommandLine
     /// </summary>
     public class CommandInfo
     {
-        public string Id { get; }
+        /// <summary>
+        /// Gets a <see cref="HashSet{T}"/> containing all command ids. Includes <see cref="Id"/>.
+        /// </summary>
+        public ReadOnlyCollection<string> Ids { get; }
+        public bool HasAliases => Ids.Count > 1;
+        public string Id => Ids[0];
 
         /// <summary>
         /// <inheritdoc cref="CommandAttribute.Description" path="/summary"/>
@@ -23,6 +29,7 @@ namespace AsitLib.CommandLine
         /// Gets the <see cref="System.Reflection.MethodInfo"/> this <see cref="CommandInfo"/> is created from.
         /// </summary>
         public MethodInfo MethodInfo { get; }
+
         public CommandProvider Provider { get; }
 
         /// <summary>
@@ -30,9 +37,9 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool IsMain { get; }
 
-        public CommandInfo(string id, string description, MethodInfo methodInfo, CommandProvider provider)
+        public CommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider)
         {
-            Id = id;
+            Ids = ids.AsReadOnly();
             Description = description;
             MethodInfo = methodInfo;
             Provider = provider;

@@ -19,7 +19,7 @@ namespace AsitLib.Tests
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [Command("desc", inheritNamespace: false, aliases: ["hi"])]
         public string Greet([ParameterName("name")] string yourName)
         {
             return $"Hi, {yourName}!";
@@ -63,6 +63,12 @@ namespace AsitLib.Tests
         public void ParameterNameAttribute_Read_OverwritesParameterName()
         {
             AssertExecute("Hi, me!", "greet --name me");
+        }
+
+        [TestMethod]
+        public void CommandAlias_CallAlias_CallsCommandWithAlias()
+        {
+            AssertExecute("Hi, myself!", "hi myself");
         }
     }
 }

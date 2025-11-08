@@ -38,7 +38,7 @@ namespace AsitLib.CommandLine
         {
             public DefaultInfoFactory() { }
             public CommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-                => new CommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo), attribute.Description, methodInfo, provider);
+                => new CommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute.Description, methodInfo, provider);
         }
 
         public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();
@@ -59,9 +59,11 @@ namespace AsitLib.CommandLine
         //private readonly FrozenDictionary<string, flagHandler>? flagHandlers;
         private FrozenDictionary<string, CommandProvider>? _providers;
         private FrozenDictionary<string, TCommandInfo>? _commands;
+        private FrozenDictionary<string, TCommandInfo>? _uniqueCommands;
         private ICommandInfoFactory<TAttribute, TCommandInfo> _infoFactory;
 
         public FrozenDictionary<string, TCommandInfo> Commands => _commands ?? throw CommandEngine.GetNotInitializedException();
+        public FrozenDictionary<string, TCommandInfo> UniqueCommands => _uniqueCommands ?? throw CommandEngine.GetNotInitializedException();
         public FrozenDictionary<string, CommandProvider> Providers => _providers ?? throw CommandEngine.GetNotInitializedException();
         //public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
 
@@ -93,23 +95,25 @@ namespace AsitLib.CommandLine
 
         public CommandEngine<TAttribute, TCommandInfo> Initialize()
         {
+            Dictionary<string, TCommandInfo> uniqueCommands = new Dictionary<string, TCommandInfo>();
+            Dictionary<string, TCommandInfo> commands = new Dictionary<string, TCommandInfo>();
+
             foreach (CommandProvider provider in _tempProviders)
             {
                 MethodInfo[] commandMethods = provider.GetType().GetMethods();
                 foreach (MethodInfo methodInfo in commandMethods)
                     if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
                     {
-                        string cmdId;
-                        if (methodInfo.Name == CommandEngine.MAIN_COMMAND_ID) cmdId = provider.Namespace;
-                        else cmdId = (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id?.ToLower() ?? methodInfo.Name.ToLower());
-
                         TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
-                        _tempCommands.Add(info);
+                        uniqueCommands.Add(info.Id, info);
+                        foreach (string id in info.Ids) commands.Add(id, info);
                     }
             }
 
             _providers = _tempProviders.ToDictionary(p => p.Namespace).ToFrozenDictionary();
-            _commands = _tempCommands.ToDictionary(c => c.Id).ToFrozenDictionary();
+
+            _commands = commands.ToFrozenDictionary();
+            _uniqueCommands = uniqueCommands.ToFrozenDictionary();
 
             return this;
         }

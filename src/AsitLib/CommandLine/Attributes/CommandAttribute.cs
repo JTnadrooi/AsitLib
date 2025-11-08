@@ -22,6 +22,10 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool InheritNamespace { get; }
         /// <summary>
+        /// Gets the command aliases. Any <see cref="string"/> objects here will be provided as an alternative <see cref="CommandInfo.Id"/> in command calls. See <see cref="CommandInfo.Ids"/>.
+        /// </summary>
+        public string[] Aliases { get; }
+        /// <summary>
         /// Initializes a new instance of the <see cref="CommandAttribute"/> class by using a specified command parameters.
         /// </summary>
         /// <param name="description"><inheritdoc cref="Description" path="/summary"/></param>
@@ -30,10 +34,12 @@ namespace AsitLib.CommandLine
         public CommandAttribute(
             string description,
             string? id = null,
+            string[]? aliases = null,
             bool inheritNamespace = true)
         {
             Id = id;
             Description = description;
+            Aliases = aliases ?? Array.Empty<string>();
             InheritNamespace = inheritNamespace;
         }
     }
