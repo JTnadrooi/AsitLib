@@ -137,9 +137,8 @@ namespace AsitLib.CommandLine
         {
             using StringWriter writer = new StringWriter();
             using (new ConsoleRedirector(writer)) Execute(args);
-            return writer.ToString();
+            return writer.ToString().TrimEnd('\r', '\n');
         }
-
 
         /// <summary>
         /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
