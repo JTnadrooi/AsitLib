@@ -45,6 +45,8 @@ namespace AsitLib
             'w', 'x',
             'y', 'z' }.AsReadOnly();
 
+        public const string NULL_STRING = "_NULL_";
+
         public static string Reverse(this string str) => string.Join(string.Empty, str.Reverse());
 
         public static Stream ToStream(this string str)
@@ -63,37 +65,32 @@ namespace AsitLib
             return reader.ReadLine();
         }
 
-        public static string ToJoinedString<T>(this IEnumerable<T>? values)
+        public static string ToJoinedString<T>(this IEnumerable<T?>? values, char joiner)
         {
-            if (values == null) return "Null";
-            return string.Join("", values);
+            if (values == null) return NULL_STRING;
+            return string.Join(joiner, values.Select(v => v?.ToString() ?? NULL_STRING));
         }
 
-        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner)
+        public static string ToJoinedString<T>(this IEnumerable<T?>? values, string? joiner = null)
         {
-            if (values == null) return "Null";
-            return string.Join(joiner, values);
+            joiner ??= string.Empty;
+            if (values == null) return NULL_STRING;
+            return string.Join(joiner, values.Select(v => v?.ToString() ?? NULL_STRING));
         }
 
-        public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner)
-        {
-            if (values == null) return "Null";
-            return string.Join(joiner, values);
-        }
+        //public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner, int lenght, int maxSafe = 50)
+        //{
+        //    if (values == null) return "Null";
+        //    if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
+        //    return string.Join(joiner, values);
+        //}
 
-        public static string ToJoinedString<T>(this IEnumerable<T>? values, char joiner, int lenght, int maxSafe = 50)
-        {
-            if (values == null) return "Null";
-            if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
-            return string.Join(joiner, values);
-        }
-
-        public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner, int lenght, int maxSafe = 50)
-        {
-            if (values == null) return "Null";
-            if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
-            return string.Join(joiner, values);
-        }
+        //public static string ToJoinedString<T>(this IEnumerable<T>? values, string joiner, int lenght, int maxSafe = 50)
+        //{
+        //    if (values == null) return "Null";
+        //    if (lenght > maxSafe) return "MaxSafeOverflow {max_safe: " + maxSafe + " > count" + lenght + "}";
+        //    return string.Join(joiner, values);
+        //}
 
         public static string To2DJoinedString<T>(this T[][] values, string joiner = "")
         {
