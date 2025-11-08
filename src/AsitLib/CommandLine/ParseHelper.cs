@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    internal readonly struct ArgumentTarget
+    public readonly struct ArgumentTarget
     {
         public readonly string? ParameterName;
         public readonly int? ParameterIndex;
@@ -32,7 +32,7 @@ namespace AsitLib.CommandLine
 
     }
 
-    internal readonly struct Argument
+    public readonly struct Argument
     {
         public readonly ArgumentTarget Target;
         public readonly string[] Tokens;
@@ -46,7 +46,7 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Target: '{Target}', Tokens: [{Tokens.ToJoinedString(", ")}]}}";
     }
 
-    internal readonly struct ArgumentsInfo
+    public readonly struct ArgumentsInfo
     {
         public readonly string CommandId;
         public readonly Argument[] Arguments;
@@ -79,7 +79,7 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
     }
 
-    internal static class ParseHelper
+    public static class ParseHelper
     {
         public static string ToKebabCase(this string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
