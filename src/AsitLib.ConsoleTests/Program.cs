@@ -49,7 +49,7 @@ namespace AsitLib.ConsoleTests
             [Command("desc", inheritNamespace: false)]
             public void Print(string input, string? input2)
             {
-                Console.WriteLine(input + " " + input);
+                Console.WriteLine(input + " " + input2);
             }
         }
 
@@ -61,6 +61,7 @@ namespace AsitLib.ConsoleTests
 
             //engine.Execute(["cmd", "--b", "yay", "AYO", "--", "--", "--a"]);
             engine.Execute("print sus --input2 bonjour");
+            Console.WriteLine(engine.ExecuteAndCapture("print sus --input2 bonjour"));
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,6 +11,22 @@ using static AsitLib.CommandLine.ParseHelpers;
 
 namespace AsitLib.CommandLine
 {
+    internal class ConsoleRedirector : IDisposable
+    {
+        private readonly TextWriter _originalOut;
+
+        public ConsoleRedirector(TextWriter newOut)
+        {
+            _originalOut = Console.Out;
+            Console.SetOut(newOut);
+        }
+
+        public void Dispose()
+        {
+            Console.SetOut(_originalOut);
+        }
+    }
+
     public interface ICommandInfoFactory<in TAttribute, out TCommandInfo> where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
         public TCommandInfo Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
@@ -114,6 +131,15 @@ namespace AsitLib.CommandLine
             }
             else throw new InvalidOperationException($"Command with ID '{argsinfo.CommandId}' not found.");
         }
+
+        public string ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
+        public string ExecuteAndCapture(string[] args)
+        {
+            using StringWriter writer = new StringWriter();
+            using (new ConsoleRedirector(writer)) Execute(args);
+            return writer.ToString();
+        }
+
 
         /// <summary>
         /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
