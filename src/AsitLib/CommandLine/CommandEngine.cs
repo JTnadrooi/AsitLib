@@ -102,13 +102,17 @@ namespace AsitLib.CommandLine
         public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
         {
-            ArgumentsInfo info = Parse(args);
-            TCommandInfo commandInfo = Commands[info.CommandId];
-            object?[] conformed = Conform(info, commandInfo.MethodInfo.GetParameters());
+            ArgumentsInfo argsinfo = Parse(args);
+            if (Commands.TryGetValue(argsinfo.CommandId, out TCommandInfo? commandInfo))
+            {
+                object?[] conformed = Conform(argsinfo, commandInfo.MethodInfo.GetParameters());
+                commandInfo.MethodInfo.Invoke(commandInfo.Provider, conformed);
 
-            Console.WriteLine(Commands.ToJoinedString(", "));
-            Console.WriteLine(info.ToDisplayString());
-            Console.WriteLine(conformed.ToJoinedString(", "));
+                //Console.WriteLine(Commands.ToJoinedString(", "));
+                //Console.WriteLine(argsinfo.ToDisplayString());
+                //Console.WriteLine(conformed.ToJoinedString(", "));
+            }
+            else throw new InvalidOperationException($"Command with ID '{argsinfo.CommandId}' not found.");
         }
 
         /// <summary>
