@@ -36,7 +36,7 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void PrintCommand_IndexedArgument_HandlesCorrectly()
+        public void PrintCommand_IndexedArgument_GetsParameterFromIndex()
         {
             AssertExecute("hello", "print hello");
         }
@@ -48,19 +48,19 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void PrintCommand_NoValueArgument_HandlesCorrectly()
+        public void PrintCommand_NoValueArgument_ActsAsTrue()
         {
             AssertExecute("HELLO", "print hello --upper-case");
         }
 
         [TestMethod]
-        public void TvCommand_AntiArgument_HandlesCorrectly()
+        public void TvCommand_NoValueAntiArgument_ActsAsFalse()
         {
             AssertExecute("Tv.", "tv --no-color");
         }
 
         [TestMethod]
-        public void PrintCommand_AntiArgument_HandlesCorrectly()
+        public void ParameterNameAttribute_Read_OverwritesParameterName()
         {
             AssertExecute("Hi, me!", "greet --name me");
         }
