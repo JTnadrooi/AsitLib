@@ -1,9 +1,4 @@
 ﻿using AsitLib.CommandLine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AsitLib.Tests
 {
@@ -12,18 +7,9 @@ namespace AsitLib.Tests
         public TestCommandProvider() : base("test") { }
 
         [Command("desc", inheritNamespace: false)]
-        public void Print(string input, string? input2)
+        public void Print(string input, bool upperCase = false)
         {
-            Console.WriteLine(input + " " + input);
-        }
-    }
-
-    public static class AsitLibTestExtensions
-    {
-        public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
-        public static void AssertExecute(string expected, string[] args)
-        {
-            Assert.AreEqual(expected, AsitLibTests.Engine.ExecuteAndCapture(args));
+            Console.WriteLine(input);
         }
     }
 
@@ -31,13 +17,11 @@ namespace AsitLib.Tests
     public class AsitLibTests
     {
         [AssemblyInitialize]
-        public static void AssemblyInit()
+        public static void AssemblyInit(TestContext context)
         {
             Engine = new CommandEngine<CommandAttribute, CommandInfo>(CommandInfoFactory.Default)
                 .RegisterProvider(new TestCommandProvider())
                 .Initialize();
-
-            Engine.Execute("print sus --input2 bonjour");
         }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
