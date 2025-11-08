@@ -11,6 +11,12 @@ namespace AsitLib.Tests
         {
             Console.WriteLine(upperCase ? input.ToUpper() : input);
         }
+
+        [Command("desc", inheritNamespace: false)]
+        public void Tv([AllowAntiParameter] bool color = true)
+        {
+            Console.WriteLine("Tv" + (color ? " in color!" : "."));
+        }
     }
 
     [TestClass]

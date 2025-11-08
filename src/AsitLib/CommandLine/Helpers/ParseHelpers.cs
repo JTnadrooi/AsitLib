@@ -195,6 +195,18 @@ namespace AsitLib.CommandLine
 
                 if (matchingArgument == null) // no matching argument found.
                 {
+                    if (target.ParameterType == typeof(bool) && target.GetCustomAttribute<AllowAntiParameter>() != null)
+                    {
+                        foreach (Argument arg in info.Arguments)
+                        {
+                            if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == $"no-{targetName}")
+                            {
+                                result[i] = false;
+                                break;
+                            }
+                        }
+                        continue;
+                    }
                     if (target.HasDefaultValue) // but has default value, so set default value.
                     {
                         result[i] = target.DefaultValue;

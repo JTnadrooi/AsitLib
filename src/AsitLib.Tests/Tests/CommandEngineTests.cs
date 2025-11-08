@@ -29,5 +29,11 @@ namespace AsitLib.Tests
         {
             AssertExecute("HELLO", "print hello --upper-case");
         }
+
+        [TestMethod]
+        public void PrintCommand_AntiArgument_HandlesCorrectly()
+        {
+            AssertExecute("Tv.", "tv --no-color");
+        }
     }
 }
