@@ -79,7 +79,7 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
     }
 
-    public static class ParseHelper
+    public static class ParseHelpers
     {
         public static string ToKebabCase(this string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
