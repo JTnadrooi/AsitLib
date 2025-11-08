@@ -99,8 +99,6 @@ namespace AsitLib.CommandLine
                 foreach (MethodInfo methodInfo in commandMethods)
                     if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
                     {
-                        if (methodInfo.ReturnType != typeof(void)) throw new InvalidOperationException("Commands must have a void return type.");
-
                         string cmdId;
                         if (methodInfo.Name == CommandEngine.MAIN_COMMAND_ID) cmdId = provider.Namespace;
                         else cmdId = (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id?.ToLower() ?? methodInfo.Name.ToLower());
@@ -116,28 +114,26 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public void Execute(string args) => Execute(Split(args));
+        public void Execute(string args) => ExecuteAndCapture(args);
         public void Execute(string[] args)
+        {
+            Console.WriteLine(ExecuteAndCapture(args));
+        }
+
+        public string ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
+        public string ExecuteAndCapture(string[] args)
         {
             ArgumentsInfo argsinfo = Parse(args);
             if (Commands.TryGetValue(argsinfo.CommandId, out TCommandInfo? commandInfo))
             {
                 object?[] conformed = Conform(argsinfo, commandInfo.MethodInfo.GetParameters());
-                commandInfo.MethodInfo.Invoke(commandInfo.Provider, conformed);
+                return commandInfo.MethodInfo.Invoke(commandInfo.Provider, conformed)?.ToString()!;
 
                 //Console.WriteLine(Commands.ToJoinedString(", "));
                 //Console.WriteLine(argsinfo.ToDisplayString());
                 //Console.WriteLine(conformed.ToJoinedString(", "));
             }
             else throw new InvalidOperationException($"Command with ID '{argsinfo.CommandId}' not found.");
-        }
-
-        public string ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
-        public string ExecuteAndCapture(string[] args)
-        {
-            using StringWriter writer = new StringWriter();
-            using (new ConsoleRedirector(writer)) Execute(args);
-            return writer.ToString().TrimEnd('\r', '\n');
         }
 
         /// <summary>

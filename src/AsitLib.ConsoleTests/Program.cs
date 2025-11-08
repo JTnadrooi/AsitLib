@@ -42,26 +42,9 @@ namespace AsitLib.ConsoleTests
 
     public static class CLITests
     {
-        public class TestCommandProvider : CommandProvider
-        {
-            public TestCommandProvider() : base("test") { }
-
-            [Command("desc", inheritNamespace: false)]
-            public void Print(string input, string? input2)
-            {
-                Console.WriteLine(input + " " + input2);
-            }
-        }
-
         public static void Run()
         {
-            CommandEngine<CommandAttribute, CommandInfo> engine = new CommandEngine<CommandAttribute, CommandInfo>(CommandInfoFactory.Default)
-                .RegisterProvider(new TestCommandProvider())
-                .Initialize();
 
-            //engine.Execute(["cmd", "--b", "yay", "AYO", "--", "--", "--a"]);
-            engine.Execute("print sus --input2 bonjour");
-            Console.WriteLine(engine.ExecuteAndCapture("print sus --input2 bonjour"));
         }
     }
 

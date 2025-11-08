@@ -7,15 +7,15 @@ namespace AsitLib.Tests
         public TestCommandProvider() : base("test") { }
 
         [Command("desc", inheritNamespace: false)]
-        public void Print(string input, bool upperCase = false)
+        public string Print(string input, bool upperCase = false)
         {
-            Console.WriteLine(upperCase ? input.ToUpper() : input);
+            return upperCase ? input.ToUpper() : input;
         }
 
         [Command("desc", inheritNamespace: false)]
-        public void Tv([AllowAntiParameter] bool color = true)
+        public string Tv([AllowAntiParameter] bool color = true)
         {
-            Console.WriteLine("Tv" + (color ? " in color!" : "."));
+            return "Tv" + (color ? " in color!" : ".");
         }
     }
 
