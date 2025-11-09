@@ -14,7 +14,7 @@ namespace AsitLib.Tests
         }
 
         [Command("desc", inheritNamespace: false)]
-        public string Tv([AllowAntiArgumentAttribute] bool color = true)
+        public string Tv([AllowAntiArgument] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
@@ -35,10 +35,22 @@ namespace AsitLib.Tests
     [TestClass]
     public class CommandEngineTests
     {
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            Engine = new CommandEngine<CommandAttribute, CommandInfo>(CommandInfoFactory.Default)
+                .RegisterProvider(new TestCommandProvider())
+                .Initialize();
+        }
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        public static CommandEngine<CommandAttribute, CommandInfo> Engine { get; private set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
         public static void AssertExecute(string expected, string[] args)
         {
-            Assert.AreEqual(expected, AsitLibTests.Engine.ExecuteAndCapture(args));
+            Assert.AreEqual(expected, Engine.ExecuteAndCapture(args));
         }
 
         [TestMethod]
@@ -81,20 +93,20 @@ namespace AsitLib.Tests
         [ExpectedException(typeof(CommandException))]
         public void Execute_InvalidParameter_ThrowCommandException()
         {
-            AsitLibTests.Engine.Execute("print hi --doesnt-exist ahoy");
+            Engine.Execute("print hi --doesnt-exist ahoy");
         }
 
         [TestMethod]
         [ExpectedException(typeof(CommandException))]
         public void Execute_MissingArgument_ThrowCommandException()
         {
-            AsitLibTests.Engine.Execute("print");
+            Engine.Execute("print");
         }
 
         [TestMethod]
         public void Execute_VoidReturningCommand_ReturnNull()
         {
-            Assert.IsTrue(AsitLibTests.Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
+            Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
         }
     }
 }
