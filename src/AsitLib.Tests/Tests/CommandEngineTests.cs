@@ -24,6 +24,12 @@ namespace AsitLib.Tests
         {
             return $"Hi, {yourName}!";
         }
+
+        [Command("desc", inheritNamespace: false)]
+        public void Void()
+        {
+
+        }
     }
 
     [TestClass]
@@ -83,6 +89,12 @@ namespace AsitLib.Tests
         public void Execute_MissingArgument_ThrowCommandException()
         {
             AsitLibTests.Engine.Execute("print");
+        }
+
+        [TestMethod]
+        public void Execute_VoidReturningCommand_ReturnNull()
+        {
+            Assert.IsTrue(AsitLibTests.Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
         }
     }
 }

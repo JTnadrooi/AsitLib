@@ -222,9 +222,9 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName}' (Index {i}).");
                 }
 
-                validTargets.Add(matchingArgument.Value.Target.ToString());
                 Type parameterType = target.ParameterType;
                 result[i] = Convert.ChangeType(matchingArgument.Value.Tokens[0], parameterType);
+                validTargets.Add(matchingArgument.Value.Target.ToString());
             }
 
             foreach (Argument arg in info.Arguments)

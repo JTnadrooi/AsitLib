@@ -105,11 +105,12 @@ namespace AsitLib.CommandLine
         public void Execute(string args) => ExecuteAndCapture(args);
         public void Execute(string[] args)
         {
-            Console.WriteLine(ExecuteAndCapture(args));
+            string? ret = ExecuteAndCapture(args);
+            if (ret != null) Console.WriteLine(ret);
         }
 
-        public string ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
-        public string ExecuteAndCapture(string[] args)
+        public string? ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
+        public string? ExecuteAndCapture(string[] args)
         {
             ArgumentsInfo argsinfo = Parse(args);
             if (Commands.TryGetValue(argsinfo.CommandId, out TCommandInfo? commandInfo))
