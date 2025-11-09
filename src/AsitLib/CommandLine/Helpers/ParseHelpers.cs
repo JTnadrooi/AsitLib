@@ -78,7 +78,8 @@ namespace AsitLib.CommandLine
 
             void PushArgument()
             {
-                arguments.Add(new Argument(new ArgumentTarget(currentName), (currentValues.Count == 0 ? ["true"] : currentValues.ToArray())));
+                arguments.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
+                currentValues.Clear();
             }
 
             for (int i = 1; i < args.Length; i++)
@@ -96,7 +97,6 @@ namespace AsitLib.CommandLine
                     if (currentName != null)
                     {
                         PushArgument();
-                        currentValues.Clear();
                     }
 
                     currentName = token;
@@ -130,8 +130,7 @@ namespace AsitLib.CommandLine
 
                 foreach (Argument arg in info.Arguments)
                 {
-                    if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) ||
-                        (arg.Target.ParameterIndex == i) ||
+                    if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
                         (shortHandName != null && arg.Target.IsShortHand && arg.Target.SanitizedParameterToken == shortHandName))
                     {
                         matchingArgument = arg;
@@ -145,8 +144,9 @@ namespace AsitLib.CommandLine
                     {
                         foreach (Argument arg in info.Arguments)
                         {
-                            if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == $"no-{targetName}")
+                            if (arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == $"no-{targetName}")
                             {
+                                if (arg.Tokens.Length != 0) throw new CommandException("Cannot use antiparameters with arguments.");
                                 result[i] = false;
                                 validTargets.Add(arg.Target.ToString());
                                 break;
@@ -167,8 +167,7 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                Type parameterType = target.ParameterType;
-                result[i] = Convert(matchingArgument.Value.Tokens, parameterType);
+                result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);
                 validTargets.Add(matchingArgument.Value.Target.ToString());
             }
 
@@ -183,6 +182,12 @@ namespace AsitLib.CommandLine
         public static object? Convert(string token, Type target) => Convert([token], target);
         public static object? Convert(string[] tokens, Type target)
         {
+            if (tokens.Length == 0)
+            {
+                if (target == typeof(bool)) return true;
+                else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
+            }
+
             if (target.IsArray)
             {
                 Type elementType = target.GetElementType()!;
@@ -193,7 +198,7 @@ namespace AsitLib.CommandLine
                 return toretArray;
             }
 
-            if (tokens.Length != 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
+            if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
 
             string token = tokens[0];
 
