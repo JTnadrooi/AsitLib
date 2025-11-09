@@ -176,13 +176,13 @@ namespace AsitLib.CommandLine
         {
             object?[] result = new object?[targets.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
+            HashSet<string> validTargets = new HashSet<string>();
 
             for (int i = 0; i < targets.Length; i++)
             {
                 ParameterInfo target = targets[i];
                 ParameterNameAttribute? parameterNameAttribute = target.GetCustomAttribute<ParameterNameAttribute>();
                 string targetName = parameterNameAttribute?.Name ?? ParseSignature(target.Name!);
-                //Console.WriteLine(targetName);
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
 
@@ -203,6 +203,7 @@ namespace AsitLib.CommandLine
                             if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == $"no-{targetName}")
                             {
                                 result[i] = false;
+                                validTargets.Add(arg.Target.ToString());
                                 break;
                             }
                         }
@@ -221,8 +222,14 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName}' (Index {i}).");
                 }
 
+                validTargets.Add(matchingArgument.Value.Target.ToString());
                 Type parameterType = target.ParameterType;
                 result[i] = Convert.ChangeType(matchingArgument.Value.Tokens[0], parameterType);
+            }
+
+            foreach (Argument arg in info.Arguments)
+            {
+                if (!validTargets.Contains(arg.Target.ToString())) throw new CommandException($"No parameter found for argument target '{arg.Target}'");
             }
 
             return result;

@@ -70,5 +70,19 @@ namespace AsitLib.Tests
         {
             AssertExecute("Hi, myself!", "hi myself");
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_InvalidParameter_ThrowCommandException()
+        {
+            AsitLibTests.Engine.Execute("print hi --doesnt-exist ahoy");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_MissingArgument_ThrowCommandException()
+        {
+            AsitLibTests.Engine.Execute("print");
+        }
     }
 }
