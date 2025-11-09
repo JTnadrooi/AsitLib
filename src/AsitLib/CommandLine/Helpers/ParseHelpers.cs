@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -113,11 +114,12 @@ namespace AsitLib.CommandLine
             return new ArgumentsInfo(args[0], arguments.ToArray());
         }
 
-        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets)
+        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets) => Conform(info, targets, out _);
+        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets, out HashSet<ArgumentTarget> validTargets)
         {
             object?[] result = new object?[targets.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
-            HashSet<string> validTargets = new HashSet<string>();
+            validTargets = new HashSet<ArgumentTarget>();
 
             for (int i = 0; i < targets.Length; i++)
             {
@@ -150,7 +152,7 @@ namespace AsitLib.CommandLine
                             if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
-                            validTargets.Add(arg.Target.ToString());
+                            validTargets.Add(arg.Target);
                             goto Continue;
                         }
                     }
@@ -167,13 +169,13 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
                 result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);
-                validTargets.Add(matchingArgument.Value.Target.ToString());
+                validTargets.Add(matchingArgument.Value.Target);
             Continue:;
             }
 
             foreach (Argument arg in info.Arguments)
             {
-                if (!validTargets.Contains(arg.Target.ToString())) throw new CommandException($"No parameter found for argument target '{arg.Target}'");
+                if (!validTargets.Contains(arg.Target)) throw new CommandException($"No parameter found for argument target '{arg.Target}'");
             }
 
             return result;

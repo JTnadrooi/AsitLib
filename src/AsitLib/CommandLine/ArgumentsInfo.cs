@@ -29,6 +29,23 @@ namespace AsitLib.CommandLine
         }
 
         public override string ToString() => UsesExplicitName ? ParameterToken! : ParameterIndex!.ToString()!;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is ArgumentTarget other) return (ParameterToken == other.ParameterToken && ParameterIndex == other.ParameterIndex);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                if (ParameterToken != null) hashCode = hashCode * 23 + ParameterToken.GetHashCode();
+                if (ParameterIndex.HasValue) hashCode = hashCode * 23 + ParameterIndex.GetHashCode();
+                return hashCode;
+            }
+        }
     }
 
     public readonly struct Argument
