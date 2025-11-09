@@ -9,6 +9,7 @@ namespace AsitLib.CommandLine
     [AttributeUsage(AttributeTargets.Parameter)]
     public class AllowAntiArgumentAttribute : Attribute
     {
-        public AllowAntiArgumentAttribute() { }
+        public string? Name { get; }
+        public AllowAntiArgumentAttribute(string? name = null) => Name = name;
     }
 }

@@ -144,11 +144,12 @@ namespace AsitLib.CommandLine
                 {
                     foreach (Argument arg in info.Arguments)
                     {
-                        if (arg.Target.SanitizedParameterToken == $"no-{targetName}")
+                        AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
+
+                        if (allowAntiArgumentAttribute != null && arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-                            if (target.GetCustomAttribute<AllowAntiArgumentAttribute>() == null) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
                             if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
@@ -166,6 +167,9 @@ namespace AsitLib.CommandLine
                         result[i] = null;
                         goto Continue;
                     }
+
+                    //if (matchingArgument.Value.Target.UsesExplicitName.) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
+
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
                 result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);

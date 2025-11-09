@@ -42,6 +42,12 @@ namespace AsitLib.Tests
             return "Tv" + (color ? " in color!" : ".");
         }
 
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public string TvEnable([AllowAntiArgument("disable-color")] bool color = true)
+        {
+            return "Tv" + (color ? " in color!" : ".");
+        }
+
         [CommandAttribute("desc", inheritNamespace: false, aliases: ["hi"])]
         public string Greet([CustomSignature("name")] string yourName)
         {
@@ -110,6 +116,12 @@ namespace AsitLib.Tests
         public void Execute_NoValueAntiArgument_ActsAsFalse()
         {
             AssertExecute("Tv.", "tv --no-color");
+        }
+
+        [TestMethod]
+        public void Execute_NoValueCustomAntiArgument_ActsAsFalse()
+        {
+            AssertExecute("Tv.", "tv-enable --disable-color");
         }
 
         [TestMethod]
