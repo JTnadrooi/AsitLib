@@ -12,7 +12,7 @@ namespace AsitLib.CommandLine
         public static string CreateCommandId(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
         {
             if (methodInfo.Name == "_M") return provider.Namespace;
-            else return (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + ParseHelpers.ParseSignature(attribute.Id ?? methodInfo.Name.ToLower());
+            else return (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id ?? ParseHelpers.ParseSignature(methodInfo));
         }
     }
 }

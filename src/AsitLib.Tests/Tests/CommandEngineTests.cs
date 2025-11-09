@@ -8,6 +8,7 @@ namespace AsitLib.Tests
         Value0 = 0,
         Value1 = 1,
         Value2 = 2,
+        [CustomSignature("three")]
         Value3 = 3,
     }
 
@@ -15,43 +16,43 @@ namespace AsitLib.Tests
     {
         public TestCommandProvider() : base("test") { }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public string Print(string input, bool upperCase = false)
         {
             return upperCase ? input.ToUpper() : input;
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public string Tv([AllowAntiArgument] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [Command("desc", inheritNamespace: false, aliases: ["hi"])]
-        public string Greet([ParameterName("name")] string yourName)
+        [CommandAttribute("desc", inheritNamespace: false, aliases: ["hi"])]
+        public string Greet([CustomSignature("name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public void Void()
         {
 
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public string Enum(TestEnum @enum)
         {
             return @enum.ToString();
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public string Array(string[] array)
         {
             return $"[{array.ToJoinedString(", ")}]";
         }
 
-        [Command("desc", inheritNamespace: false)]
+        [CommandAttribute("desc", inheritNamespace: false)]
         public int Sum(int[] array)
         {
             return array.Sum();
@@ -151,6 +152,12 @@ namespace AsitLib.Tests
         public void Execute_InputStringForEnumParameter_GetEnumEntryWithValue()
         {
             AssertExecute(TestEnum.Value2.ToString(), "enum value-2");
+        }
+
+        [TestMethod]
+        public void Execute_InputStringForCustomSignatureEnumParameter_GetEnumEntryWithCustomSignature()
+        {
+            AssertExecute(TestEnum.Value3.ToString(), "enum three");
         }
 
         [TestMethod]

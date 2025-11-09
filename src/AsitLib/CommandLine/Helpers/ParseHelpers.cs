@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
@@ -12,6 +13,16 @@ namespace AsitLib.CommandLine
 {
     public static class ParseHelpers
     {
+        public static string ParseSignature(ParameterInfo parameterInfo)
+        {
+            CustomSignatureAttribute? a = parameterInfo.GetCustomAttribute<CustomSignatureAttribute>();
+            return a == null ? ParseSignature(parameterInfo.Name!) : (a.Name ?? parameterInfo.Name!);
+        }
+        public static string ParseSignature(MemberInfo memberInfo)
+        {
+            CustomSignatureAttribute? a = memberInfo.GetCustomAttribute<CustomSignatureAttribute>();
+            return a == null ? ParseSignature(memberInfo.Name) : (a.Name ?? memberInfo.Name);
+        }
         public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
         public static string[] Split(string str)
@@ -110,8 +121,7 @@ namespace AsitLib.CommandLine
             for (int i = 0; i < targets.Length; i++)
             {
                 ParameterInfo target = targets[i];
-                ParameterNameAttribute? parameterNameAttribute = target.GetCustomAttribute<ParameterNameAttribute>();
-                string targetName = parameterNameAttribute?.Name ?? ParseSignature(target.Name!);
+                string targetName = ParseSignature(target);
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
 
@@ -182,9 +192,14 @@ namespace AsitLib.CommandLine
 
             if (target.IsEnum)
             {
-                if (long.TryParse(token, out long result)) return Enum.ToObject(target, result);
+                if (int.TryParse(token, out int result)) return Enum.ToObject(target, result);
 
-                Dictionary<string, string> names = Enum.GetNames(target).ToDictionary(n => ParseSignature(n));
+                //Dictionary<string, string> names = ((IEnumerable<int>)Enum.GetValues(target))
+                Dictionary<string, string> names = target
+                    .GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Select(f => new KeyValuePair<string, string>(ParseSignature(f), f.Name))
+                    .ToDictionary();
+
                 foreach (KeyValuePair<string, string> kvp in names)
                     if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target, kvp.Value);
 

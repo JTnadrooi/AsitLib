@@ -26,7 +26,7 @@ namespace AsitLib.CommandLine
         /// </summary>
         public string[] Aliases { get; }
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandAttribute"/> class by using a specified command parameters.
+        /// Initializes an instance of <see cref="CommandAttribute"/> by using specified command parameters.
         /// </summary>
         /// <param name="description"><inheritdoc cref="Description" path="/summary"/></param>
         /// <param name="id"><inheritdoc cref="Id" path="/summary"/></param>
