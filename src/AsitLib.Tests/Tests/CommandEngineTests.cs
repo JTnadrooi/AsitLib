@@ -13,6 +13,19 @@ namespace AsitLib.Tests
         Value3 = 3,
     }
 
+    public class AlwaysReturnTestFlagHandler : FlagHandler
+    {
+        public AlwaysReturnTestFlagHandler() : base("ret-test", "desc", "t")
+        {
+
+        }
+
+        public override object? OnReturned(ArgumentsInfo arguments, object? returned)
+        {
+            return "TEST";
+        }
+    }
+
     public class TestCommandProvider : CommandProvider
     {
         public TestCommandProvider() : base("test") { }
@@ -55,7 +68,8 @@ namespace AsitLib.Tests
         public static void ClassInit(TestContext context)
         {
             Engine = new CommandEngine()
-                .RegisterProvider(new TestCommandProvider(), CommandInfoFactory.Default);
+                .RegisterProvider(new TestCommandProvider(), CommandInfoFactory.Default)
+                .RegisterFlagHandler(new AlwaysReturnTestFlagHandler());
         }
 
         [ClassCleanup]
@@ -134,6 +148,13 @@ namespace AsitLib.Tests
         public void Execute_VoidReturningCommand_ReturnsNull()
         {
             Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
+        }
+
+        [TestMethod]
+        public void Execute_WithFlag_HandelsFlag()
+        {
+            AssertExecute("TEST", "void -t");
+            AssertExecute("TEST", "void --ret-test");
         }
     }
 }

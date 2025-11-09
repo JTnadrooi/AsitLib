@@ -173,10 +173,6 @@ namespace AsitLib.CommandLine
             Continue:;
             }
 
-            foreach (Argument arg in info.Arguments)
-            {
-                if (!validTargets.Contains(arg.Target)) throw new CommandException($"No parameter found for argument target '{arg.Target}'");
-            }
 
             return result;
         }

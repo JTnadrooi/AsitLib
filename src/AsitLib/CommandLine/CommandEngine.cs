@@ -35,25 +35,29 @@ namespace AsitLib.CommandLine
 
         private bool _disposedValue;
 
-        //private readonly FrozenDictionary<string, flagHandler>? flagHandlers;
-        private Dictionary<string, CommandProvider> _providers;
-        private Dictionary<string, CommandInfo> _commands;
-        private Dictionary<string, CommandInfo> _uniqueCommands;
+        private readonly Dictionary<string, FlagHandler> _shortIdflagHandlers;
+        private readonly Dictionary<string, FlagHandler> _flagHandlers;
+        private readonly Dictionary<string, CommandProvider> _providers;
+        private readonly Dictionary<string, CommandInfo> _commands;
+        private readonly Dictionary<string, CommandInfo> _uniqueCommands;
 
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
-        //public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
+        public ReadOnlyDictionary<string, FlagHandler> FlagHandlers { get; }
 
         public CommandEngine()
         {
             _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
+            _flagHandlers = new Dictionary<string, FlagHandler>();
+            _shortIdflagHandlers = new Dictionary<string, FlagHandler>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
+            FlagHandlers = _flagHandlers.AsReadOnly();
         }
 
         public CommandEngine RegisterCommand(MethodInfo method, string description, string[]? aliases = null)
@@ -76,10 +80,12 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        //public CommandEngine<TCommandInfo> RegisterFlagHandler(CommandProvider provider)
-        //{
-        //    return this;
-        //}
+        public CommandEngine RegisterFlagHandler(FlagHandler flagHandler)
+        {
+            _flagHandlers.Add(flagHandler.LongId, flagHandler);
+            if (flagHandler.ShortId != null) _shortIdflagHandlers.Add(flagHandler.ShortId, flagHandler);
+            return this;
+        }
 
         public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
@@ -91,13 +97,37 @@ namespace AsitLib.CommandLine
         public string? ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
         public string? ExecuteAndCapture(string[] args)
         {
-            ArgumentsInfo argsinfo = Parse(args);
-            if (Commands.TryGetValue(argsinfo.CommandId, out CommandInfo? commandInfo))
+            ArgumentsInfo argsInfo = Parse(args);
+            if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
-                object?[] conformed = Conform(argsinfo, commandInfo.GetParameters());
-                return commandInfo.Invoke(conformed)?.ToString()!;
+                object?[] conformed = Conform(argsInfo, commandInfo.GetParameters(), out HashSet<ArgumentTarget> validTargets);
+                List<FlagHandler> pendingFlagHandlers = new List<FlagHandler>();
+
+                foreach (Argument argument in argsInfo.Arguments)
+                    if (!validTargets.Contains(argument.Target))
+                    {
+                        if ((argument.Target.IsShortHand & _shortIdflagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
+                            (argument.Target.IsLongForm & _flagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
+                        {
+                            validTargets.Add(argument.Target);
+                            pendingFlagHandlers.Add((fhShorthand ?? fhLongForm)!);
+                        }
+                    }
+
+                foreach (FlagHandler flagHandler in pendingFlagHandlers) flagHandler.PreCommand(argsInfo);
+                object? returned = commandInfo.Invoke(conformed);
+                foreach (FlagHandler flagHandler in pendingFlagHandlers)
+                {
+                    returned = flagHandler.OnReturned(argsInfo, returned);
+                    flagHandler.PostCommand(argsInfo);
+                }
+
+                foreach (Argument argument in argsInfo.Arguments)
+                    if (!validTargets.Contains(argument.Target)) throw new CommandException($"No parameter or flag found for argument target '{argument.Target}'");
+
+                return returned?.ToString();
             }
-            else throw new InvalidOperationException($"Command with ID '{argsinfo.CommandId}' not found.");
+            else throw new InvalidOperationException($"Command with ID '{argsInfo.CommandId}' not found.");
         }
 
         public T? ExecuteAndCapture<T>(string args)
