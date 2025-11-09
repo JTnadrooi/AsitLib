@@ -81,7 +81,7 @@ namespace AsitLib.CommandLine
         //    return this;
         //}
 
-        public void Execute(string args) => ExecuteAndCapture(args);
+        public void Execute(string args) => Execute(Split(args));
         public void Execute(string[] args)
         {
             string? ret = ExecuteAndCapture(args);
