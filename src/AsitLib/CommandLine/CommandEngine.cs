@@ -96,13 +96,14 @@ namespace AsitLib.CommandLine
             {
                 object?[] conformed = Conform(argsinfo, commandInfo.GetParameters());
                 return commandInfo.Invoke(conformed)?.ToString()!;
-
-                //Console.WriteLine(Commands.ToJoinedString(", "));
-                //Console.WriteLine(argsinfo.ToDisplayString());
-                //Console.WriteLine(conformed.ToJoinedString(", "));
             }
             else throw new InvalidOperationException($"Command with ID '{argsinfo.CommandId}' not found.");
         }
+
+        public T? ExecuteAndCapture<T>(string args)
+            => (T?)Convert(ExecuteAndCapture(Split(args)) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands."), typeof(T));
+        public T? ExecuteAndCapture<T>(string[] args)
+            => (T?)Convert(ExecuteAndCapture(args) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands."), typeof(T));
 
         /// <summary>
         /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
