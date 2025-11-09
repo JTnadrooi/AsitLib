@@ -36,37 +36,37 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void PrintCommand_IndexedArgument_GetsParameterFromIndex()
+        public void Execute_IndexedArgument_GetsParameterFromIndex()
         {
             AssertExecute("hello", "print hello");
         }
 
         [TestMethod]
-        public void PrintCommand_CamelCaseArgument_HandlesCorrectly()
+        public void Execute_CamelCaseArgument_HandlesCorrectly()
         {
             AssertExecute("HELLO", "print hello --upper-case true");
         }
 
         [TestMethod]
-        public void PrintCommand_NoValueArgument_ActsAsTrue()
+        public void Execute_NoValueArgument_ActsAsTrue()
         {
             AssertExecute("HELLO", "print hello --upper-case");
         }
 
         [TestMethod]
-        public void TvCommand_NoValueAntiArgument_ActsAsFalse()
+        public void Execute_NoValueAntiArgument_ActsAsFalse()
         {
             AssertExecute("Tv.", "tv --no-color");
         }
 
         [TestMethod]
-        public void ParameterNameAttribute_Read_OverwritesParameterName()
+        public void Execute_ParameterNameAttributeName_OverwritesParameterName()
         {
             AssertExecute("Hi, me!", "greet --name me");
         }
 
         [TestMethod]
-        public void CommandAlias_CallAlias_CallsCommandWithAlias()
+        public void Execute_UseAlias_ExecutesCommandWithAlias()
         {
             AssertExecute("Hi, myself!", "hi myself");
         }
