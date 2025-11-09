@@ -8,7 +8,7 @@ namespace AsitLib.CommandLine
 {
     public class CustomSignatureAttribute : Attribute
     {
-        public string? Name { get; set; }
+        public string? Name { get; }
         /// <summary>
         ///  Initializes an instance of <see cref="CustomSignatureAttribute"/>.
         /// </summary>

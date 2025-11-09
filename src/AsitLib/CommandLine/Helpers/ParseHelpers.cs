@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsitLib.CommandLine.Attributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -124,14 +125,19 @@ namespace AsitLib.CommandLine
                 string targetName = ParseSignature(target);
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
+                ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
+                string? shortHandName = shorthandAttribute == null ? null : (shorthandAttribute.ShortHand ?? targetName[0].ToString());
 
-                foreach (Argument arg in info.Arguments) // try to find the matching argument.
-                    if ((arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == targetName) ||
-                        (arg.Target.ParameterIndex == i))
+                foreach (Argument arg in info.Arguments)
+                {
+                    if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) ||
+                        (arg.Target.ParameterIndex == i) ||
+                        (shortHandName != null && arg.Target.IsShortHand && arg.Target.SanitizedParameterToken == shortHandName))
                     {
                         matchingArgument = arg;
                         break;
                     }
+                }
 
                 if (matchingArgument == null) // no matching argument found.
                 {
@@ -158,7 +164,7 @@ namespace AsitLib.CommandLine
                         result[i] = null;
                         continue;
                     }
-                    throw new CommandException($"No matching value found for parameter '{targetName}' (Index {i}).");
+                    throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
                 Type parameterType = target.ParameterType;

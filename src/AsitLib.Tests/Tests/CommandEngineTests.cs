@@ -1,4 +1,5 @@
 ﻿using AsitLib.CommandLine;
+using AsitLib.CommandLine.Attributes;
 using System.Reflection;
 
 namespace AsitLib.Tests
@@ -38,6 +39,12 @@ namespace AsitLib.Tests
         public void Void()
         {
 
+        }
+
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public string Shorthand([Shorthand("wa")] string wayToLongParameterName, [Shorthand] int secondWayToLongOne = 0)
+        {
+            return wayToLongParameterName + " | " + secondWayToLongOne;
         }
     }
 
@@ -105,6 +112,12 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void Execute_CommandUsingShorthandParameter_FindsCorrectParameter()
+        {
+            AssertExecute("shorter | 0", "shorthand -wa shorter");
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(CommandException))]
         public void Execute_InvalidParameter_ThrowsCommandException()
         {
@@ -123,7 +136,6 @@ namespace AsitLib.Tests
         {
             Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
         }
-
         [TestMethod]
         public void Convert_EnumValueInt_GetsEnumEntryWithValue()
         {
