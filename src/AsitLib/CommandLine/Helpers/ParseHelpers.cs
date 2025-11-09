@@ -174,6 +174,7 @@ namespace AsitLib.CommandLine
             return result;
         }
 
+        public static object? Convert(string token, Type target) => Convert([token], target);
         public static object? Convert(string[] tokens, Type target)
         {
             if (target.IsArray)
