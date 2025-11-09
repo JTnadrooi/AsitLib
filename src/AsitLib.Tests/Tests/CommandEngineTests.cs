@@ -44,6 +44,18 @@ namespace AsitLib.Tests
         {
             return @enum.ToString();
         }
+
+        [Command("desc", inheritNamespace: false)]
+        public string Array(string[] array)
+        {
+            return $"[{array.ToJoinedString(", ")}]";
+        }
+
+        [Command("desc", inheritNamespace: false)]
+        public int Sum(int[] array)
+        {
+            return array.Sum();
+        }
     }
 
     [TestClass]
@@ -139,6 +151,18 @@ namespace AsitLib.Tests
         public void Execute_InputStringForEnumParameter_GetEnumEntryWithValue()
         {
             AssertExecute(TestEnum.Value2.ToString(), "enum value-2");
+        }
+
+        [TestMethod]
+        public void Execute_StringArrayParameter_MultipleTokensParseToArray()
+        {
+            AssertExecute("[e, a]", "array --array e a");
+        }
+
+        [TestMethod]
+        public void Execute_StringArrayParameter_IntTokensParseToIntArray()
+        {
+            AssertExecute("2", "sum --array 1 1");
         }
     }
 }

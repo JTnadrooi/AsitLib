@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsitLib.CommandLine
 {
@@ -31,7 +32,6 @@ namespace AsitLib.CommandLine
         }
 
         public override string ToString() => UsesExplicitName ? ParameterToken! : ParameterIndex!.ToString()!;
-
     }
 
     public readonly struct Argument
@@ -223,7 +223,7 @@ namespace AsitLib.CommandLine
                 }
 
                 Type parameterType = target.ParameterType;
-                result[i] = Convert(matchingArgument.Value.Tokens[0], parameterType);
+                result[i] = Convert(matchingArgument.Value.Tokens, parameterType);
                 validTargets.Add(matchingArgument.Value.Target.ToString());
             }
 
@@ -235,8 +235,22 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? Convert(string token, Type target)
+        public static object? Convert(string[] tokens, Type target)
         {
+            if (target.IsArray)
+            {
+                Type elementType = target.GetElementType()!;
+                Array toretArray = Array.CreateInstance(elementType, tokens.Length);
+
+                for (int i = 0; i < tokens.Length; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
+
+                return toretArray;
+            }
+
+            if (tokens.Length != 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
+
+            string token = tokens[0];
+
             if (target.IsEnum)
             {
                 if (long.TryParse(token, out long result)) return Enum.ToObject(target, result);
