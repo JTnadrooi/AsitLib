@@ -39,24 +39,6 @@ namespace AsitLib.Tests
         {
 
         }
-
-        [CommandAttribute("desc", inheritNamespace: false)]
-        public string Enum(TestEnum @enum)
-        {
-            return @enum.ToString();
-        }
-
-        [CommandAttribute("desc", inheritNamespace: false)]
-        public string Array(string[] array)
-        {
-            return $"[{array.ToJoinedString(", ")}]";
-        }
-
-        [CommandAttribute("desc", inheritNamespace: false)]
-        public int Sum(int[] array)
-        {
-            return array.Sum();
-        }
     }
 
     [TestClass]
@@ -124,52 +106,52 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(CommandException))]
-        public void Execute_InvalidParameter_ThrowCommandException()
+        public void Execute_InvalidParameter_ThrowsCommandException()
         {
             Engine.Execute("print hi --doesnt-exist ahoy");
         }
 
         [TestMethod]
         [ExpectedException(typeof(CommandException))]
-        public void Execute_MissingArgument_ThrowCommandException()
+        public void Execute_MissingArgument_ThrowsCommandException()
         {
             Engine.Execute("print");
         }
 
         [TestMethod]
-        public void Execute_VoidReturningCommand_ReturnNull()
+        public void Execute_VoidReturningCommand_ReturnsNull()
         {
             Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
         }
 
         [TestMethod]
-        public void Execute_InputIntForEnumParameter_GetEnumEntryWithValue()
+        public void Convert_EnumValueInt_GetsEnumEntryWithValue()
         {
-            AssertExecute(TestEnum.Value2.ToString(), "enum 2");
+            Assert.AreEqual(TestEnum.Value2, ParseHelpers.Convert("2", typeof(TestEnum)));
         }
 
         [TestMethod]
-        public void Execute_InputStringForEnumParameter_GetEnumEntryWithValue()
+        public void Convert_EnumValueString_GetsEnumEntryWithValue()
         {
-            AssertExecute(TestEnum.Value2.ToString(), "enum value-2");
+            Assert.AreEqual(TestEnum.Value2, ParseHelpers.Convert("value-2", typeof(TestEnum)));
         }
 
         [TestMethod]
-        public void Execute_InputStringForCustomSignatureEnumParameter_GetEnumEntryWithCustomSignature()
+        public void Convert_CustomSignatureEnumValueString_GetsCustomNameEnumEntryWithValue()
         {
-            AssertExecute(TestEnum.Value3.ToString(), "enum three");
+            Assert.AreEqual(TestEnum.Value3, ParseHelpers.Convert("three", typeof(TestEnum)));
         }
 
         [TestMethod]
-        public void Execute_StringArrayParameter_MultipleTokensParseToArray()
+        public void Convert_MultipleIntTokens_ParsesToIntArray()
         {
-            AssertExecute("[e, a]", "array --array e a");
+            CollectionAssert.AreEqual(new int[] { 4, 2 }, (int[])ParseHelpers.Convert(["4", "2"], typeof(int[]))!);
         }
 
         [TestMethod]
-        public void Execute_StringArrayParameter_IntTokensParseToIntArray()
+        public void Convert_MultipleStringTokens_ParsesToStringArray()
         {
-            AssertExecute("2", "sum --array 1 1");
+            CollectionAssert.AreEqual(new string[] { "e", "a" }, (string[])ParseHelpers.Convert(["e", "a"], typeof(string[]))!);
         }
     }
 }
