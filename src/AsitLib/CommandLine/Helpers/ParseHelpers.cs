@@ -223,7 +223,7 @@ namespace AsitLib.CommandLine
                 }
 
                 Type parameterType = target.ParameterType;
-                result[i] = Convert.ChangeType(matchingArgument.Value.Tokens[0], parameterType);
+                result[i] = Convert(matchingArgument.Value.Tokens[0], parameterType);
                 validTargets.Add(matchingArgument.Value.Target.ToString());
             }
 
@@ -233,6 +233,22 @@ namespace AsitLib.CommandLine
             }
 
             return result;
+        }
+
+        public static object? Convert(string token, Type target)
+        {
+            if (target.IsEnum)
+            {
+                if (long.TryParse(token, out long result)) return Enum.ToObject(target, result);
+
+                Dictionary<string, string> names = Enum.GetNames(target).ToDictionary(n => ParseSignature(n));
+                foreach (KeyValuePair<string, string> kvp in names)
+                    if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target, kvp.Value);
+
+                throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
+            }
+
+            return System.Convert.ChangeType(token, target);
         }
     }
 }

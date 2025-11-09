@@ -3,6 +3,14 @@ using System.Reflection;
 
 namespace AsitLib.Tests
 {
+    public enum TestEnum
+    {
+        Value0 = 0,
+        Value1 = 1,
+        Value2 = 2,
+        Value3 = 3,
+    }
+
     public class TestCommandProvider : CommandProvider
     {
         public TestCommandProvider() : base("test") { }
@@ -29,6 +37,12 @@ namespace AsitLib.Tests
         public void Void()
         {
 
+        }
+
+        [Command("desc", inheritNamespace: false)]
+        public string Enum(TestEnum @enum)
+        {
+            return @enum.ToString();
         }
     }
 
@@ -113,6 +127,18 @@ namespace AsitLib.Tests
         public void Execute_VoidReturningCommand_ReturnNull()
         {
             Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");
+        }
+
+        [TestMethod]
+        public void Execute_InputIntForEnumParameter_GetEnumEntryWithValue()
+        {
+            AssertExecute(TestEnum.Value2.ToString(), "enum 2");
+        }
+
+        [TestMethod]
+        public void Execute_InputStringForEnumParameter_GetEnumEntryWithValue()
+        {
+            AssertExecute(TestEnum.Value2.ToString(), "enum value-2");
         }
     }
 }
