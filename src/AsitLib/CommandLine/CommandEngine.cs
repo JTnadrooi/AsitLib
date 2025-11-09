@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,44 +32,46 @@ namespace AsitLib.CommandLine
     public static class CommandEngine
     {
         public const string MAIN_COMMAND_ID = "_M";
-
-        internal static InvalidOperationException GetNotInitializedException() => new InvalidOperationException("CommandEngine is not yet initialized.");
     }
 
     public class CommandEngine<TAttribute, TCommandInfo> : IDisposable where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
         private bool _disposedValue;
-        private bool _initialized;
 
         //private readonly FrozenDictionary<string, flagHandler>? flagHandlers;
-        private FrozenDictionary<string, CommandProvider>? _providers;
-        private FrozenDictionary<string, TCommandInfo>? _commands;
-        private FrozenDictionary<string, TCommandInfo>? _uniqueCommands;
+        private Dictionary<string, CommandProvider> _providers;
+        private Dictionary<string, TCommandInfo> _commands;
+        private Dictionary<string, TCommandInfo> _uniqueCommands;
         private ICommandInfoFactory<TAttribute, TCommandInfo> _infoFactory;
 
-        public FrozenDictionary<string, TCommandInfo> Commands => _commands ?? throw CommandEngine.GetNotInitializedException();
-        public FrozenDictionary<string, TCommandInfo> UniqueCommands => _uniqueCommands ?? throw CommandEngine.GetNotInitializedException();
-        public FrozenDictionary<string, CommandProvider> Providers => _providers ?? throw CommandEngine.GetNotInitializedException();
+        public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
+        public ReadOnlyDictionary<string, TCommandInfo> Commands { get; }
+        public ReadOnlyDictionary<string, TCommandInfo> UniqueCommands { get; }
         //public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
-
-        private List<CommandProvider> _tempProviders;
-        private List<TCommandInfo> _tempCommands;
-        private HashSet<string> _addedProviders;
-
 
         public CommandEngine(ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory)
         {
             _infoFactory = infoFactory;
-            _tempProviders = new List<CommandProvider>();
-            _addedProviders = new HashSet<string>();
-            _tempCommands = new List<TCommandInfo>();
-        }
 
+            _providers = new Dictionary<string, CommandProvider>();
+            _commands = new Dictionary<string, TCommandInfo>();
+            _uniqueCommands = new Dictionary<string, TCommandInfo>();
+
+            Providers = _providers.AsReadOnly();
+            Commands = _commands.AsReadOnly();
+            UniqueCommands = _uniqueCommands.AsReadOnly();
+        }
 
         public CommandEngine<TAttribute, TCommandInfo> RegisterProvider(CommandProvider provider)
         {
-            _tempProviders.Add(provider);
-            _addedProviders.Add(provider.Namespace);
+            MethodInfo[] commandMethods = provider.GetType().GetMethods();
+            foreach (MethodInfo methodInfo in commandMethods)
+                if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
+                {
+                    TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
+                    _uniqueCommands.Add(info.Id, info);
+                    foreach (string id in info.Ids) _commands.Add(id, info);
+                }
             return this;
         }
 
@@ -76,31 +79,6 @@ namespace AsitLib.CommandLine
         //{
         //    return this;
         //}
-
-        public CommandEngine<TAttribute, TCommandInfo> Initialize()
-        {
-            Dictionary<string, TCommandInfo> uniqueCommands = new Dictionary<string, TCommandInfo>();
-            Dictionary<string, TCommandInfo> commands = new Dictionary<string, TCommandInfo>();
-
-            foreach (CommandProvider provider in _tempProviders)
-            {
-                MethodInfo[] commandMethods = provider.GetType().GetMethods();
-                foreach (MethodInfo methodInfo in commandMethods)
-                    if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
-                    {
-                        TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
-                        uniqueCommands.Add(info.Id, info);
-                        foreach (string id in info.Ids) commands.Add(id, info);
-                    }
-            }
-
-            _providers = _tempProviders.ToDictionary(p => p.Namespace).ToFrozenDictionary();
-
-            _commands = commands.ToFrozenDictionary();
-            _uniqueCommands = uniqueCommands.ToFrozenDictionary();
-
-            return this;
-        }
 
         public void Execute(string args) => ExecuteAndCapture(args);
         public void Execute(string[] args)

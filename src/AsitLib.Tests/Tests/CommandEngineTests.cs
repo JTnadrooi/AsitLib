@@ -55,8 +55,7 @@ namespace AsitLib.Tests
         public static void ClassInit(TestContext context)
         {
             Engine = new CommandEngine<CommandAttribute, CommandInfo>(CommandInfoFactory.Default)
-                .RegisterProvider(new TestCommandProvider())
-                .Initialize();
+                .RegisterProvider(new TestCommandProvider());
         }
 
         [ClassCleanup]
