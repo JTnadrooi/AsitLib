@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine.Attributes
     [AttributeUsage(AttributeTargets.Parameter)]
     public class ShorthandAttribute : Attribute
     {
-        public string? ShortHand { get; }
-        public ShorthandAttribute(string? shortHand = null) => ShortHand = shortHand;
+        public string? Shorthand { get; }
+        public ShorthandAttribute(string? shorthand = null) => Shorthand = shorthand;
     }
 }

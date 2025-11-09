@@ -10,7 +10,7 @@ namespace AsitLib.CommandLine
     {
         public readonly string? ParameterToken;
         public readonly int? ParameterIndex;
-        public readonly bool IsShortHand => UsesExplicitName && !ParameterToken!.StartsWith("--");
+        public readonly bool IsShorthand => UsesExplicitName && !ParameterToken!.StartsWith("--");
         public readonly bool IsLongForm => UsesExplicitName && ParameterToken!.StartsWith("--");
         public readonly string? SanitizedParameterToken => ParameterToken?.TrimStart('-');
 
@@ -84,7 +84,7 @@ namespace AsitLib.CommandLine
             {
                 Argument arg = this.Arguments[i];
                 sb.AppendLine($"\t\tTarget: {arg.Target}");
-                sb.AppendLine($"\t\tShortHand: {arg.Target.IsShortHand}");
+                sb.AppendLine($"\t\tShorthand: {arg.Target.IsShorthand}");
                 sb.AppendLine("\t\tTokens:");
                 foreach (string token in arg.Tokens) sb.AppendLine($"\t\t\t{token}");
             }

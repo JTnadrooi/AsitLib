@@ -82,8 +82,8 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RegisterFlagHandler(FlagHandler flagHandler)
         {
-            _flagHandlers.Add(flagHandler.LongId, flagHandler);
-            if (flagHandler.ShortId != null) _shortIdflagHandlers.Add(flagHandler.ShortId, flagHandler);
+            _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
+            if (flagHandler.ShorthandId != null) _shortIdflagHandlers.Add(flagHandler.ShorthandId, flagHandler);
             return this;
         }
 
@@ -106,7 +106,7 @@ namespace AsitLib.CommandLine
                 foreach (Argument argument in argsInfo.Arguments)
                     if (!validTargets.Contains(argument.Target))
                     {
-                        if ((argument.Target.IsShortHand & _shortIdflagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
+                        if ((argument.Target.IsShorthand & _shortIdflagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
                             (argument.Target.IsLongForm & _flagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
                         {
                             validTargets.Add(argument.Target);

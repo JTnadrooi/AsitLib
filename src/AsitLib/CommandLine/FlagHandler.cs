@@ -11,14 +11,14 @@ namespace AsitLib.CommandLine
     /// </summary>
     public abstract class FlagHandler
     {
-        public string? ShortId { get; }
-        public string LongId { get; }
+        public string? ShorthandId { get; }
+        public string LongFormId { get; }
         public string Description { get; }
 
-        public FlagHandler(string longId, string description, string? shortId = null)
+        public FlagHandler(string longFormId, string description, string? shorthandId = null)
         {
-            ShortId = shortId;
-            LongId = longId;
+            ShorthandId = shorthandId;
+            LongFormId = longFormId;
             Description = description;
         }
 

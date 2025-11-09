@@ -128,12 +128,12 @@ namespace AsitLib.CommandLine
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
                 ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
-                string? shortHandName = shorthandAttribute == null ? null : (shorthandAttribute.ShortHand ?? targetName[0].ToString());
+                string? shortHandName = shorthandAttribute == null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
 
                 foreach (Argument arg in info.Arguments)
                 {
                     if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
-                        (shortHandName != null && arg.Target.IsShortHand && arg.Target.SanitizedParameterToken == shortHandName))
+                        (shortHandName != null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
                     {
                         matchingArgument = arg;
                         break;
@@ -146,7 +146,7 @@ namespace AsitLib.CommandLine
                     {
                         if (arg.Target.SanitizedParameterToken == $"no-{targetName}")
                         {
-                            if (arg.Target.IsShortHand) throw new CommandException($"Shorthand anti-arguments are invalid.");
+                            if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
                             if (target.GetCustomAttribute<AllowAntiArgumentAttribute>() == null) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
                             if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
