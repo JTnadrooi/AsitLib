@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    [AttributeUsage(AttributeTargets.Parameter)]
     public class AllowAntiArgumentAttribute : Attribute
     {
         public AllowAntiArgumentAttribute() { }
