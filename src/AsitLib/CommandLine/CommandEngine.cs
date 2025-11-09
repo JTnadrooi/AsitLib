@@ -11,22 +11,6 @@ using static AsitLib.CommandLine.ParseHelpers;
 
 namespace AsitLib.CommandLine
 {
-    internal class ConsoleRedirector : IDisposable
-    {
-        private readonly TextWriter _originalOut;
-
-        public ConsoleRedirector(TextWriter newOut)
-        {
-            _originalOut = Console.Out;
-            Console.SetOut(newOut);
-        }
-
-        public void Dispose()
-        {
-            Console.SetOut(_originalOut);
-        }
-    }
-
     public interface ICommandInfoFactory<in TAttribute, out TCommandInfo> where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
         public TCommandInfo Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
