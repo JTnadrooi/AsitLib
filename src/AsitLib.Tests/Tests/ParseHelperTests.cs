@@ -27,7 +27,7 @@ namespace AsitLib.Tests
 
         #endregion
 
-        #region PARSEHELPER_SPLIT
+        #region SPLIT
 
         [TestMethod]
         public void Split_SimpleWords_SplitsByWhitespace()

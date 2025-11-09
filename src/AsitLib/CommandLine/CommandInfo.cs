@@ -8,10 +8,57 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    public class FunctionCommandInfo : CommandInfo
+    {
+        public Func<object?> Function { get; }
+
+        public FunctionCommandInfo(string[] ids, string description, Func<object?> func) : base(ids, description)
+        {
+            Function = func;
+        }
+
+        public override ParameterInfo[] GetParameters() => Array.Empty<ParameterInfo>();
+        public override object? Invoke(object?[]? parameters) => Function.Invoke();
+    }
+
+    public class MethodCommandInfo : CommandInfo
+    {
+        /// <summary>
+        /// Gets the <see cref="System.Reflection.MethodInfo"/> this <see cref="CommandInfo"/> is created from.
+        /// </summary>
+        public MethodInfo MethodInfo { get; }
+
+        public object? Object { get; }
+
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null) : base(ids, description)
+        {
+            MethodInfo = methodInfo;
+            Object = @object;
+        }
+
+        public override ParameterInfo[] GetParameters() => MethodInfo.GetParameters();
+        public override object? Invoke(object?[]? parameters) => MethodInfo.Invoke(Object, parameters);
+    }
+
+    public class ProviderCommandInfo : MethodCommandInfo
+    {
+        /// <summary>
+        /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="Id"/> from the source <see cref="CommandProvider.FullNamespace"/>.
+        /// </summary>
+        public bool IsMain { get; }
+
+        public CommandProvider Provider => (CommandProvider)Object!;
+
+        public ProviderCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider) : base(ids, description, methodInfo, provider)
+        {
+            IsMain = methodInfo.Name == CommandEngine.MAIN_COMMAND_ID;
+        }
+    }
+
     /// <summary>
     /// Represents info for a specific command. See <see cref="CommandAttribute"/>.
     /// </summary>
-    public class CommandInfo
+    public abstract class CommandInfo
     {
         /// <summary>
         /// Gets a <see cref="HashSet{T}"/> containing all command ids. Includes <see cref="Id"/>.
@@ -25,27 +72,15 @@ namespace AsitLib.CommandLine
         /// </summary>
         public string Description { get; }
 
-        /// <summary>
-        /// Gets the <see cref="System.Reflection.MethodInfo"/> this <see cref="CommandInfo"/> is created from.
-        /// </summary>
-        public MethodInfo MethodInfo { get; }
-
-        public CommandProvider Provider { get; }
-
-        /// <summary>
-        /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="Id"/> from the source <see cref="CommandProvider.FullNamespace"/>.
-        /// </summary>
-        public bool IsMain { get; }
-
-        public CommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider)
+        public CommandInfo(string[] ids, string description)
         {
             Ids = ids.AsReadOnly();
             Description = description;
-            MethodInfo = methodInfo;
-            Provider = provider;
-            IsMain = methodInfo.Name == CommandEngine.MAIN_COMMAND_ID;
         }
 
-        public override string ToString() => $"{{Id: {Id}, Method: {MethodInfo}, Provider: {Provider?.ToString()}}}";
+        public abstract object? Invoke(object?[]? parameters);
+        public abstract ParameterInfo[] GetParameters();
+
+        //public override string ToString() => $"{{Id: {Id}, Method: {MethodInfo}, Provider: {Provider?.ToString()}}}";
     }
 }

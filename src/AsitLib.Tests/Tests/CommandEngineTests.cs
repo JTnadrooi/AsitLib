@@ -54,8 +54,8 @@ namespace AsitLib.Tests
         [ClassInitialize]
         public static void ClassInit(TestContext context)
         {
-            Engine = new CommandEngine<CommandAttribute, CommandInfo>(CommandInfoFactory.Default)
-                .RegisterProvider(new TestCommandProvider());
+            Engine = new CommandEngine()
+                .RegisterProvider(new TestCommandProvider(), CommandInfoFactory.Default);
         }
 
         [ClassCleanup]
@@ -65,7 +65,7 @@ namespace AsitLib.Tests
         }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        public static CommandEngine<CommandAttribute, CommandInfo> Engine { get; private set; }
+        public static CommandEngine Engine { get; private set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));

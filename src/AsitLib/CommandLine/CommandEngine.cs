@@ -19,59 +19,60 @@ namespace AsitLib.CommandLine
 
     public static class CommandInfoFactory
     {
-        public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, CommandInfo>
+        public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, ProviderCommandInfo>
         {
             public DefaultInfoFactory() { }
-            public CommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-                => new CommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute.Description, methodInfo, provider);
+            public ProviderCommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+                => new ProviderCommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute.Description, methodInfo, provider);
         }
 
         public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();
     }
 
-    public static class CommandEngine
+    public class CommandEngine : IDisposable
     {
         public const string MAIN_COMMAND_ID = "_M";
-    }
 
-    public class CommandEngine<TAttribute, TCommandInfo> : IDisposable where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
-    {
         private bool _disposedValue;
 
         //private readonly FrozenDictionary<string, flagHandler>? flagHandlers;
         private Dictionary<string, CommandProvider> _providers;
-        private Dictionary<string, TCommandInfo> _commands;
-        private Dictionary<string, TCommandInfo> _uniqueCommands;
-        private ICommandInfoFactory<TAttribute, TCommandInfo> _infoFactory;
+        private Dictionary<string, CommandInfo> _commands;
+        private Dictionary<string, CommandInfo> _uniqueCommands;
 
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
-        public ReadOnlyDictionary<string, TCommandInfo> Commands { get; }
-        public ReadOnlyDictionary<string, TCommandInfo> UniqueCommands { get; }
+        public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
+        public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         //public FrozenDictionary<string, FlagHandler> FlagHandlers => flagHandlers ?? throw CommandEngine.GetNotInitializedException();
 
-        public CommandEngine(ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory)
+        public CommandEngine()
         {
-            _infoFactory = infoFactory;
-
             _providers = new Dictionary<string, CommandProvider>();
-            _commands = new Dictionary<string, TCommandInfo>();
-            _uniqueCommands = new Dictionary<string, TCommandInfo>();
+            _commands = new Dictionary<string, CommandInfo>();
+            _uniqueCommands = new Dictionary<string, CommandInfo>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
         }
 
-        public CommandEngine<TAttribute, TCommandInfo> RegisterProvider(CommandProvider provider)
+        public CommandEngine RegisterCommand(MethodInfo method, string description, string[]? aliases = null)
+            => RegisterCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method));
+        public CommandEngine RegisterCommand(Func<object?> func, string id, string description, string[]? aliases = null)
+            => RegisterCommand(new FunctionCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, func));
+        public CommandEngine RegisterCommand(CommandInfo info)
+        {
+            _uniqueCommands.Add(info.Id, info);
+            foreach (string id in info.Ids) _commands.Add(id, info);
+            return this;
+        }
+
+        public CommandEngine RegisterProvider<TAttribute, TCommandInfo>(CommandProvider provider, ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory) where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
         {
             MethodInfo[] commandMethods = provider.GetType().GetMethods();
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
-                {
-                    TCommandInfo info = _infoFactory.Convert(attribute, provider, methodInfo);
-                    _uniqueCommands.Add(info.Id, info);
-                    foreach (string id in info.Ids) _commands.Add(id, info);
-                }
+                    RegisterCommand(infoFactory.Convert(attribute, provider, methodInfo));
             return this;
         }
 
@@ -91,10 +92,10 @@ namespace AsitLib.CommandLine
         public string? ExecuteAndCapture(string[] args)
         {
             ArgumentsInfo argsinfo = Parse(args);
-            if (Commands.TryGetValue(argsinfo.CommandId, out TCommandInfo? commandInfo))
+            if (Commands.TryGetValue(argsinfo.CommandId, out CommandInfo? commandInfo))
             {
-                object?[] conformed = Conform(argsinfo, commandInfo.MethodInfo.GetParameters());
-                return commandInfo.MethodInfo.Invoke(commandInfo.Provider, conformed)?.ToString()!;
+                object?[] conformed = Conform(argsinfo, commandInfo.GetParameters());
+                return commandInfo.Invoke(conformed)?.ToString()!;
 
                 //Console.WriteLine(Commands.ToJoinedString(", "));
                 //Console.WriteLine(argsinfo.ToDisplayString());
