@@ -140,35 +140,35 @@ namespace AsitLib.CommandLine
 
                 if (matchingArgument == null) // no matching argument found.
                 {
-                    if (target.ParameterType == typeof(bool) && target.GetCustomAttribute<AllowAntiArgumentAttribute>() != null)
+                    foreach (Argument arg in info.Arguments)
                     {
-                        foreach (Argument arg in info.Arguments)
+                        if (arg.Target.SanitizedParameterToken == $"no-{targetName}")
                         {
-                            if (arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == $"no-{targetName}")
-                            {
-                                if (arg.Tokens.Length != 0) throw new CommandException("Cannot use antiparameters with arguments.");
-                                result[i] = false;
-                                validTargets.Add(arg.Target.ToString());
-                                break;
-                            }
+                            if (arg.Target.IsShortHand) throw new CommandException($"Shorthand anti-arguments are invalid.");
+                            if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (target.GetCustomAttribute<AllowAntiArgumentAttribute>() == null) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
+                            if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
+
+                            result[i] = false;
+                            validTargets.Add(arg.Target.ToString());
+                            goto Continue;
                         }
-                        continue;
                     }
                     if (target.HasDefaultValue) // but has default value, so set default value.
                     {
                         result[i] = target.DefaultValue;
-                        continue;
+                        goto Continue;
                     }
                     if (nullabilityInfo.WriteState == NullabilityState.Nullable) // but can be null, so set null.
                     {
                         result[i] = null;
-                        continue;
+                        goto Continue;
                     }
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
-
                 result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);
                 validTargets.Add(matchingArgument.Value.Target.ToString());
+            Continue:;
             }
 
             foreach (Argument arg in info.Arguments)
