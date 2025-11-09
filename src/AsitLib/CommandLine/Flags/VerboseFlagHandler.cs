@@ -1,0 +1,33 @@
+﻿using AsitLib.Debug;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AsitLib.CommandLine
+{
+    public class VerboseFlagHandler : FlagHandler
+    {
+        private bool _initialVerboseState;
+
+        private Logger _logger;
+
+        public VerboseFlagHandler(Logger logger) : base("verbose", "Enable verbose logging.", "v")
+        {
+            _initialVerboseState = logger.Silent;
+            _logger = logger;
+        }
+
+        public override void PreCommand(ArgumentsInfo arguments)
+        {
+            _logger.Silent = false;
+        }
+
+        public override void PostCommand(ArgumentsInfo arguments)
+        {
+            _logger.Silent = _initialVerboseState;
+        }
+    }
+}
