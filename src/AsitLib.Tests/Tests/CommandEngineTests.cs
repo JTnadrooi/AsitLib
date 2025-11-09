@@ -145,6 +145,13 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_ToManyArguments_ThrowsCommandException()
+        {
+            Engine.Execute("print hi true doest-exist");
+        }
+
+        [TestMethod]
         public void Execute_VoidReturningCommand_ReturnsNull()
         {
             Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command execute did not return null.");

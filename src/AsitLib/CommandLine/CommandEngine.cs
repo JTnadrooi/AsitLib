@@ -106,6 +106,8 @@ namespace AsitLib.CommandLine
                 foreach (Argument argument in argsInfo.Arguments)
                     if (!validTargets.Contains(argument.Target))
                     {
+                        // weird checks that have to be done like this.
+                        if (!argument.Target.UsesExplicitName) continue;
                         if ((argument.Target.IsShorthand & _shortIdflagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
                             (argument.Target.IsLongForm & _flagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
                         {
