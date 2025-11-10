@@ -128,6 +128,7 @@ namespace AsitLib.CommandLine
                 Argument? matchingArgument = null;
                 NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
                 ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
+                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
                 string? shortHandName = shorthandAttribute == null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
 
                 foreach (Argument arg in info.Arguments)
@@ -135,21 +136,20 @@ namespace AsitLib.CommandLine
                     if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
                         (shortHandName != null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
                     {
+                        if (matchingArgument.HasValue) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
                         matchingArgument = arg;
-                        break;
+                        //break;
                     }
                 }
 
-                if (matchingArgument == null) // no matching argument found.
-                {
+                if (allowAntiArgumentAttribute != null)
                     foreach (Argument arg in info.Arguments)
                     {
-                        AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
-
-                        if (allowAntiArgumentAttribute != null && arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (matchingArgument.HasValue) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
                             if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
@@ -157,6 +157,9 @@ namespace AsitLib.CommandLine
                             goto Continue;
                         }
                     }
+
+                if (matchingArgument == null) // no matching argument found.
+                {
                     if (target.HasDefaultValue) // but has default value, so set default value.
                     {
                         result[i] = target.DefaultValue;

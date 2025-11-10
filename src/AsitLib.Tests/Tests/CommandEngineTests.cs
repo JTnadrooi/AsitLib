@@ -125,6 +125,20 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_DuplicateArguments_ThrowsError()
+        {
+            AssertExecute("print.", "print ahoy --input bonjour");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_DuplicateAntiArguments_ThrowsError()
+        {
+            AssertExecute("Tv.", "tv-enable --color false --disable-color");
+        }
+
+        [TestMethod]
         public void Execute_ParameterNameAttributeName_OverwritesParameterName()
         {
             AssertExecute("Hi, me!", "greet --name me");
