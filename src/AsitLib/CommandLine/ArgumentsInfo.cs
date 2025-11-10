@@ -75,25 +75,28 @@ namespace AsitLib.CommandLine
             Arguments = arguments;
         }
 
-        public string ToDisplayString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("ArgumentsInfo:");
-            sb.AppendLine($"\tCommandId: {this.CommandId}");
-            sb.AppendLine("\tArguments:");
+        //internal string ToDisplayString()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendLine("ArgumentsInfo:");
+        //    sb.AppendLine($"\tCommandId: {this.CommandId}");
+        //    sb.AppendLine("\tArguments:");
 
-            for (int i = 0; i < Arguments.Length; i++)
-            {
-                Argument arg = Arguments[i];
-                sb.AppendLine($"\t\tTarget: {arg.Target}");
-                sb.AppendLine($"\t\tShorthand: {arg.Target.IsShorthand}");
-                sb.AppendLine("\t\tTokens:");
-                foreach (string token in arg.Tokens) sb.AppendLine($"\t\t\t{token}");
-            }
+        //    for (int i = 0; i < Arguments.Length; i++)
+        //    {
+        //        Argument arg = Arguments[i];
+        //        sb.AppendLine($"\t\tTarget: {arg.Target}");
+        //        sb.AppendLine($"\t\tShorthand: {arg.Target.IsShorthand}");
+        //        sb.AppendLine("\t\tTokens:");
+        //        foreach (string token in arg.Tokens) sb.AppendLine($"\t\t\t{token}");
+        //    }
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
 
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
+
+        public static ArgumentsInfo Parse(string args) => ParseHelpers.Parse(args);
+        public static ArgumentsInfo Parse(string[] args) => ParseHelpers.Parse(args);
     }
 }
