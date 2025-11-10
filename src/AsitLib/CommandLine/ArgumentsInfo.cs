@@ -8,8 +8,8 @@ namespace AsitLib.CommandLine
 {
     public readonly struct ArgumentTarget
     {
-        public readonly string? ParameterToken;
-        public readonly int? ParameterIndex;
+        public readonly string? ParameterToken { get; }
+        public readonly int? ParameterIndex { get; }
         public readonly bool IsShorthand => UsesExplicitName && !ParameterToken!.StartsWith("--");
         public readonly bool IsLongForm => UsesExplicitName && ParameterToken!.StartsWith("--");
         public readonly string? SanitizedParameterToken => ParameterToken?.TrimStart('-');
@@ -50,8 +50,8 @@ namespace AsitLib.CommandLine
 
     public readonly struct Argument
     {
-        public readonly ArgumentTarget Target;
-        public readonly string[] Tokens;
+        public readonly ArgumentTarget Target { get; }
+        public readonly string[] Tokens { get; }
 
         public Argument(ArgumentTarget target, string[] tokens)
         {
@@ -64,8 +64,8 @@ namespace AsitLib.CommandLine
 
     public readonly struct ArgumentsInfo
     {
-        public readonly string CommandId;
-        public readonly Argument[] Arguments;
+        public readonly string CommandId { get; }
+        public readonly Argument[] Arguments { get; }
 
         public ArgumentsInfo(string commandId, Argument[] arguments)
         {
@@ -80,9 +80,9 @@ namespace AsitLib.CommandLine
             sb.AppendLine($"\tCommandId: {this.CommandId}");
             sb.AppendLine("\tArguments:");
 
-            for (var i = 0; i < this.Arguments.Length; i++)
+            for (int i = 0; i < Arguments.Length; i++)
             {
-                Argument arg = this.Arguments[i];
+                Argument arg = Arguments[i];
                 sb.AppendLine($"\t\tTarget: {arg.Target}");
                 sb.AppendLine($"\t\tShorthand: {arg.Target.IsShorthand}");
                 sb.AppendLine("\t\tTokens:");
