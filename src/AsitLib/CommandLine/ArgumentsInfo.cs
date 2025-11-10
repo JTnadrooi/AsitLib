@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,12 +52,12 @@ namespace AsitLib.CommandLine
     public readonly struct Argument
     {
         public readonly ArgumentTarget Target { get; }
-        public readonly string[] Tokens { get; }
+        public readonly ReadOnlyCollection<string> Tokens { get; }
 
         public Argument(ArgumentTarget target, string[] tokens)
         {
             Target = target;
-            Tokens = tokens;
+            Tokens = tokens.AsReadOnly();
         }
 
         public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) == null;
@@ -67,12 +68,12 @@ namespace AsitLib.CommandLine
     public readonly struct ArgumentsInfo
     {
         public readonly string CommandId { get; }
-        public readonly Argument[] Arguments { get; }
+        public readonly ReadOnlyCollection<Argument> Arguments { get; }
 
         public ArgumentsInfo(string commandId, Argument[] arguments)
         {
             CommandId = commandId;
-            Arguments = arguments;
+            Arguments = arguments.AsReadOnly();
         }
 
         //internal string ToDisplayString()

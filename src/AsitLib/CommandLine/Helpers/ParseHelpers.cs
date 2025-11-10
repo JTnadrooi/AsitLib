@@ -150,7 +150,7 @@ namespace AsitLib.CommandLine
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
                             if (matchingArgument.HasValue) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
-                            if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
+                            if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
                             validTargets.Add(arg.Target);
@@ -185,9 +185,9 @@ namespace AsitLib.CommandLine
         }
 
         public static object? Convert(string token, Type target) => Convert([token], target);
-        public static object? Convert(string[] tokens, Type target)
+        public static object? Convert(IReadOnlyList<string> tokens, Type target)
         {
-            if (tokens.Length == 0)
+            if (tokens.Count == 0)
             {
                 if (target == typeof(bool)) return true;
                 else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
@@ -196,14 +196,14 @@ namespace AsitLib.CommandLine
             if (target.IsArray)
             {
                 Type elementType = target.GetElementType()!;
-                Array toretArray = Array.CreateInstance(elementType, tokens.Length);
+                Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
-                for (int i = 0; i < tokens.Length; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
+                for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
 
                 return toretArray;
             }
 
-            if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
+            if (tokens.Count > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
 
             string token = tokens[0];
 
