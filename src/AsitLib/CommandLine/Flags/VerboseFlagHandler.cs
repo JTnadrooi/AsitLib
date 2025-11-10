@@ -16,12 +16,12 @@ namespace AsitLib.CommandLine
 
         public VerboseFlagHandler(Logger logger) : base("verbose", "Enable verbose logging.", "v")
         {
-            _initialVerboseState = logger.Silent;
             _logger = logger;
         }
 
         public override void PreCommand(ArgumentsInfo arguments)
         {
+            _initialVerboseState = _logger.Silent;
             _logger.Silent = false;
         }
 
