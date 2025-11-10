@@ -59,6 +59,8 @@ namespace AsitLib.CommandLine
             Tokens = tokens;
         }
 
+        public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) == null;
+
         public override string ToString() => $"{{Target: '{Target}', Tokens: [{Tokens.ToJoinedString(", ")}]}}";
     }
 
