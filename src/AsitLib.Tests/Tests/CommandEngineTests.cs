@@ -180,7 +180,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_VoidReturningCommand_ReturnsNull()
         {
-            Assert.IsTrue(Engine.ExecuteAndCapture("void") == null, "Void command executing did not return null.");
+            Assert.IsNull(Engine.ExecuteAndCapture("void"), "Void command executing did not return null.");
         }
 
         [TestMethod]
