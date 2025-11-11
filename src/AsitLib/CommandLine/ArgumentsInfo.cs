@@ -76,6 +76,17 @@ namespace AsitLib.CommandLine
             Arguments = arguments.AsReadOnly();
         }
 
+        public ReadOnlyCollection<string> GetFlagHandlerArguments(FlagHandler flagHandler)
+        {
+            foreach (Argument argument in Arguments)
+            {
+                if ((argument.Target.IsLongForm && argument.Target.SanitizedParameterToken == flagHandler.LongFormId) ||
+                    (flagHandler.HasShorthandId && argument.Target.IsShorthand && argument.Target.SanitizedParameterToken == flagHandler.ShorthandId))
+                    return argument.Tokens;
+            }
+            throw new InvalidOperationException();
+        }
+
         //internal string ToDisplayString()
         //{
         //    StringBuilder sb = new StringBuilder();

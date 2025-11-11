@@ -1,5 +1,6 @@
 ﻿using AsitLib.CommandLine;
 using AsitLib.CommandLine.Attributes;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace AsitLib.Tests
@@ -22,7 +23,8 @@ namespace AsitLib.Tests
 
         public override object? OnReturned(ArgumentsInfo arguments, object? returned)
         {
-            return "TEST";
+            ReadOnlyCollection<string> args = arguments.GetFlagHandlerArguments(this);
+            return args.Count > 0 ? args[0] : "TEST";
         }
     }
 
@@ -188,6 +190,13 @@ namespace AsitLib.Tests
         {
             AssertExecute("TEST", "void -t");
             AssertExecute("TEST", "void --ret-test");
+        }
+
+        [TestMethod]
+        public void Execute_WithFlagArgument_HandelsFlagArgument()
+        {
+            AssertExecute("AHOY", "void -t AHOY");
+            AssertExecute("AHOY", "void --ret-test AHOY");
         }
     }
 }

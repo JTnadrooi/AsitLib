@@ -175,11 +175,11 @@ namespace AsitLib.CommandLine
 
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
+
                 result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);
                 validTargets.Add(matchingArgument.Value.Target);
             Continue:;
             }
-
 
             return result;
         }
