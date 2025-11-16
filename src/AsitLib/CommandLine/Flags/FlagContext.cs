@@ -11,8 +11,11 @@ namespace AsitLib
     public class FlagContext
     {
         public ArgumentsInfo ArgumentInfo { get; }
-        public FlagContext(ArgumentsInfo arguments)
+        public CommandEngine Source { get; }
+
+        public FlagContext(CommandEngine source, ArgumentsInfo arguments)
         {
+            Source = source;
             ArgumentInfo = arguments;
         }
 

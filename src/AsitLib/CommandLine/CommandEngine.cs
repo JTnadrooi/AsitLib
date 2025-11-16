@@ -97,7 +97,7 @@ namespace AsitLib.CommandLine
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
-                FlagContext context = new FlagContext(argsInfo);
+                FlagContext context = new FlagContext(this, argsInfo);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetParameters());
                 FlagHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
 
