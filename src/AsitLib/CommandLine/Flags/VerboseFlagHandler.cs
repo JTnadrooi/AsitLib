@@ -19,13 +19,13 @@ namespace AsitLib.CommandLine
             _logger = logger;
         }
 
-        public override void PreCommand(ArgumentsInfo arguments)
+        public override void PreCommand(FlagContext context)
         {
             _initialVerboseState = _logger.Silent;
             _logger.Silent = false;
         }
 
-        public override void PostCommand(ArgumentsInfo arguments)
+        public override void PostCommand(FlagContext context)
         {
             _logger.Silent = _initialVerboseState;
         }

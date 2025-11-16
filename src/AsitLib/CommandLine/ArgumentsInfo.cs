@@ -49,15 +49,15 @@ namespace AsitLib.CommandLine
         }
     }
 
-    public readonly struct Argument
+    public sealed class Argument
     {
-        public readonly ArgumentTarget Target { get; }
-        public readonly ReadOnlyCollection<string> Tokens { get; }
+        public ArgumentTarget Target { get; }
+        public IReadOnlyList<string> Tokens { get; }
 
-        public Argument(ArgumentTarget target, string[] tokens)
+        public Argument(ArgumentTarget target, IReadOnlyList<string> tokens)
         {
             Target = target;
-            Tokens = tokens.AsReadOnly();
+            Tokens = tokens;
         }
 
         public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) == null;
@@ -65,26 +65,15 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Target: '{Target}', Tokens: [{Tokens.ToJoinedString(", ")}]}}";
     }
 
-    public readonly struct ArgumentsInfo
+    public sealed class ArgumentsInfo
     {
-        public readonly string CommandId { get; }
-        public readonly ReadOnlyCollection<Argument> Arguments { get; }
+        public string CommandId { get; }
+        public IReadOnlyList<Argument> Arguments { get; }
 
-        public ArgumentsInfo(string commandId, Argument[] arguments)
+        public ArgumentsInfo(string commandId, IReadOnlyList<Argument> arguments)
         {
             CommandId = commandId;
-            Arguments = arguments.AsReadOnly();
-        }
-
-        public ReadOnlyCollection<string> GetFlagHandlerArguments(FlagHandler flagHandler)
-        {
-            foreach (Argument argument in Arguments)
-            {
-                if ((argument.Target.IsLongForm && argument.Target.SanitizedParameterToken == flagHandler.LongFormId) ||
-                    (flagHandler.HasShorthandId && argument.Target.IsShorthand && argument.Target.SanitizedParameterToken == flagHandler.ShorthandId))
-                    return argument.Tokens;
-            }
-            throw new InvalidOperationException();
+            Arguments = arguments;
         }
 
         //internal string ToDisplayString()

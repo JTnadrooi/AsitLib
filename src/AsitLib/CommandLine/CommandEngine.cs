@@ -35,7 +35,6 @@ namespace AsitLib.CommandLine
 
         private bool _disposedValue;
 
-        private readonly Dictionary<string, FlagHandler> _shortIdflagHandlers;
         private readonly Dictionary<string, FlagHandler> _flagHandlers;
         private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
@@ -52,7 +51,6 @@ namespace AsitLib.CommandLine
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
             _flagHandlers = new Dictionary<string, FlagHandler>();
-            _shortIdflagHandlers = new Dictionary<string, FlagHandler>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
@@ -83,7 +81,6 @@ namespace AsitLib.CommandLine
         public CommandEngine RegisterFlagHandler(FlagHandler flagHandler)
         {
             _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
-            if (flagHandler.ShorthandId != null) _shortIdflagHandlers.Add(flagHandler.ShorthandId, flagHandler);
             return this;
         }
 
@@ -100,32 +97,19 @@ namespace AsitLib.CommandLine
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
-                object?[] conformed = Conform(argsInfo, commandInfo.GetParameters(), out HashSet<ArgumentTarget> validTargets);
-                List<FlagHandler> pendingFlagHandlers = new List<FlagHandler>();
+                FlagContext context = new FlagContext(argsInfo);
+                object?[] conformed = Conform(ref argsInfo, commandInfo.GetParameters());
+                FlagHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
 
-                foreach (Argument argument in argsInfo.Arguments)
-                    if (!validTargets.Contains(argument.Target))
-                    {
-                        // weird checks that have to be done like this.
-                        if (!argument.Target.UsesExplicitName) continue;
-                        if ((argument.Target.IsShorthand & _shortIdflagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
-                            (argument.Target.IsLongForm & _flagHandlers.TryGetValue(argument.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
-                        {
-                            validTargets.Add(argument.Target);
-                            pendingFlagHandlers.Add((fhShorthand ?? fhLongForm)!);
-                        }
-                    }
+                if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
-                foreach (FlagHandler flagHandler in pendingFlagHandlers) flagHandler.PreCommand(argsInfo);
+                foreach (FlagHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
                 object? returned = commandInfo.Invoke(conformed);
-                foreach (FlagHandler flagHandler in pendingFlagHandlers)
+                foreach (FlagHandler flagHandler in pendingFlags)
                 {
-                    returned = flagHandler.OnReturned(argsInfo, returned);
-                    flagHandler.PostCommand(argsInfo);
+                    returned = flagHandler.OnReturned(context, returned);
+                    flagHandler.PostCommand(context);
                 }
-
-                foreach (Argument argument in argsInfo.Arguments)
-                    if (!validTargets.Contains(argument.Target)) throw new CommandException($"No parameter or flag found for argument target '{argument.Target}'");
 
                 return returned?.ToString();
             }

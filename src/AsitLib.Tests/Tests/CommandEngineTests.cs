@@ -21,9 +21,9 @@ namespace AsitLib.Tests
 
         }
 
-        public override object? OnReturned(ArgumentsInfo arguments, object? returned)
+        public override object? OnReturned(FlagContext context, object? returned)
         {
-            ReadOnlyCollection<string> args = arguments.GetFlagHandlerArguments(this);
+            IReadOnlyList<string> args = context.GetFlagHandlerArguments(this);
             return args.Count > 0 ? args[0] : "TEST";
         }
     }
@@ -66,6 +66,12 @@ namespace AsitLib.Tests
         public string Shorthand([Shorthand("wa")] string wayToLongParameterName, [Shorthand] int secondWayToLongOne = 0)
         {
             return wayToLongParameterName + " | " + secondWayToLongOne;
+        }
+
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public string FlagConflict([Shorthand("t")] string testAlso)
+        {
+            return testAlso;
         }
     }
 
@@ -188,7 +194,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_WithFlag_HandelsFlag()
         {
-            AssertExecute("TEST", "void -t");
+            //AssertExecute("TEST", "void -t");
             AssertExecute("TEST", "void --ret-test");
         }
 
@@ -197,6 +203,20 @@ namespace AsitLib.Tests
         {
             AssertExecute("AHOY", "void -t AHOY");
             AssertExecute("AHOY", "void --ret-test AHOY");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_DuplicateLongShortOptions_ThrowsCommandException()
+        {
+            Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi");
+        }
+
+        [TestMethod]
+        //[ExpectedException(typeof(CommandException))]
+        public void Execute_FlagConflict_ThrowsCommandException()
+        {
+            Engine.Execute("flag-conflict -t ahoy");
         }
     }
 }

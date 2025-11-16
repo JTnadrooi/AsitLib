@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
@@ -114,12 +115,43 @@ namespace AsitLib.CommandLine
             return new ArgumentsInfo(args[0], arguments.ToArray());
         }
 
-        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets) => Conform(info, targets, out _);
-        public static object?[] Conform(ArgumentsInfo info, ParameterInfo[] targets, out HashSet<ArgumentTarget> validTargets)
+        public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
+        {
+            List<FlagHandler> toret = new List<FlagHandler>();
+            HashSet<Argument> validArguments = new HashSet<Argument>();
+
+            foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
+                foreach (FlagHandler flagHandler in flagHandlers)
+                {
+                    if ((arg.Target.IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == arg.Target.SanitizedParameterToken) ||
+                        (arg.Target.IsLongForm && flagHandler.LongFormId == arg.Target.SanitizedParameterToken))
+                    {
+                        toret.Add(flagHandler);
+                        if (!validArguments.Add(arg))
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+
+            //foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
+            //    if ((arg.Target.IsShorthand & shortIdflagHandlers.TryGetValue(arg.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
+            //                (arg.Target.IsLongForm & longIdFlagHandlers.TryGetValue(arg.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
+            //    {
+            //        toret.Add((fhShorthand ?? fhLongForm)!);
+            //        validArguments.Add(arg);
+            //    }
+            //    else throw new Exception();
+
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
+            return toret.ToArray();
+        }
+
+        public static object?[] Conform(ref ArgumentsInfo argsInfo, ParameterInfo[] targets)
         {
             object?[] result = new object?[targets.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
-            validTargets = new HashSet<ArgumentTarget>();
+            HashSet<Argument> validArguments = new HashSet<Argument>();
 
             for (int i = 0; i < targets.Length; i++)
             {
@@ -131,29 +163,29 @@ namespace AsitLib.CommandLine
                 AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
                 string? shortHandName = shorthandAttribute == null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
 
-                foreach (Argument arg in info.Arguments)
+                foreach (Argument arg in argsInfo.Arguments)
                 {
                     if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
                         (shortHandName != null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
                     {
-                        if (matchingArgument.HasValue) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                        if (matchingArgument != null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
                         matchingArgument = arg;
                         //break;
                     }
                 }
 
                 if (allowAntiArgumentAttribute != null)
-                    foreach (Argument arg in info.Arguments)
+                    foreach (Argument arg in argsInfo.Arguments)
                     {
                         if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-                            if (matchingArgument.HasValue) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                            if (matchingArgument != null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
                             if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
-                            validTargets.Add(arg.Target);
+                            validArguments.Add(arg);
                             goto Continue;
                         }
                     }
@@ -176,10 +208,12 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = Convert(matchingArgument.Value.Tokens, target.ParameterType);
-                validTargets.Add(matchingArgument.Value.Target);
+                result[i] = Convert(matchingArgument.Tokens, target.ParameterType);
+                validArguments.Add(matchingArgument);
             Continue:;
             }
+
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
 
             return result;
         }
