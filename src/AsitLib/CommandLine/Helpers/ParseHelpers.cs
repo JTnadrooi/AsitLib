@@ -193,7 +193,7 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = Convert(matchingArgument.Tokens, target.ParameterType);
+                result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target);
                 validArguments.Add(matchingArgument);
             Continue:;
             }
@@ -203,11 +203,14 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? Convert(string token, Type target) => Convert([token], target);
-        public static object? Convert(IReadOnlyList<string> tokens, Type target)
+        public static object? Convert(string token, Type target, ParameterInfo? parameter = null) => Convert([token], target, parameter);
+        public static object? Convert(IReadOnlyList<string> tokens, Type target, ParameterInfo? parameter = null)
         {
+            ImplicitValueAttribute? implicitValueAttribute = parameter?.GetCustomAttribute<ImplicitValueAttribute>();
+
             if (tokens.Count == 0)
             {
+                if (implicitValueAttribute != null) return implicitValueAttribute.Value;
                 if (target == typeof(bool)) return true;
                 else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
             }
@@ -217,7 +220,7 @@ namespace AsitLib.CommandLine
                 Type elementType = target.GetElementType()!;
                 Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
-                for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
+                for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType, null), i);
 
                 return toretArray;
             }

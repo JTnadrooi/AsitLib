@@ -62,6 +62,12 @@ namespace AsitLib.Tests
 
         }
 
+        [CommandAttribute("desc", inheritNamespace: false, id: "impl")]
+        public int ImplicitValueAttributeTest([ImplicitValue(1)] int value = 0)
+        {
+            return value;
+        }
+
         [CommandAttribute("desc", inheritNamespace: false)]
         public string Shorthand([Shorthand("wa")] string wayToLongParameterName, [Shorthand] int secondWayToLongOne = 0)
         {
@@ -216,6 +222,14 @@ namespace AsitLib.Tests
         public void Execute_FlagConflict_PreventsFlag()
         {
             AssertExecute("ahoy", "flag-conflict -t ahoy");
+        }
+
+        [TestMethod]
+        public void Execute_ImplicitValueAttribute_UsesImplicitValue()
+        {
+            AssertExecute("0", "impl");
+            AssertExecute("1", "impl --value");
+            AssertExecute("2", "impl --value 2");
         }
     }
 }
