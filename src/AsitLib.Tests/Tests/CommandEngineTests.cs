@@ -213,10 +213,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        //[ExpectedException(typeof(CommandException))]
-        public void Execute_FlagConflict_ThrowsCommandException()
+        public void Execute_FlagConflict_PreventsFlag()
         {
-            Engine.Execute("flag-conflict -t ahoy");
+            AssertExecute("ahoy", "flag-conflict -t ahoy");
         }
     }
 }
