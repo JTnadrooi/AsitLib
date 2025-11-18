@@ -23,8 +23,7 @@ namespace AsitLib
         {
             foreach (Argument argument in ArgumentInfo.Arguments)
             {
-                if ((argument.Target.IsLongForm && argument.Target.SanitizedParameterToken == flagHandler.LongFormId) ||
-                    (flagHandler.HasShorthandId && argument.Target.IsShorthand && argument.Target.SanitizedParameterToken == flagHandler.ShorthandId))
+                if (argument.Target.TargetsFlag(flagHandler))
                     return argument.Tokens;
             }
             throw new InvalidOperationException();

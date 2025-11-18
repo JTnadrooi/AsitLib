@@ -117,31 +117,16 @@ namespace AsitLib.CommandLine
 
         public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
         {
-            List<FlagHandler> toret = new List<FlagHandler>();
+            HashSet<FlagHandler> toret = new HashSet<FlagHandler>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
             foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
                 foreach (FlagHandler flagHandler in flagHandlers)
-                {
-                    if ((arg.Target.IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == arg.Target.SanitizedParameterToken) ||
-                        (arg.Target.IsLongForm && flagHandler.LongFormId == arg.Target.SanitizedParameterToken))
-                    {
-                        toret.Add(flagHandler);
-                        if (!validArguments.Add(arg))
+                    if (arg.Target.TargetsFlag(flagHandler))
+                        if (!validArguments.Add(arg) || !toret.Add(flagHandler))
                         {
                             throw new Exception();
                         }
-                    }
-                }
-
-            //foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
-            //    if ((arg.Target.IsShorthand & shortIdflagHandlers.TryGetValue(arg.Target.SanitizedParameterToken!, out FlagHandler? fhShorthand)) |
-            //                (arg.Target.IsLongForm & longIdFlagHandlers.TryGetValue(arg.Target.SanitizedParameterToken!, out FlagHandler? fhLongForm)))
-            //    {
-            //        toret.Add((fhShorthand ?? fhLongForm)!);
-            //        validArguments.Add(arg);
-            //    }
-            //    else throw new Exception();
 
             argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
             return toret.ToArray();

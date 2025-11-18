@@ -29,6 +29,10 @@ namespace AsitLib.CommandLine
             ParameterIndex = parameterIndex;
         }
 
+        public bool TargetsFlag(FlagHandler flagHandler)
+            => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedParameterToken) ||
+                (IsLongForm && flagHandler.LongFormId == SanitizedParameterToken);
+
         public override string ToString() => UsesExplicitName ? ParameterToken! : ParameterIndex!.ToString()!;
 
         public override bool Equals(object? obj)
