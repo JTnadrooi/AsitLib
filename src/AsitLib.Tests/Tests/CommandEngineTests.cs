@@ -56,6 +56,12 @@ namespace AsitLib.Tests
             return $"Hi, {yourName}!";
         }
 
+        [CommandAttribute("desc", isMain: true)]
+        public void Main()
+        {
+
+        }
+
         [CommandAttribute("desc", inheritNamespace: false)]
         public void Void()
         {
@@ -230,6 +236,12 @@ namespace AsitLib.Tests
             AssertExecute("0", "impl");
             AssertExecute("1", "impl --value");
             AssertExecute("2", "impl --value 2");
+        }
+
+        [TestMethod]
+        public void Execute_Namespace_CallsMainCommand()
+        {
+            Engine.Execute("test");
         }
     }
 }

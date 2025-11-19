@@ -23,7 +23,7 @@ namespace AsitLib.CommandLine
         {
             public DefaultInfoFactory() { }
             public ProviderCommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
-                => new ProviderCommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute.Description, methodInfo, provider);
+                => new ProviderCommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, provider);
         }
 
         public static ICommandInfoFactory<CommandAttribute, CommandInfo> Default { get; } = new DefaultInfoFactory();
@@ -31,8 +31,6 @@ namespace AsitLib.CommandLine
 
     public class CommandEngine : IDisposable
     {
-        public const string MAIN_COMMAND_ID = "_M";
-
         private bool _disposedValue;
 
         private readonly Dictionary<string, FlagHandler> _flagHandlers;
@@ -65,7 +63,8 @@ namespace AsitLib.CommandLine
         public CommandEngine RegisterCommand(CommandInfo info)
         {
             _uniqueCommands.Add(info.Id, info);
-            foreach (string id in info.Ids) _commands.Add(id, info);
+            foreach (string id in info.Ids)
+                if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
             return this;
         }
 

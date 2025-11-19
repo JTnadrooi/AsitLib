@@ -49,9 +49,9 @@ namespace AsitLib.CommandLine
 
         public CommandProvider Provider => (CommandProvider)Object!;
 
-        public ProviderCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider) : base(ids, description, methodInfo, provider)
+        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider)
         {
-            IsMain = methodInfo.Name == CommandEngine.MAIN_COMMAND_ID;
+            IsMain = attribute.IsMain;
         }
     }
 

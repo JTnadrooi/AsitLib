@@ -25,6 +25,8 @@ namespace AsitLib.CommandLine
         /// Gets the command aliases. Any <see cref="string"/> objects here will be provided as an alternative <see cref="CommandInfo.Id"/> in command calls. See <see cref="CommandInfo.Ids"/>.
         /// </summary>
         public string[] Aliases { get; }
+
+        public bool IsMain { get; }
         /// <summary>
         /// Initializes an instance of <see cref="CommandAttribute"/> by using specified command parameters.
         /// </summary>
@@ -35,12 +37,14 @@ namespace AsitLib.CommandLine
             string description,
             string? id = null,
             string[]? aliases = null,
-            bool inheritNamespace = true)
+            bool inheritNamespace = true,
+            bool isMain = false)
         {
             Id = id;
             Description = description;
             Aliases = aliases ?? Array.Empty<string>();
             InheritNamespace = inheritNamespace;
+            IsMain = isMain;
         }
     }
 }
