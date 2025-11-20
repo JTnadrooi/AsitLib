@@ -1,5 +1,5 @@
 ﻿using AsitLib.CommandLine;
-using AsitLib.Debug;
+using AsitLib.Logging;
 using AsitLib.Stele;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

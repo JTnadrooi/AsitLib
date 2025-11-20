@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 #nullable enable
 
-namespace AsitLib.Debug
+namespace AsitLib.Logging
 {
     public sealed class Logger
     {
