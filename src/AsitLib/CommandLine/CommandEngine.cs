@@ -58,8 +58,8 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RegisterCommand(MethodInfo method, string description, string[]? aliases = null)
             => RegisterCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method));
-        public CommandEngine RegisterCommand(Func<object?> func, string id, string description, string[]? aliases = null)
-            => RegisterCommand(new FunctionCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, func));
+        public CommandEngine RegisterCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
+            => RegisterCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine RegisterCommand(CommandInfo info)
         {
             _uniqueCommands.Add(info.Id, info);

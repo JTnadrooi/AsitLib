@@ -2,42 +2,40 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class FunctionCommandInfo : CommandInfo
+    public class DelegateCommandInfo : CommandInfo
     {
-        public Func<object?> Function { get; }
+        public Delegate Delegate { get; }
 
-        public FunctionCommandInfo(string[] ids, string description, Func<object?> func) : base(ids, description)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate) : base(ids, description)
         {
-            Function = func;
+            Delegate = @delegate;
         }
 
-        public override ParameterInfo[] GetParameters() => Array.Empty<ParameterInfo>();
-        public override object? Invoke(object?[]? parameters) => Function.Invoke();
+        public override ParameterInfo[] GetParameters() => Delegate.Method.GetParameters();
+        public override object? Invoke(object?[] parameters) => Delegate.DynamicInvoke(parameters);
     }
 
     public class MethodCommandInfo : CommandInfo
     {
-        /// <summary>
-        /// Gets the <see cref="System.Reflection.MethodInfo"/> this <see cref="CommandInfo"/> is created from.
-        /// </summary>
         public MethodInfo MethodInfo { get; }
-
         public object? Object { get; }
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null) : base(ids, description)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null)
+            : base(ids, description)
         {
             MethodInfo = methodInfo;
             Object = @object;
         }
 
         public override ParameterInfo[] GetParameters() => MethodInfo.GetParameters();
-        public override object? Invoke(object?[]? parameters) => MethodInfo.Invoke(Object, parameters);
+        public override object? Invoke(object?[] parameters) => MethodInfo.Invoke(Object, parameters);
     }
 
     public class ProviderCommandInfo : MethodCommandInfo
@@ -78,7 +76,7 @@ namespace AsitLib.CommandLine
             Description = description;
         }
 
-        public abstract object? Invoke(object?[]? parameters);
+        public abstract object? Invoke(object?[] parameters);
         public abstract ParameterInfo[] GetParameters();
 
         //public override string ToString() => $"{{Id: {Id}, Method: {MethodInfo}, Provider: {Provider?.ToString()}}}";
