@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -193,7 +194,7 @@ namespace AsitLib.CommandLine
                     throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName == null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target);
+                result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target.GetCustomAttribute<ImplicitValueAttribute>());
                 validArguments.Add(matchingArgument);
             Continue:;
             }
@@ -203,11 +204,9 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? Convert(string token, Type target, ParameterInfo? parameter = null) => Convert([token], target, parameter);
-        public static object? Convert(IReadOnlyList<string> tokens, Type target, ParameterInfo? parameter = null)
+        public static object? Convert(string token, Type target, ImplicitValueAttribute? implicitValueAttribute = null) => Convert([token], target, implicitValueAttribute);
+        public static object? Convert(IReadOnlyList<string> tokens, Type target, ImplicitValueAttribute? implicitValueAttribute = null)
         {
-            ImplicitValueAttribute? implicitValueAttribute = parameter?.GetCustomAttribute<ImplicitValueAttribute>();
-
             if (tokens.Count == 0)
             {
                 if (implicitValueAttribute != null) return implicitValueAttribute.Value;

@@ -14,6 +14,7 @@ namespace AsitLib.Tests
         Value3 = 3,
     }
 
+    [ImplicitValue("TEST")]
     public class AlwaysReturnTestFlagHandler : FlagHandler
     {
         public AlwaysReturnTestFlagHandler() : base("ret-test", "desc", "t")
@@ -23,8 +24,8 @@ namespace AsitLib.Tests
 
         public override object? OnReturned(FlagContext context, object? returned)
         {
-            IReadOnlyList<string> args = context.GetFlagHandlerArguments(this);
-            return args.Count > 0 ? args[0] : "TEST";
+            if (context.TryGetFlagHandlerArgument<string>(this, out string? value)) return value;
+            else return returned;
         }
     }
 

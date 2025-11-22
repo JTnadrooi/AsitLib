@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine.Attributes
 {
-    [AttributeUsage(AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Class)]
     public class ImplicitValueAttribute : Attribute
     {
         public object Value { get; }

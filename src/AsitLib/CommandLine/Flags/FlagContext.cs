@@ -1,8 +1,10 @@
 ﻿using AsitLib.CommandLine;
+using AsitLib.CommandLine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,14 +21,23 @@ namespace AsitLib
             ArgumentInfo = arguments;
         }
 
-        public IReadOnlyList<string> GetFlagHandlerArguments(FlagHandler flagHandler)
+        public T? GetFlagHandlerArgument<T>(FlagHandler flagHandler)
         {
+            if (TryGetFlagHandlerArgument<T>(flagHandler, out T? value)) return value;
+            else throw new InvalidOperationException($"No flag argument provided for flag '{flagHandler.LongFormId}'.");
+        }
+
+        public bool TryGetFlagHandlerArgument<T>(FlagHandler flagHandler, out T? value)
+        {
+            ImplicitValueAttribute? implicitValueAttribute = flagHandler.GetType().GetCustomAttribute<ImplicitValueAttribute>();
             foreach (Argument argument in ArgumentInfo.Arguments)
-            {
                 if (argument.Target.TargetsFlag(flagHandler))
-                    return argument.Tokens;
-            }
-            throw new InvalidOperationException();
+                {
+                    value = (T?)ParseHelpers.Convert(argument.Tokens, typeof(T), implicitValueAttribute);
+                    return true;
+                }
+            value = default;
+            return false;
         }
     }
 }
