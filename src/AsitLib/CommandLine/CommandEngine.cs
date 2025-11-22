@@ -63,9 +63,13 @@ namespace AsitLib.CommandLine
             => RegisterCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine RegisterCommand(CommandInfo info)
         {
-            _uniqueCommands.Add(info.Id, info);
             foreach (string id in info.Ids)
+            {
+                if (id.StartsWith('-')) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
                 if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
+            }
+
+            _uniqueCommands.Add(info.Id, info);
             return this;
         }
 
