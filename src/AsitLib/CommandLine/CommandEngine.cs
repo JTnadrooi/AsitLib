@@ -75,6 +75,7 @@ namespace AsitLib.CommandLine
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
                     RegisterCommand(infoFactory.Convert(attribute, provider, methodInfo));
+            _providers.Add(provider.Namespace, provider);
             return this;
         }
 
