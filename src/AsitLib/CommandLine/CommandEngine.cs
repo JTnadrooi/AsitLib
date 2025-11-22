@@ -79,7 +79,7 @@ namespace AsitLib.CommandLine
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
                     RegisterCommand(infoFactory.Convert(attribute, provider, methodInfo));
-            _providers.Add(provider.Namespace, provider);
+            if (!_providers.TryAdd(provider.Namespace, provider)) throw new InvalidOperationException($"CommandProvider with duplicate namespace '{provider.Namespace}' found.");
             return this;
         }
 
