@@ -9,6 +9,7 @@
 		<BaseOutputPath>..\..\build</BaseOutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
+		<AssemblyVersion>2.2.0.15</AssemblyVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
