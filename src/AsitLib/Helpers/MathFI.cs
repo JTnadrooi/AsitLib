@@ -22,12 +22,11 @@ namespace AsitLib.Numerics
         public static bool IsNumberic(object value) => IsNumberic(value.GetType());
         public static BigInteger ToBigInteger(object value)
         {
-            if(value == null) throw new ArgumentNullException();
+            if (value == null) throw new ArgumentNullException();
             if (!IsNumberic(value)) throw new InvalidOperationException();
             Type t = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
             return new BigInteger(Convert.ToInt64(value));
         }
-        public static NormalizedRotation GetRotation(float rotation, bool isRadiants) => new NormalizedRotation(rotation, isRadiants);
         public static bool IsNear(float value1, float value2, float diff) => System.Math.Abs(value1 - value2) <= diff;
         public static string AddPrefix(int amount, string suffix)
         {
@@ -137,7 +136,7 @@ namespace AsitLib.Numerics
         public static bool ToBoolPosNeg(float value, bool caseZero = false)
         {
             if (float.IsNaN(value)) throw new InvalidOperationException("Value is not a number.");
-            if(value == float.NegativeInfinity) return false;
+            if (value == float.NegativeInfinity) return false;
             if (value == float.PositiveInfinity) return true;
             if (value == 0) return caseZero;
             return value > 0f ? true : false;
@@ -265,7 +264,7 @@ namespace AsitLib.Numerics
             if (radiants) ToRadiants(toret);
             return toret;
         }
-             
+
         //public static float Diff(float value1, float value2, Range range) => Diff(value1, value2, range.Start.Value, range.End.Value);
     }
 }
