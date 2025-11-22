@@ -45,7 +45,7 @@ namespace AsitLib
             'w', 'x',
             'y', 'z' }.AsReadOnly();
 
-        public const string NULL_STRING = "_NULL_";
+        public const string NULL_STRING = "null";
 
         public static string Reverse(this string str) => string.Join(string.Empty, str.Reverse());
 

@@ -85,6 +85,12 @@ namespace AsitLib.Tests
         {
             return testAlso;
         }
+
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public int[] Array()
+        {
+            return [1, 2, 3, 4];
+        }
     }
 
     [TestClass]
@@ -111,7 +117,7 @@ namespace AsitLib.Tests
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
         public static void AssertExecute(string expected, string[] args)
         {
-            Assert.AreEqual(expected, Engine.ExecuteAndCapture(args));
+            Assert.AreEqual(expected, Engine.Execute(args));
         }
 
         [TestMethod]
@@ -242,6 +248,12 @@ namespace AsitLib.Tests
         public void Execute_Namespace_CallsMainCommand()
         {
             Engine.Execute("test");
+        }
+
+        [TestMethod]
+        public void Execute_ArrayReturningCommand_PrintsValuesOnNewLine()
+        {
+            AssertExecute("1\n2\n3\n4", "array");
         }
     }
 }

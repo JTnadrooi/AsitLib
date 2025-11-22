@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -83,15 +84,36 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public void Execute(string args) => Execute(Split(args));
-        public void Execute(string[] args)
+        public string Execute(string args) => Execute(Split(args));
+        public string Execute(string[] args)
         {
-            string? ret = ExecuteAndCapture(args);
-            if (ret != null) Console.WriteLine(ret);
+            StringBuilder sb = new StringBuilder();
+            object? ret = ExecuteAndCapture(args);
+            switch (ret)
+            {
+                case null:
+                    sb.Append(StringHelpers.NULL_STRING);
+                    break;
+                case string s: // because string inherits IEnumerable<char>.
+                    goto default;
+                case IEnumerable values:
+                    foreach (object v in values)
+                    {
+                        string s = v.ToString()!;
+                        if (s.Contains('\n')) throw new InvalidOperationException("IEnumerable value has newline, this is invalid and will conflict with parsing.");
+                        sb.Append(s).Append("\n");
+                    }
+                    sb.Length--;
+                    break;
+                default:
+                    sb.Append(ret.ToString());
+                    break;
+            }
+            return sb.ToString();
         }
 
-        public string? ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
-        public string? ExecuteAndCapture(string[] args)
+        public object? ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
+        public object? ExecuteAndCapture(string[] args)
         {
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
@@ -110,15 +132,15 @@ namespace AsitLib.CommandLine
                     flagHandler.PostCommand(context);
                 }
 
-                return returned?.ToString();
+                return returned;
             }
             else throw new InvalidOperationException($"Command with ID '{argsInfo.CommandId}' not found.");
         }
 
         public T? ExecuteAndCapture<T>(string args)
-            => (T?)Convert(ExecuteAndCapture(Split(args)) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands."), typeof(T));
+            => (T?)ExecuteAndCapture(Split(args)) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands.");
         public T? ExecuteAndCapture<T>(string[] args)
-            => (T?)Convert(ExecuteAndCapture(args) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands."), typeof(T));
+            => (T?)ExecuteAndCapture(args) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands.");
 
         /// <summary>
         /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
