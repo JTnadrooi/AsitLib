@@ -8,34 +8,34 @@ using System.Text;
 
 namespace AsitLib.Logging
 {
+    public interface ILoggingStyle
+    {
+        public string GetIndentation(int level, bool hasPrefix = false);
+        public string GetHeaderIndentation();
+    }
+
+    public sealed class DefaultLoggingStyle : ILoggingStyle
+    {
+        public string GetIndentation(int level, bool hasPrefix = false)
+        {
+            if (level <= 0) return hasPrefix ? "^" : "^---";
+
+            StringBuilder builder = new StringBuilder(level * 4 + (hasPrefix ? 1 : 4))
+                .Append(' ', level * 4)
+                .Append('^');
+            if (!hasPrefix) builder.Append("---");
+
+            return builder.ToString();
+        }
+
+        public string GetHeaderIndentation() => "^";
+    }
+
     public sealed class Logger
     {
-        public interface IStyle
-        {
-            public string GetIndentation(int level, bool hasPrefix = false);
-            public string GetHeaderIndentation();
-        }
+        public static ILoggingStyle Default { get; } = new DefaultLoggingStyle();
 
-        public sealed class DefaultStyle : IStyle
-        {
-            public string GetIndentation(int level, bool hasPrefix = false)
-            {
-                if (level <= 0) return hasPrefix ? "^" : "^---";
-
-                StringBuilder builder = new StringBuilder(level * 4 + (hasPrefix ? 1 : 4))
-                    .Append(' ', level * 4)
-                    .Append('^');
-                if (!hasPrefix) builder.Append("---");
-
-                return builder.ToString();
-            }
-
-            public string GetHeaderIndentation() => "^";
-        }
-
-        public static IStyle Default { get; } = new DefaultStyle();
-
-        private readonly IStyle _style;
+        private readonly ILoggingStyle _style;
         private readonly Stopwatch?[] _timers;
         private readonly int _maxDepth;
         private static readonly object _consoleLock = new object();
@@ -48,7 +48,7 @@ namespace AsitLib.Logging
         public bool AutoFlush { get; }
         public int DisplaysCapasity { get; }
 
-        public Logger(IStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
+        public Logger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             _style = style ?? Default;
             Out = TextWriter.Synchronized(output ?? Console.Out);
