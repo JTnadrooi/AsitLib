@@ -94,8 +94,22 @@ namespace AsitLib.CommandLine
                 case null:
                     sb.Append(StringHelpers.NULL_STRING);
                     break;
-                case string s: // because string inherits IEnumerable<char>.
-                    goto default;
+                case IDictionary dict:
+                    foreach (DictionaryEntry e in dict)
+                    {
+                        string keyStr = e.Key.ToString()!;
+                        string valueStr = e.Value?.ToString() ?? StringHelpers.NULL_STRING;
+
+                        Func<string, bool> checkIfValid = s => !s.Contains('\n') || !s.Contains('=');
+
+                        if (!checkIfValid(keyStr)) throw new InvalidOperationException("Dictionary key has newline or equals sign (=), this is invalid and will conflict with parsing.");
+                        if (!checkIfValid(valueStr)) throw new InvalidOperationException("Dictionary value has newline or equals sign (=), this is invalid and will conflict with parsing.");
+
+                        sb.Append(keyStr).Append('=').Append(valueStr).Append("\n");
+                    }
+                    sb.Length--;
+                    break;
+                case string s: goto default; // because string inherits IEnumerable<char>.
                 case IEnumerable values:
                     foreach (object v in values)
                     {

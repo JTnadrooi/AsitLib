@@ -91,6 +91,16 @@ namespace AsitLib.Tests
         {
             return [1, 2, 3, 4];
         }
+
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public Dictionary<int, int> Dictionary()
+        {
+            return new Dictionary<int, int> {
+                { 10, 1 },
+                { 20, 2 },
+                { 30, 3 },
+            };
+        }
     }
 
     [TestClass]
@@ -254,6 +264,12 @@ namespace AsitLib.Tests
         public void Execute_ArrayReturningCommand_PrintsValuesOnNewLine()
         {
             AssertExecute("1\n2\n3\n4", "array");
+        }
+
+        [TestMethod]
+        public void Execute_DictionaryReturningCommand_PrintsKeyValuePairsOnNewLine()
+        {
+            AssertExecute("10=1\n20=2\n30=3", "dictionary");
         }
     }
 }
