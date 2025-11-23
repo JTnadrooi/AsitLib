@@ -18,6 +18,9 @@ namespace AsitLib.ConsoleTests
         {
             //LogShowCase();
             //ConsoleAcces.Run();
+            using CommandEngine engine = new CommandEngine();
+
+            Console.WriteLine(engine.Execute(Console.ReadLine()!));
 
             Console.Read();
         }

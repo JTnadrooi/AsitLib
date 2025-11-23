@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using static AsitLib.CommandLine.ParseHelpers;
+using static System.Net.WebRequestMethods;
 
 namespace AsitLib.CommandLine
 {
@@ -55,6 +56,18 @@ namespace AsitLib.CommandLine
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
             FlagHandlers = _flagHandlers.AsReadOnly();
+
+            RegisterCommand(() =>
+            {
+                StringBuilder sb = new StringBuilder();
+                void WriteCommand(CommandInfo cmd) => sb.AppendLine($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetParameters()
+                    .Select(p => $"{p.ParameterType.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? ($"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) ") : " ")}").ToJoinedString("")}" +
+                    $"# {cmd.Description}");
+                //void WriteProvider(CommandProvider provider) => sb.AppendLine($"{provider.Namespace} # {Commands.Values.Where(cmd => (cmd is ProviderCommandInfo pci) && pci.Provider == provider).Count()} commands.");
+
+                foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
+                return sb.ToString();
+            }, "help", "Print help.", ["?", "h"]);
         }
 
         public CommandEngine RegisterCommand(MethodInfo method, string description, string[]? aliases = null)
