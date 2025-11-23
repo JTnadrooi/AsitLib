@@ -228,6 +228,13 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void Execute_FlaggedCommand_CallsCommand()
+        {
+            //AssertExecute("TEST", "void -t");
+            Engine.Execute("--void");
+        }
+
+        [TestMethod]
         public void Execute_WithFlagArgument_HandelsFlagArgument()
         {
             AssertExecute("AHOY", "void -t AHOY");
