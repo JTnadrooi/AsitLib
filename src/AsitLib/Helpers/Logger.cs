@@ -73,7 +73,7 @@ namespace AsitLib.Logging
         {
             void InternalLog(ReadOnlySpan<object?> displays = default)
             {
-                if (msg == null) msg = "_NULL_";
+                if (msg is null) msg = "_NULL_";
                 if (msg == string.Empty) msg = "_EMPTY_";
 
                 string normalizedMsg = NormalizeMessage(msg!, out int delta, out char? prefix);
@@ -126,8 +126,8 @@ namespace AsitLib.Logging
             Stopwatch? sw = EndTiming();
             StringBuilder content = new StringBuilder().Append("<").Append(status);
 
-            if (msg != null) content.Append("; ").Append(msg.TrimEnd('.'));
-            if (sw != null) content.Append(": time taken: ").Append(sw.ElapsedMilliseconds).Append("ms.");
+            if (msg is not null) content.Append("; ").Append(msg.TrimEnd('.'));
+            if (sw is not null) content.Append(": time taken: ").Append(sw.ElapsedMilliseconds).Append("ms.");
 
             return content.ToString();
         }

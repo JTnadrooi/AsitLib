@@ -15,7 +15,7 @@ namespace AsitLib.CommandLine
         public readonly bool IsLongForm => UsesExplicitName && ParameterToken!.StartsWith("--");
         public readonly string? SanitizedParameterToken => ParameterToken?.TrimStart('-');
 
-        public bool UsesExplicitName => ParameterToken != null;
+        public bool UsesExplicitName => ParameterToken is not null;
 
         public ArgumentTarget(string parameterName)
         {
@@ -46,7 +46,7 @@ namespace AsitLib.CommandLine
             unchecked
             {
                 int hashCode = 17;
-                if (ParameterToken != null) hashCode = hashCode * 23 + ParameterToken.GetHashCode();
+                if (ParameterToken is not null) hashCode = hashCode * 23 + ParameterToken.GetHashCode();
                 if (ParameterIndex.HasValue) hashCode = hashCode * 23 + ParameterIndex.GetHashCode();
                 return hashCode;
             }
@@ -64,7 +64,7 @@ namespace AsitLib.CommandLine
             Tokens = tokens;
         }
 
-        public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) == null;
+        public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) is null;
 
         public override string ToString() => $"{{Target: '{Target}', Tokens: [{Tokens.ToJoinedString(", ")}]}}";
     }
