@@ -16,7 +16,7 @@ namespace AsitLib.CommandLine
 		public string Description { get; }
 		public bool HasShorthandId => ShorthandId is not null;
 
-		public FlagHandler(string longFormId, string description, string? shorthandId = null)
+		protected FlagHandler(string longFormId, string description, string? shorthandId = null)
 		{
 			ShorthandId = shorthandId;
 			LongFormId = longFormId;
@@ -26,7 +26,7 @@ namespace AsitLib.CommandLine
 		/// <summary>
 		/// Gets called before the command executes. Only calls if the <see cref="ShouldListen(ArgumentsInfo)"/> returns <see langword="true"/>.
 		/// </summary>
-		/// <param name="arguments">The command arguments. Do not check if this flag is present, that is done by the <see cref="ShouldListen(ArgumentsInfo)"/> method.</param>
+		/// <param name="context">The </param>
 		public virtual void PreCommand(FlagContext context) { }
 
 		/// <summary>
@@ -36,5 +36,25 @@ namespace AsitLib.CommandLine
 		public virtual void PostCommand(FlagContext context) { }
 
 		public virtual object? OnReturned(FlagContext context, object? returned) => returned;
+	}
+
+	/// <summary>
+	/// Represents a command flag listener and handler with input of type <see cref="TInput"/>.
+	/// </summary>
+	/// <typeparam name="TInput">The input type.</typeparam>
+	public abstract class FlagHandler<TInput> : FlagHandler
+	{
+		/// <inheritdoc cref="FlagHandler.FlagHandler(string, string, string?)"/>
+		protected FlagHandler(string longFormId, string description, string? shorthandId = null) : base(longFormId, description, shorthandId)
+		{
+		}
+
+		public override object? OnReturned(FlagContext context, object? returned) => OnReturned(context, context.GetFlagHandlerArgument<TInput>(this), returned);
+		public override void PreCommand(FlagContext context) => PreCommand(context, context.GetFlagHandlerArgument<TInput>(this));
+		public override void PostCommand(FlagContext context) => PostCommand(context, context.GetFlagHandlerArgument<TInput>(this));
+
+		public virtual void PreCommand(FlagContext context, TInput? input) { }
+		public virtual void PostCommand(FlagContext context, TInput? input) { }
+		public virtual object? OnReturned(FlagContext context, TInput? input, object? returned) => returned;
 	}
 }
