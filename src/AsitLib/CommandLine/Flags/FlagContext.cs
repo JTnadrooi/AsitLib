@@ -29,11 +29,10 @@ namespace AsitLib
 
         public bool TryGetFlagHandlerArgument<T>(FlagHandler flagHandler, out T? value)
         {
-            ImplicitValueAttribute? implicitValueAttribute = flagHandler.GetType().GetCustomAttribute<ImplicitValueAttribute>();
             foreach (Argument argument in ArgumentInfo.Arguments)
                 if (argument.Target.TargetsFlag(flagHandler))
                 {
-                    value = (T?)ParseHelpers.Convert(argument.Tokens, typeof(T), implicitValueAttribute);
+                    value = (T?)ParseHelpers.Convert(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true));
                     return true;
                 }
             value = default;

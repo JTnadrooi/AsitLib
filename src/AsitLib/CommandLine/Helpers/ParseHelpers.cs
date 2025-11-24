@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
@@ -15,236 +16,274 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsitLib.CommandLine
 {
-	public static class ParseHelpers
-	{
-		public static string ParseSignature(ParameterInfo parameterInfo)
-		{
-			CustomSignatureAttribute? a = parameterInfo.GetCustomAttribute<CustomSignatureAttribute>();
-			return a is null ? ParseSignature(parameterInfo.Name!) : (a.Name ?? parameterInfo.Name!);
-		}
-		public static string ParseSignature(MemberInfo memberInfo)
-		{
-			CustomSignatureAttribute? a = memberInfo.GetCustomAttribute<CustomSignatureAttribute>();
-			return a is null ? ParseSignature(memberInfo.Name) : (a.Name ?? memberInfo.Name);
-		}
-		public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+    public static class ParseHelpers
+    {
+        /// <summary>
+        /// Validates if a command <paramref name="argument"/> against the <see cref="ValidationAttribute"/> attributes on the <see cref="ParameterInfo"/>.
+        /// </summary>
+        /// <param name="argument">The argument to validate.</param>
+        /// <param name="parameter">The parameter to get the <see cref="ValidationAttribute"/> attributes from.</param>
+        /// <exception cref="ArgumentException">Argument is not valid.</exception>
+        public static void ValidateArgument(object? argument, IEnumerable<ValidationAttribute> validationAttributes)
+        {
+        }
 
-		public static string[] Split(string str)
-		{
-			List<string> result = new List<string>();
-			StringBuilder sb = new StringBuilder();
-			bool inQuotes = false;
+        public static string ParseSignature(ParameterInfo parameterInfo)
+        {
+            CustomSignatureAttribute? a = parameterInfo.GetCustomAttribute<CustomSignatureAttribute>();
+            return a is null ? ParseSignature(parameterInfo.Name!) : (a.Name ?? parameterInfo.Name!);
+        }
 
-			for (int i = 0; i < str.Length; i++)
-			{
-				char c = str[i];
-				bool escaped = i > 0 && str[i - 1] == '\\';
+        public static string ParseSignature(MemberInfo memberInfo)
+        {
+            CustomSignatureAttribute? a = memberInfo.GetCustomAttribute<CustomSignatureAttribute>();
+            return a is null ? ParseSignature(memberInfo.Name) : (a.Name ?? memberInfo.Name);
+        }
 
-				if (c == '"')
-				{
-					if (!escaped)
-					{
-						inQuotes = !inQuotes;
-						continue;
-					}
-					else if (sb.Length > 0 && sb[^1] == '\\') sb.Remove(sb.Length - 1, 1);
-				}
-				else if (char.IsWhiteSpace(c) && !inQuotes)
-				{
-					if (sb.Length > 0)
-					{
-						result.Add(sb.ToString());
-						sb.Clear();
-					}
-					continue;
-				}
+        public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
-				sb.Append(c);
-			}
+        public static string[] Split(string str)
+        {
+            List<string> result = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            bool inQuotes = false;
 
-			if (sb.Length > 0) result.Add(sb.ToString());
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                bool escaped = i > 0 && str[i - 1] == '\\';
 
-			return result.ToArray();
-		}
+                if (c == '"')
+                {
+                    if (!escaped)
+                    {
+                        inQuotes = !inQuotes;
+                        continue;
+                    }
+                    else if (sb.Length > 0 && sb[^1] == '\\') sb.Remove(sb.Length - 1, 1);
+                }
+                else if (char.IsWhiteSpace(c) && !inQuotes)
+                {
+                    if (sb.Length > 0)
+                    {
+                        result.Add(sb.ToString());
+                        sb.Clear();
+                    }
+                    continue;
+                }
 
-		public static ArgumentsInfo Parse(string args) => Parse(Split(args));
-		public static ArgumentsInfo Parse(string[] args)
-		{
-			if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
+                sb.Append(c);
+            }
 
-			List<string> currentValues = new List<string>();
-			List<Argument> arguments = new List<Argument>();
-			string? currentName = null;
-			int position = 0;
-			bool noMoreParams = false;
-			string token = string.Empty;
+            if (sb.Length > 0) result.Add(sb.ToString());
 
-			void PushArgument()
-			{
-				arguments.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
-				currentValues.Clear();
-			}
+            return result.ToArray();
+        }
 
-			for (int i = 1; i < args.Length; i++)
-			{
-				token = args[i];
+        public static ArgumentsInfo Parse(string args) => Parse(Split(args));
+        public static ArgumentsInfo Parse(string[] args)
+        {
+            if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
 
-				if (!noMoreParams && token == "--")
-				{
-					noMoreParams = true;
-					continue;
-				}
+            List<string> currentValues = new List<string>();
+            List<Argument> arguments = new List<Argument>();
+            string? currentName = null;
+            int position = 0;
+            bool noMoreParams = false;
+            string token = string.Empty;
 
-				if (!noMoreParams && token.StartsWith("-"))
-				{
-					if (currentName is not null)
-					{
-						PushArgument();
-					}
+            void PushArgument()
+            {
+                arguments.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
+                currentValues.Clear();
+            }
 
-					currentName = token;
-				}
-				else
-				{
-					if (currentName is null) arguments.Add(new Argument(new ArgumentTarget(position++), [token]));
-					else currentValues.Add(token);
-				}
-			}
+            for (int i = 1; i < args.Length; i++)
+            {
+                token = args[i];
 
-			if (currentName is not null) PushArgument();
+                if (!noMoreParams && token == "--")
+                {
+                    noMoreParams = true;
+                    continue;
+                }
 
-			return new ArgumentsInfo(args[0], arguments.ToArray());
-		}
+                if (!noMoreParams && token.StartsWith("-"))
+                {
+                    if (currentName is not null)
+                    {
+                        PushArgument();
+                    }
 
-		public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
-		{
-			HashSet<FlagHandler> toret = new HashSet<FlagHandler>();
-			HashSet<Argument> validArguments = new HashSet<Argument>();
+                    currentName = token;
+                }
+                else
+                {
+                    if (currentName is null) arguments.Add(new Argument(new ArgumentTarget(position++), [token]));
+                    else currentValues.Add(token);
+                }
+            }
 
-			foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
-				foreach (FlagHandler flagHandler in flagHandlers)
-					if (arg.Target.TargetsFlag(flagHandler))
-						if (!validArguments.Add(arg) || !toret.Add(flagHandler))
-						{
-							throw new Exception();
-						}
+            if (currentName is not null) PushArgument();
 
-			argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
-			return toret.ToArray();
-		}
+            return new ArgumentsInfo(args[0], arguments.ToArray());
+        }
 
-		public static object?[] Conform(ref ArgumentsInfo argsInfo, ParameterInfo[] targets)
-		{
-			object?[] result = new object?[targets.Length];
-			NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
-			HashSet<Argument> validArguments = new HashSet<Argument>();
+        public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
+        {
+            HashSet<FlagHandler> toret = new HashSet<FlagHandler>();
+            HashSet<Argument> validArguments = new HashSet<Argument>();
 
-			for (int i = 0; i < targets.Length; i++)
-			{
-				ParameterInfo target = targets[i];
-				string targetName = ParseSignature(target);
-				Argument? matchingArgument = null;
-				NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
-				ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
-				AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
-				string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
+            foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
+                foreach (FlagHandler flagHandler in flagHandlers)
+                    if (arg.Target.TargetsFlag(flagHandler))
+                        if (!validArguments.Add(arg) || !toret.Add(flagHandler))
+                        {
+                            throw new Exception();
+                        }
 
-				foreach (Argument arg in argsInfo.Arguments)
-				{
-					if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
-						(shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
-					{
-						if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
-						matchingArgument = arg;
-						//break;
-					}
-				}
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
+            return toret.ToArray();
+        }
 
-				if (allowAntiArgumentAttribute is not null)
-					foreach (Argument arg in argsInfo.Arguments)
-					{
-						if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
-						{
-							if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
-							if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-							if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
-							if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
+        public static object?[] Conform(ref ArgumentsInfo argsInfo, ParameterInfo[] targets)
+        {
+            object?[] result = new object?[targets.Length];
+            NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
+            HashSet<Argument> validArguments = new HashSet<Argument>();
 
-							result[i] = false;
-							validArguments.Add(arg);
-							goto Continue;
-						}
-					}
+            for (int i = 0; i < targets.Length; i++)
+            {
+                ParameterInfo target = targets[i];
+                string targetName = ParseSignature(target);
+                Argument? matchingArgument = null;
+                NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
+                ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
+                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
+                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
 
-				if (matchingArgument is null) // no matching argument found.
-				{
-					if (target.HasDefaultValue) // but has default value, so set default value.
-					{
-						result[i] = target.DefaultValue;
-						goto Continue;
-					}
-					if (nullabilityInfo.WriteState == NullabilityState.Nullable) // but can be null, so set null.
-					{
-						result[i] = null;
-						goto Continue;
-					}
+                foreach (Argument arg in argsInfo.Arguments)
+                {
+                    if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
+                        (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
+                    {
+                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                        matchingArgument = arg;
+                        //break;
+                    }
+                }
 
-					//if (matchingArgument.Value.Target.UsesExplicitName.) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
+                if (allowAntiArgumentAttribute is not null)
+                    foreach (Argument arg in argsInfo.Arguments)
+                    {
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
+                        {
+                            if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
+                            if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                            if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
-					throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
-				}
+                            result[i] = false;
+                            validArguments.Add(arg);
+                            goto Continue;
+                        }
+                    }
 
-				result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target.GetCustomAttribute<ImplicitValueAttribute>());
-				validArguments.Add(matchingArgument);
-			Continue:;
-			}
+                if (matchingArgument is null) // no matching argument found.
+                {
+                    if (target.HasDefaultValue) // but has default value, so set default value.
+                    {
+                        result[i] = target.DefaultValue;
+                        goto Continue;
+                    }
+                    if (nullabilityInfo.WriteState == NullabilityState.Nullable) // but can be null, so set null.
+                    {
+                        result[i] = null;
+                        goto Continue;
+                    }
 
-			argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
+                    //if (matchingArgument.Value.Target.UsesExplicitName.) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
 
-			return result;
-		}
+                    throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
+                }
 
-		public static object? Convert(string token, Type target, ImplicitValueAttribute? implicitValueAttribute = null) => Convert([token], target, implicitValueAttribute);
-		public static object? Convert(IReadOnlyList<string> tokens, Type target, ImplicitValueAttribute? implicitValueAttribute = null)
-		{
-			if (tokens.Count == 0)
-			{
-				if (implicitValueAttribute is not null) return implicitValueAttribute.Value;
-				if (target == typeof(bool)) return true;
-				else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
-			}
+                result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target.GetCustomAttributes(true));
+                validArguments.Add(matchingArgument);
+            Continue:;
+            }
 
-			if (target.IsArray)
-			{
-				Type elementType = target.GetElementType()!;
-				Array toretArray = Array.CreateInstance(elementType, tokens.Count);
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
 
-				for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType, null), i);
+            return result;
+        }
 
-				return toretArray;
-			}
+        public static object? Convert(string token, Type target, IEnumerable<object>? attributes = null) => Convert([token], target, attributes);
+        public static object? Convert(IReadOnlyList<string> tokens, Type target, IEnumerable<object>? attributes = null)
+        {
+            ImplicitValueAttribute? implicitValueAttribute = null;
+            List<ValidationAttribute> validationAttributes = new List<ValidationAttribute>();
 
-			if (tokens.Count > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
+            foreach (object attribute in attributes ?? Enumerable.Empty<object>())
+                switch (attribute)
+                {
+                    case ValidationAttribute a:
+                        validationAttributes.Add(a);
+                        break;
+                    case ImplicitValueAttribute a:
+                        implicitValueAttribute = a;
+                        break;
+                }
 
-			string token = tokens[0];
+            object? ConvertPrivate()
+            {
+                if (tokens.Count == 0)
+                {
+                    if (implicitValueAttribute is not null) return implicitValueAttribute.Value;
+                    if (target == typeof(bool)) return true;
+                    else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
+                }
 
-			if (target.IsEnum)
-			{
-				if (int.TryParse(token, out int result)) return Enum.ToObject(target, result);
+                if (target.IsArray)
+                {
+                    Type elementType = target.GetElementType()!;
+                    Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
-				//Dictionary<string, string> names = ((IEnumerable<int>)Enum.GetValues(target))
-				Dictionary<string, string> names = target
-					.GetFields(BindingFlags.Public | BindingFlags.Static)
-					.Select(f => new KeyValuePair<string, string>(ParseSignature(f), f.Name))
-					.ToDictionary();
+                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
 
-				foreach (KeyValuePair<string, string> kvp in names)
-					if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target, kvp.Value);
+                    return toretArray;
+                }
 
-				throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
-			}
+                if (tokens.Count > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{target}' type.");
 
-			return System.Convert.ChangeType(token, target);
-		}
-	}
+                string token = tokens[0];
+
+                if (target.IsEnum)
+                {
+                    if (int.TryParse(token, out int result)) return Enum.ToObject(target, result);
+
+                    Dictionary<string, string> names = target
+                        .GetFields(BindingFlags.Public | BindingFlags.Static)
+                        .Select(f => new KeyValuePair<string, string>(ParseSignature(f), f.Name))
+                        .ToDictionary();
+
+                    foreach (KeyValuePair<string, string> kvp in names)
+                        if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target, kvp.Value);
+
+                    throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
+                }
+
+                return System.Convert.ChangeType(token, target);
+            }
+
+            object? toret = ConvertPrivate();
+
+            foreach (ValidationAttribute attribute in validationAttributes)
+            {
+                ValidationResult? result = attribute.GetValidationResult(toret, new ValidationContext(toret!) { DisplayName = "INPUT" });
+                if (result != ValidationResult.Success) throw new CommandException($"Argument value '{toret}' is invalid: {result!.ErrorMessage}");
+            }
+
+            return toret;
+        }
+    }
 }

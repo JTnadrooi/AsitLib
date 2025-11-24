@@ -1,6 +1,7 @@
 ﻿using AsitLib.CommandLine;
 using AsitLib.CommandLine.Attributes;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace AsitLib.Tests
@@ -101,6 +102,12 @@ namespace AsitLib.Tests
                 { 20, 2 },
                 { 30, 3 },
             };
+        }
+
+        [CommandAttribute("desc", inheritNamespace: false)]
+        public void Validation([Range(0, 10)] int i)
+        {
+
         }
     }
 
@@ -278,6 +285,13 @@ namespace AsitLib.Tests
         public void Execute_DictionaryReturningCommand_PrintsKeyValuePairsOnNewLine()
         {
             AssertExecute("10=1\n20=2\n30=3", "dictionary");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CommandException))]
+        public void Execute_WithDataAnnotatedInvalidCommand_ThrowsError()
+        {
+            Engine.Execute("validation 11");
         }
     }
 }
