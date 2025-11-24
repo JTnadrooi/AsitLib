@@ -10,15 +10,17 @@ using System.Threading.Tasks;
 
 namespace AsitLib
 {
-    public class FlagContext
+    public sealed class FlagContext
     {
-        public ArgumentsInfo ArgumentInfo { get; }
-        public CommandEngine Source { get; }
+        public ArgumentsInfo ArgumentsInfo { get; internal set; }
+        public CommandEngine Source { get; internal set; }
+        public CommandContext? CommandContext { get; internal set; }
 
-        public FlagContext(CommandEngine source, ArgumentsInfo arguments)
+        internal FlagContext(CommandEngine source, ArgumentsInfo argumentsInfo, CommandContext? commandContext = null)
         {
+            ArgumentsInfo = argumentsInfo;
             Source = source;
-            ArgumentInfo = arguments;
+            CommandContext = commandContext;
         }
 
         public T? GetFlagHandlerArgument<T>(FlagHandler flagHandler)
@@ -29,7 +31,7 @@ namespace AsitLib
 
         public bool TryGetFlagHandlerArgument<T>(FlagHandler flagHandler, out T? value)
         {
-            foreach (Argument argument in ArgumentInfo.Arguments)
+            foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(flagHandler))
                 {
                     value = (T?)ParseHelpers.Convert(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true));

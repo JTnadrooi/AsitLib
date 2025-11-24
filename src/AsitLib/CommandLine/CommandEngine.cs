@@ -161,16 +161,26 @@ namespace AsitLib.CommandLine
                 FlagContext context = new FlagContext(this, argsInfo);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetParameters());
                 FlagHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
+                CommandContext commandContext = CommandContext.Default;
 
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
                 foreach (FlagHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
-                object? returned = commandInfo.Invoke(conformed);
                 foreach (FlagHandler flagHandler in pendingFlags)
                 {
-                    returned = flagHandler.OnReturned(context, returned);
-                    flagHandler.PostCommand(context);
+                    commandContext = commandContext.Layer(flagHandler.GetCommandContext(context));
                 }
+
+                context.CommandContext = commandContext;
+
+                object? returned = commandContext.Flags.HasFlag(CommandContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+
+                if (!commandContext.Flags.HasFlag(CommandContextFlags.PreventFlags))
+                    foreach (FlagHandler flagHandler in pendingFlags)
+                    {
+                        returned = flagHandler.OnReturned(context, returned);
+                        flagHandler.PostCommand(context);
+                    }
 
                 return returned;
             }
