@@ -6,45 +6,47 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    /// <summary>
+    /// Marks a method as a command and provides related metadata.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute
     {
         /// <summary>
-        /// Gets the <see cref="CommandInfo.Id"/>. If <see langword="null"/>, the <see cref="CommandInfo.Id"/> will be the name of the method converted to lowercase using <see cref="string.ToLower()"/>.
+        /// Gets the command identifier. 
+        /// If not specified, <see cref="ParseHelpers.ParseSignature(System.Reflection.MemberInfo)"/> is used to derive one from the method name.
         /// </summary>
-        public string? Id { get; }
-        /// <summary>
-        /// Gets the command description. Will be displayed in the <see cref="CLICommandProvider.Help(string?)"/> command.
-        /// </summary>
-        public string Description { get; }
-        /// <summary>
-        /// Gets if the <see cref="CommandProvider.FullNamespace"/> should be prefixed to the <see cref="CommandInfo.Id"/>, separated by a dash.
-        /// </summary>
-        public bool InheritNamespace { get; }
-        /// <summary>
-        /// Gets the command aliases. Any <see cref="string"/> objects here will be provided as an alternative <see cref="CommandInfo.Id"/> in command calls. See <see cref="CommandInfo.Ids"/>.
-        /// </summary>
-        public string[] Aliases { get; }
+        public string? Id { get; init; }
 
-        public bool IsMain { get; }
         /// <summary>
-        /// Initializes an instance of <see cref="CommandAttribute"/> by using specified command parameters.
+        /// Gets the description.
         /// </summary>
-        /// <param name="description"><inheritdoc cref="Description" path="/summary"/></param>
-        /// <param name="id"><inheritdoc cref="Id" path="/summary"/></param>
-        /// <param name="inheritNamespace"><inheritdoc cref="InheritNamespace" path="/summary"/></param>
-        public CommandAttribute(
-            string description,
-            string? id = null,
-            string[]? aliases = null,
-            bool inheritNamespace = true,
-            bool isMain = false)
+        public string Description { get; init; }
+
+        /// <summary>
+        /// Gets whether the provider namespace is prefixed to the identifier.
+        /// </summary>
+        public bool InheritNamespace { get; init; }
+
+        /// <summary>
+        /// Gets alternative identifiers for invoking the command.
+        /// </summary>
+        public string[] Aliases { get; init; }
+
+        /// <summary>
+        /// Gets whether this command's <see cref="Id"/> will be equal to the encapsulating <see cref="CommandProvider.Namespace"/>.
+        /// </summary>
+        public bool IsMain { get; init; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandAttribute"/> with the specified <see cref="Description"/>.
+        /// </summary>
+        /// <param name="desc">The <see cref="Description"/>.</param>
+        public CommandAttribute(string desc)
         {
-            Id = id;
-            Description = description;
-            Aliases = aliases ?? Array.Empty<string>();
-            InheritNamespace = inheritNamespace;
-            IsMain = isMain;
+            Description = desc;
+            InheritNamespace = true;
+            Aliases = Array.Empty<string>();
         }
     }
 }
