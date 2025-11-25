@@ -32,6 +32,8 @@ namespace AsitLib.Tests
 
     public class TestCommandProvider : CommandProvider
     {
+        public const int COMMAND_COUNT = 12;
+
         public TestCommandProvider() : base("test") { }
 
         [CommandAttribute("desc", InheritNamespace = false)]
@@ -292,6 +294,14 @@ namespace AsitLib.Tests
         public void Execute_WithDataAnnotatedInvalidCommand_ThrowsError()
         {
             Engine.Execute("validation 11");
+        }
+
+        [TestMethod]
+        public void GetProviderCommands_FromTestProvider()
+        {
+            Assert.AreEqual(Engine.GetProviderCommands("test").LongLength, TestCommandProvider.COMMAND_COUNT);
+            Engine.RemoveCommand("tv");
+            Assert.AreEqual(Engine.GetProviderCommands("test").LongLength, TestCommandProvider.COMMAND_COUNT - 1);
         }
     }
 }

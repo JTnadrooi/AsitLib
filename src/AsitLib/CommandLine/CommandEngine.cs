@@ -142,6 +142,17 @@ namespace AsitLib.CommandLine
             return this;
         }
 
+        public ProviderCommandInfo[] GetProviderCommands(string @namespace)
+        {
+            List<ProviderCommandInfo> providerCommands = new List<ProviderCommandInfo>();
+
+            foreach (string id in _srcMap[@namespace])
+                if (_uniqueCommands.TryGetValue(id, out CommandInfo? commandInfo))
+                    providerCommands.Add((ProviderCommandInfo)commandInfo);
+
+            return providerCommands.ToArray();
+        }
+
         public string Execute(string args) => Execute(Split(args));
         public string Execute(string[] args)
         {
