@@ -52,18 +52,17 @@ namespace AsitLib.CommandLine
     {
         public readonly CommandContextFlags Flags { get; }
 
-        public readonly bool PreventCommand { get; }
-
         public CommandContext(CommandContextFlags flags)
         {
             Flags = flags;
-            PreventCommand = flags.HasFlag(CommandContextFlags.PreventCommand);
         }
 
         public readonly CommandContext Layer(CommandContext other)
         {
             return new CommandContext(other.Flags | Flags);
         }
+
+        public readonly bool HasFlag(CommandContextFlags flag) => Flags.HasFlag(flag);
 
         public static CommandContext Default { get; } = new CommandContext(CommandContextFlags.None);
         public static CommandContext Prevent { get; } = new CommandContext(CommandContextFlags.PreventCommand | CommandContextFlags.PreventFlags);

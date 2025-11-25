@@ -216,7 +216,7 @@ namespace AsitLib.CommandLine
 
                 context.CommandContext = commandContext;
 
-                object? returned = commandContext.Flags.HasFlag(CommandContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+                object? returned = commandContext.HasFlag(CommandContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
 
                 if (!commandContext.Flags.HasFlag(CommandContextFlags.PreventFlags))
                     foreach (FlagHandler flagHandler in pendingFlags)
