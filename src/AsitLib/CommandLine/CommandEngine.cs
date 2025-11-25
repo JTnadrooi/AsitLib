@@ -45,6 +45,8 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, FlagHandler> FlagHandlers { get; }
 
+        private readonly Dictionary<string, List<string>> _srcMap;
+
         public CommandEngine()
         {
             _providers = new Dictionary<string, CommandProvider>();
@@ -57,7 +59,9 @@ namespace AsitLib.CommandLine
             UniqueCommands = _uniqueCommands.AsReadOnly();
             FlagHandlers = _flagHandlers.AsReadOnly();
 
-            RegisterCommand(() =>
+            _srcMap = new Dictionary<string, List<string>>();
+
+            AddCommand(() =>
             {
                 StringBuilder sb = new StringBuilder();
                 void WriteCommand(CommandInfo cmd) => sb.AppendLine($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetParameters()
@@ -70,11 +74,11 @@ namespace AsitLib.CommandLine
             }, "help", "Print help.", ["?", "h"]);
         }
 
-        public CommandEngine RegisterCommand(MethodInfo method, string description, string[]? aliases = null)
-            => RegisterCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method));
-        public CommandEngine RegisterCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
-            => RegisterCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
-        public CommandEngine RegisterCommand(CommandInfo info)
+        public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null)
+            => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method));
+        public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
+            => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
+        public CommandEngine AddCommand(CommandInfo info)
         {
             List<string> additionalIds = new List<string>();
             ParameterInfo[] parameters = info.GetParameters();
@@ -91,22 +95,50 @@ namespace AsitLib.CommandLine
             }
 
             _uniqueCommands.Add(info.Id, info);
+            if (info is ProviderCommandInfo pCInfo) _srcMap[pCInfo.Provider.Namespace].Add(info.Id);
+
             return this;
         }
 
-        public CommandEngine RegisterProvider<TAttribute, TCommandInfo>(CommandProvider provider, ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory) where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
+        public CommandEngine RemoveCommand(string id)
         {
+            if (!_uniqueCommands.Remove(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
+            _commands.Remove(id);
+
+            return this;
+        }
+
+        public CommandEngine AddProvider<TAttribute, TCommandInfo>(CommandProvider provider, ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory) where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
+        {
+            if (!_providers.TryAdd(provider.Namespace, provider)) throw new InvalidOperationException($"CommandProvider with duplicate namespace '{provider.Namespace}' found.");
+
             MethodInfo[] commandMethods = provider.GetType().GetMethods();
+            _srcMap.Add(provider.Namespace, new List<string>());
+
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
-                    RegisterCommand(infoFactory.Convert(attribute, provider, methodInfo));
-            if (!_providers.TryAdd(provider.Namespace, provider)) throw new InvalidOperationException($"CommandProvider with duplicate namespace '{provider.Namespace}' found.");
+                    AddCommand(infoFactory.Convert(attribute, provider, methodInfo));
+
             return this;
         }
 
-        public CommandEngine RegisterFlagHandler(FlagHandler flagHandler)
+        public CommandEngine RemoveProvider(string @namespace)
+        {
+            if (!_providers.Remove(@namespace)) throw new KeyNotFoundException($"CommandProvider with Namespace '{@namespace}' was not found.");
+            foreach (string id in _srcMap[@namespace])
+                RemoveCommand(id);
+            return this;
+        }
+
+        public CommandEngine AddFlagHandler(FlagHandler flagHandler)
         {
             _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
+            return this;
+        }
+
+        public CommandEngine RemoveFlagHandler(string id)
+        {
+            if (!_flagHandlers.Remove(id)) throw new KeyNotFoundException($"FlagHandler with Id '{id}' was not found.");
             return this;
         }
 

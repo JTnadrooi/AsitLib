@@ -118,8 +118,8 @@ namespace AsitLib.Tests
         public static void ClassInit(TestContext context)
         {
             Engine = new CommandEngine()
-                .RegisterProvider(new TestCommandProvider(), CommandInfoFactory.Default)
-                .RegisterFlagHandler(new AlwaysReturnTestFlagHandler());
+                .AddProvider(new TestCommandProvider(), CommandInfoFactory.Default)
+                .AddFlagHandler(new AlwaysReturnTestFlagHandler());
         }
 
         [ClassCleanup]
