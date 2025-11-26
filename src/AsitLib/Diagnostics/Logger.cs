@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 #nullable enable
 
-namespace AsitLib.Logging
+namespace AsitLib.Diagnostics
 {
     public interface ILoggingStyle
     {
