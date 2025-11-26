@@ -1,4 +1,4 @@
-﻿using AsitLib.Logging;
+﻿using AsitLib.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
