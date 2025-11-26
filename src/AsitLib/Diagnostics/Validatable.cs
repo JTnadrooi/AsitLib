@@ -14,20 +14,28 @@ namespace AsitLib.Diagnostics
     public static class ValidatableExtensions
     {
         public static bool IsValid(this IValidatable validatableObj) => validatableObj.IsValid(out _);
-        public static bool IsValid(this IValidatable validatableObj, out InvalidReason[] invalidReasons)
-            => (invalidReasons = validatableObj.GetInvalidReasons()).Length != 0;
+        public static bool IsValid(this IValidatable validatableObj, out InvalidReason[] reasons)
+            => (reasons = validatableObj.GetInvalidReasons()).Length != 0;
+
         public static void ThrowIfInvalid(this IValidatable validatableObj)
         {
-            if (validatableObj.IsValid(out InvalidReason[] invalidReasons))
+            if (validatableObj.IsValid(out InvalidReason[] reasons))
             {
-                throw new InvalidOperationException($"Invalid state, reasons: '{invalidReasons.ToJoinedString(", ")}'.");
+                throw new InvalidObjectException(reasons);
             }
         }
     }
 
-    public class InvalidStateException : Exception
+    public class InvalidObjectException : Exception
     {
-        public InvalidStateException(string message) : base(message) { }
+        public IReadOnlyList<InvalidReason> Reasons { get; }
+
+        public InvalidObjectException(IReadOnlyList<InvalidReason> reasons) : base($"Invalid state, reasons: '{reasons.ToJoinedString(", ")}'.")
+        {
+            if (reasons.Count == 0) throw new ArgumentException("'reasons' cannot be empty.", nameof(reasons));
+
+            Reasons = reasons;
+        }
     }
 
     public struct InvalidReason
@@ -44,7 +52,6 @@ namespace AsitLib.Diagnostics
 
         public override bool Equals(object? obj) => obj is InvalidReason other && this == other;
         public override int GetHashCode() => Message?.GetHashCode() ?? 0;
-        public override string ToString() => $"InvalidReason: {Message}";
+        public override string ToString() => $"{{Message: '{Message}'}}";
     }
-
 }
