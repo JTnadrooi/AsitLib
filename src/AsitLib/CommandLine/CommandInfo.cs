@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsitLib.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace AsitLib.CommandLine
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate) : base(ids, description)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false) : base(ids, description, isGenericFlag: isGenericFlag)
         {
             Delegate = @delegate;
         }
@@ -27,8 +28,8 @@ namespace AsitLib.CommandLine
         public MethodInfo MethodInfo { get; }
         public object? Object { get; }
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null)
-            : base(ids, description)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null, bool isGenericFlag = false)
+            : base(ids, description, isGenericFlag: isGenericFlag)
         {
             MethodInfo = methodInfo;
             Object = @object;
@@ -50,7 +51,7 @@ namespace AsitLib.CommandLine
         [Obsolete("Use the Provider property instead.")]
         public new object? Object => base.Object;
 
-        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider)
+        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
         {
             IsMain = attribute.IsMain;
         }
@@ -59,7 +60,7 @@ namespace AsitLib.CommandLine
     /// <summary>
     /// Represents info for a specific command. See <see cref="CommandAttribute"/>.
     /// </summary>
-    public abstract class CommandInfo
+    public abstract class CommandInfo : IValidatable
     {
         /// <summary>
         /// Gets a <see cref="HashSet{T}"/> containing all command ids. Includes <see cref="Id"/>.
@@ -73,15 +74,33 @@ namespace AsitLib.CommandLine
         /// </summary>
         public string Description { get; }
 
-        public CommandInfo(string[] ids, string description)
+        /// <summary>
+        /// Gets if the command can be used as a generic flag. 
+        /// If <see langword="true"/>, the command can be invoked by prepending any of the <see cref="Ids"/> with a single dash for <see cref="Ids"/> consisting of a single character, or with two dashes for longer <see cref="Ids"/>.
+        /// </summary>
+        public bool IsGenericFlag { get; }
+
+        public CommandInfo(string[] ids, string description, bool isGenericFlag = false)
         {
+            if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
+
             Ids = ids.AsReadOnly();
             Description = description;
+            IsGenericFlag = isGenericFlag;
         }
 
         public abstract object? Invoke(object?[] parameters);
         public abstract ParameterInfo[] GetParameters();
 
-        //public override string ToString() => $"{{Id: {Id}, Method: {MethodInfo}, Provider: {Provider?.ToString()}}}";
+        public virtual InvalidReason[] GetInvalidReasons()
+        {
+            List<InvalidReason> invalidReasons = new List<InvalidReason>();
+
+            if (IsGenericFlag && GetParameters().Length > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
+
+            return invalidReasons.ToArray();
+        }
+
+        public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
 }

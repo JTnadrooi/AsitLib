@@ -91,6 +91,8 @@ namespace AsitLib.CommandLine
             int position = 0;
             bool noMoreParams = false;
             string token = string.Empty;
+            string commandId = args[0];
+            bool callsGenericFlag = commandId.StartsWith("--");
 
             void PushArgument()
             {
@@ -126,7 +128,8 @@ namespace AsitLib.CommandLine
 
             if (currentName is not null) PushArgument();
 
-            return new ArgumentsInfo(args[0], arguments.ToArray());
+
+            return new ArgumentsInfo(args[0], arguments.ToArray(), callsGenericFlag);
         }
 
         public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
@@ -142,7 +145,7 @@ namespace AsitLib.CommandLine
                             throw new Exception();
                         }
 
-            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList(), argsInfo.CallsGenericFlag);
             return toret.ToArray();
         }
 
@@ -212,7 +215,7 @@ namespace AsitLib.CommandLine
             Continue:;
             }
 
-            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList().AsReadOnly());
+            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList(), argsInfo.CallsGenericFlag);
 
             return result;
         }

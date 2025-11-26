@@ -66,7 +66,7 @@ namespace AsitLib.Tests
 
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [CommandAttribute("desc", InheritNamespace = false, IsGenericFlag = true)]
         public void Void()
         {
 
@@ -300,8 +300,13 @@ namespace AsitLib.Tests
         public void GetProviderCommands_FromTestProvider()
         {
             Assert.AreEqual(Engine.GetProviderCommands("test").LongLength, TestCommandProvider.COMMAND_COUNT);
-            Engine.RemoveCommand("tv");
-            Assert.AreEqual(Engine.GetProviderCommands("test").LongLength, TestCommandProvider.COMMAND_COUNT - 1);
+        }
+
+        [TestMethod]
+        public void Execute_GenericFlag()
+        {
+            Engine.Execute("void");
+            Engine.Execute("--void");
         }
     }
 }

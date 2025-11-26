@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AsitLib.Diagnostics;
+using System;
 using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -71,16 +72,18 @@ namespace AsitLib.CommandLine
 
                 foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
                 return sb.ToString();
-            }, "help", "Print help.", ["?", "h"]);
+            }, "help", "Print help.", ["?", "h"], isGenericFlag: true);
         }
 
-        public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null)
-            => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method));
-        public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
-            => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
+        public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
+            => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method, isGenericFlag: isGenericFlag));
+        public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null, bool isGenericFlag = false)
+            => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate, isGenericFlag: isGenericFlag));
         public CommandEngine AddCommand(CommandInfo info)
         {
             //if (!info.IsValid()) throw new ArgumentException($"Invalid {nameof(CommandInfo)}.", nameof(info));
+
+            info.ThrowIfInvalid();
 
             List<string> additionalIds = new List<string>();
             ParameterInfo[] parameters = info.GetParameters();
@@ -88,7 +91,7 @@ namespace AsitLib.CommandLine
             foreach (string id in info.Ids)
             {
                 if (id.StartsWith('-')) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
-                if (parameters.Length == 0) additionalIds.Add("--" + id);
+                if (info.IsGenericFlag) additionalIds.Add("--" + id);
             }
 
             foreach (string id in info.Ids.Concat(additionalIds))
@@ -107,7 +110,11 @@ namespace AsitLib.CommandLine
             if (!_uniqueCommands.ContainsKey(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
 
             foreach (string aliasId in _uniqueCommands[id].Ids)
+            {
+                if (_commands[id].IsGenericFlag)
+                    _commands.Remove("--" + aliasId);
                 _commands.Remove(aliasId);
+            }
 
             _uniqueCommands.Remove(id);
 
@@ -232,6 +239,11 @@ namespace AsitLib.CommandLine
                     }
 
                 return returned;
+            }
+            else if (argsInfo.CallsGenericFlag)
+            {
+                if (Commands.ContainsKey(argsInfo.CommandId.TrimStart('-'))) throw new InvalidOperationException($"Command with id '{argsInfo.SanitizedCommandId}' cannot be used as generic flag.");
+                throw new InvalidOperationException($"Generic flag with ID '{argsInfo.CommandId}' not found.");
             }
             else throw new InvalidOperationException($"Command with ID '{argsInfo.CommandId}' not found.");
         }

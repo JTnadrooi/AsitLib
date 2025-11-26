@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,8 @@ namespace AsitLib.CommandLine
 
         public ArgumentTarget(int parameterIndex)
         {
+            if (parameterIndex < 0) throw new ArgumentException(nameof(parameterIndex));
+
             ParameterToken = null;
             ParameterIndex = parameterIndex;
         }
@@ -72,32 +75,20 @@ namespace AsitLib.CommandLine
     public sealed class ArgumentsInfo
     {
         public string CommandId { get; }
+        public string SanitizedCommandId { get; }
         public IReadOnlyList<Argument> Arguments { get; }
+        public bool CallsGenericFlag { get; }
 
-        public ArgumentsInfo(string commandId, IReadOnlyList<Argument> arguments)
+        public ArgumentsInfo(string commandId, IReadOnlyList<Argument> arguments, bool callsGenericFlag)
         {
+            if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Arguments call command as generic flag, but argument count is not 0.");
+            if (callsGenericFlag != commandId.StartsWith("-")) throw new CommandException("Invalid generic call command id relation.");
+
             CommandId = commandId;
+            SanitizedCommandId = CommandId.TrimStart('-');
             Arguments = arguments;
+            CallsGenericFlag = callsGenericFlag;
         }
-
-        //internal string ToDisplayString()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.AppendLine("ArgumentsInfo:");
-        //    sb.AppendLine($"\tCommandId: {this.CommandId}");
-        //    sb.AppendLine("\tArguments:");
-
-        //    for (int i = 0; i < Arguments.Length; i++)
-        //    {
-        //        Argument arg = Arguments[i];
-        //        sb.AppendLine($"\t\tTarget: {arg.Target}");
-        //        sb.AppendLine($"\t\tShorthand: {arg.Target.IsShorthand}");
-        //        sb.AppendLine("\t\tTokens:");
-        //        foreach (string token in arg.Tokens) sb.AppendLine($"\t\t\t{token}");
-        //    }
-
-        //    return sb.ToString();
-        //}
 
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
 
