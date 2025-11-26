@@ -36,7 +36,7 @@ namespace AsitLib.CommandLine
     {
         private bool _disposedValue;
 
-        private readonly Dictionary<string, FlagHandler> _flagHandlers;
+        private readonly Dictionary<string, GlobalOptionHandler> _flagHandlers;
         private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
@@ -44,7 +44,7 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
-        public ReadOnlyDictionary<string, FlagHandler> FlagHandlers { get; }
+        public ReadOnlyDictionary<string, GlobalOptionHandler> FlagHandlers { get; }
 
         private readonly Dictionary<string, List<string>> _srcMap;
 
@@ -53,7 +53,7 @@ namespace AsitLib.CommandLine
             _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
-            _flagHandlers = new Dictionary<string, FlagHandler>();
+            _flagHandlers = new Dictionary<string, GlobalOptionHandler>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
@@ -143,7 +143,7 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddFlagHandler(FlagHandler flagHandler)
+        public CommandEngine AddFlagHandler(GlobalOptionHandler flagHandler)
         {
             _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
             return this;
@@ -214,25 +214,25 @@ namespace AsitLib.CommandLine
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
-                FlagContext context = new FlagContext(this, argsInfo);
+                CommandContext context = new CommandContext(this, argsInfo);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetParameters());
-                FlagHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
-                CommandContext commandContext = CommandContext.Default;
+                GlobalOptionHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
+                ExecutingContext commandContext = ExecutingContext.Default;
 
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
-                foreach (FlagHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
-                foreach (FlagHandler flagHandler in pendingFlags)
+                foreach (GlobalOptionHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
+                foreach (GlobalOptionHandler flagHandler in pendingFlags)
                 {
-                    commandContext = commandContext.Layer(flagHandler.GetCommandContext(context));
+                    commandContext = commandContext.Layer(flagHandler.GetExecutingContext(context));
                 }
 
-                context.CommandContext = commandContext;
+                context.ExecutingContext = commandContext;
 
-                object? returned = commandContext.HasFlag(CommandContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+                object? returned = commandContext.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
 
-                if (!commandContext.Flags.HasFlag(CommandContextFlags.PreventFlags))
-                    foreach (FlagHandler flagHandler in pendingFlags)
+                if (!commandContext.Flags.HasFlag(ExecutingContextFlags.PreventFlags))
+                    foreach (GlobalOptionHandler flagHandler in pendingFlags)
                     {
                         returned = flagHandler.OnReturned(context, returned);
                         flagHandler.PostCommand(context);

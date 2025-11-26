@@ -32,7 +32,7 @@ namespace AsitLib.CommandLine
             ParameterIndex = parameterIndex;
         }
 
-        public bool TargetsFlag(FlagHandler flagHandler)
+        public bool TargetsFlag(GlobalOptionHandler flagHandler)
             => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedParameterToken) ||
                 (IsLongForm && flagHandler.LongFormId == SanitizedParameterToken);
 

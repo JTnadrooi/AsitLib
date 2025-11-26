@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class VerboseFlagHandler : FlagHandler
+    public class VerboseGlobalOptionHandler : GlobalOptionHandler
     {
         private bool _initialVerboseState;
 
         private Logger _logger;
 
-        public VerboseFlagHandler(Logger logger) : base("verbose", "Enable verbose logging.", "v")
+        public VerboseGlobalOptionHandler(Logger logger) : base("verbose", "Enable verbose logging.", "v")
         {
             _logger = logger;
         }
 
-        public override void PreCommand(FlagContext context)
+        public override void PreCommand(CommandContext context)
         {
             _initialVerboseState = _logger.Silent;
             _logger.Silent = false;
         }
 
-        public override void PostCommand(FlagContext context)
+        public override void PostCommand(CommandContext context)
         {
             _logger.Silent = _initialVerboseState;
         }

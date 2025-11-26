@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 namespace AsitLib.CommandLine
 {
     /// <summary>
-    /// Represents a command flag listener and handler.
+    /// Represents a global option listener.
     /// </summary>
-    public abstract class FlagHandler
+    public abstract class GlobalOptionHandler
     {
         public string? ShorthandId { get; }
         public string LongFormId { get; }
         public string Description { get; }
         public bool HasShorthandId => ShorthandId is not null;
 
-        protected FlagHandler(string longFormId, string description, string? shorthandId = null)
+        protected GlobalOptionHandler(string longFormId, string description, string? shorthandId = null)
         {
             ShorthandId = shorthandId;
             LongFormId = longFormId;
@@ -27,45 +27,45 @@ namespace AsitLib.CommandLine
         /// Gets called before the command executes. Only calls if the <see cref="ShouldListen(ArgumentsInfo)"/> returns <see langword="true"/>.
         /// </summary>
         /// <param name="context">The </param>
-        public virtual void PreCommand(FlagContext context) { }
+        public virtual void PreCommand(CommandContext context) { }
 
         /// <summary>
         /// Gets called after the command executes. Only calls if the <see cref="ShouldListen(ArgumentsInfo)"/> returns <see langword="true"/>.
         /// </summary>
         /// <param name="arguments">The command arguments. Do not check if this flag is present, that is done by the <see cref="ShouldListen(ArgumentsInfo)"/> method.</param>
-        public virtual void PostCommand(FlagContext context) { }
+        public virtual void PostCommand(CommandContext context) { }
 
-        public virtual object? OnReturned(FlagContext context, object? returned) => returned;
+        public virtual object? OnReturned(CommandContext context, object? returned) => returned;
 
-        public virtual CommandContext GetCommandContext(FlagContext context) => CommandContext.Default;
+        public virtual ExecutingContext GetExecutingContext(CommandContext context) => ExecutingContext.Default;
     }
 
     [Flags]
-    public enum CommandContextFlags
+    public enum ExecutingContextFlags
     {
         None = 0,
         PreventCommand = 1,
         PreventFlags = 2,
     }
 
-    public readonly struct CommandContext
+    public readonly struct ExecutingContext
     {
-        public readonly CommandContextFlags Flags { get; init; }
+        public readonly ExecutingContextFlags Flags { get; init; }
 
-        public CommandContext() { }
+        public ExecutingContext() { }
 
-        public readonly CommandContext Layer(CommandContext other)
+        public readonly ExecutingContext Layer(ExecutingContext other)
         {
-            return new CommandContext()
+            return new ExecutingContext()
             {
                 Flags = other.Flags | Flags
             };
         }
 
-        public readonly bool HasFlag(CommandContextFlags flag) => Flags.HasFlag(flag);
+        public readonly bool HasFlag(ExecutingContextFlags flag) => Flags.HasFlag(flag);
 
-        public static CommandContext Default { get; } = new CommandContext() { Flags = CommandContextFlags.None };
-        public static CommandContext Prevent { get; } = new CommandContext() { Flags = CommandContextFlags.PreventCommand | CommandContextFlags.PreventFlags };
+        public static ExecutingContext Default { get; } = new ExecutingContext() { Flags = ExecutingContextFlags.None };
+        public static ExecutingContext PreventAll { get; } = new ExecutingContext() { Flags = ExecutingContextFlags.PreventCommand | ExecutingContextFlags.PreventFlags };
     }
     ///// <summary>
     ///// Represents a command flag listener and handler with input of type <see cref="TInput"/>.

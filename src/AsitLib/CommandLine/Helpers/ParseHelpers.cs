@@ -132,13 +132,13 @@ namespace AsitLib.CommandLine
             return new ArgumentsInfo(args[0], arguments.ToArray(), callsGenericFlag);
         }
 
-        public static FlagHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, FlagHandler[] flagHandlers)
+        public static GlobalOptionHandler[] ExtractFlags(ref ArgumentsInfo argsInfo, GlobalOptionHandler[] flagHandlers)
         {
-            HashSet<FlagHandler> toret = new HashSet<FlagHandler>();
+            HashSet<GlobalOptionHandler> toret = new HashSet<GlobalOptionHandler>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
             foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
-                foreach (FlagHandler flagHandler in flagHandlers)
+                foreach (GlobalOptionHandler flagHandler in flagHandlers)
                     if (arg.Target.TargetsFlag(flagHandler))
                         if (!validArguments.Add(arg) || !toret.Add(flagHandler))
                         {

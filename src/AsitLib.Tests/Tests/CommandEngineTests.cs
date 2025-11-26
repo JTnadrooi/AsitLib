@@ -16,14 +16,14 @@ namespace AsitLib.Tests
     }
 
     [ImplicitValue("TEST")]
-    public class AlwaysReturnTestFlagHandler : FlagHandler
+    public class AlwaysReturnTestGlobalOptionHandler : GlobalOptionHandler
     {
-        public AlwaysReturnTestFlagHandler() : base("ret-test", "desc", "t")
+        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t")
         {
 
         }
 
-        public override object? OnReturned(FlagContext context, object? returned)
+        public override object? OnReturned(CommandContext context, object? returned)
         {
             if (context.TryGetFlagHandlerArgument<string>(this, out string? value)) return value;
             else return returned;
@@ -121,7 +121,7 @@ namespace AsitLib.Tests
         {
             Engine = new CommandEngine()
                 .AddProvider(new TestCommandProvider(), CommandInfoFactory.Default)
-                .AddFlagHandler(new AlwaysReturnTestFlagHandler());
+                .AddFlagHandler(new AlwaysReturnTestGlobalOptionHandler());
         }
 
         [ClassCleanup]
