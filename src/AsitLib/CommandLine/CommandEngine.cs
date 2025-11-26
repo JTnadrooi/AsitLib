@@ -80,6 +80,8 @@ namespace AsitLib.CommandLine
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine AddCommand(CommandInfo info)
         {
+            //if (!info.IsValid()) throw new ArgumentException($"Invalid {nameof(CommandInfo)}.", nameof(info));
+
             List<string> additionalIds = new List<string>();
             ParameterInfo[] parameters = info.GetParameters();
 
@@ -102,8 +104,12 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RemoveCommand(string id)
         {
-            if (!_uniqueCommands.Remove(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
-            _commands.Remove(id);
+            if (!_uniqueCommands.ContainsKey(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
+
+            foreach (string aliasId in _uniqueCommands[id].Ids)
+                _commands.Remove(aliasId);
+
+            _uniqueCommands.Remove(id);
 
             return this;
         }
