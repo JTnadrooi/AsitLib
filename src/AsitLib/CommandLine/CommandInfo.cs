@@ -45,7 +45,10 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool IsMain { get; }
 
-        public CommandProvider Provider => (CommandProvider)Object!;
+        public CommandProvider Provider => (CommandProvider)base.Object!;
+
+        [Obsolete("Use the Provider property instead.")]
+        public new object? Object => base.Object;
 
         public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider)
         {
