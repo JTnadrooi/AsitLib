@@ -50,22 +50,22 @@ namespace AsitLib.CommandLine
 
     public readonly struct CommandContext
     {
-        public readonly CommandContextFlags Flags { get; }
+        public readonly CommandContextFlags Flags { get; init; }
 
-        public CommandContext(CommandContextFlags flags)
-        {
-            Flags = flags;
-        }
+        public CommandContext() { }
 
         public readonly CommandContext Layer(CommandContext other)
         {
-            return new CommandContext(other.Flags | Flags);
+            return new CommandContext()
+            {
+                Flags = other.Flags | Flags
+            };
         }
 
         public readonly bool HasFlag(CommandContextFlags flag) => Flags.HasFlag(flag);
 
-        public static CommandContext Default { get; } = new CommandContext(CommandContextFlags.None);
-        public static CommandContext Prevent { get; } = new CommandContext(CommandContextFlags.PreventCommand | CommandContextFlags.PreventFlags);
+        public static CommandContext Default { get; } = new CommandContext() { Flags = CommandContextFlags.None };
+        public static CommandContext Prevent { get; } = new CommandContext() { Flags = CommandContextFlags.PreventCommand | CommandContextFlags.PreventFlags };
     }
     ///// <summary>
     ///// Represents a command flag listener and handler with input of type <see cref="TInput"/>.
