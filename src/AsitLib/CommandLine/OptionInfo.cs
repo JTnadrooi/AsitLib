@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
@@ -59,6 +56,9 @@ namespace AsitLib.CommandLine
         {
             return (TAttribute?)Attributes.SingleOrDefault(a => a is TAttribute e);
         }
+
+        public object? GetValue(string token, Type target) => ParseHelpers.GetValue(token, Type, Attributes);
+        public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, Type, Attributes);
     }
 
     public static class ParameterInfoExtensions

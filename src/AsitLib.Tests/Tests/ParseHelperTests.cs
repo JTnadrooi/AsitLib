@@ -66,31 +66,31 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Convert_EnumValueInt_GetsEnumEntryWithValue()
         {
-            Assert.AreEqual(TestEnum.Value2, ParseHelpers.Convert("2", typeof(TestEnum)));
+            Assert.AreEqual(TestEnum.Value2, ParseHelpers.GetValue("2", typeof(TestEnum)));
         }
 
         [TestMethod]
         public void Convert_EnumValueString_GetsEnumEntryWithValue()
         {
-            Assert.AreEqual(TestEnum.Value2, ParseHelpers.Convert("value-2", typeof(TestEnum)));
+            Assert.AreEqual(TestEnum.Value2, ParseHelpers.GetValue("value-2", typeof(TestEnum)));
         }
 
         [TestMethod]
         public void Convert_CustomSignatureEnumValueString_GetsCustomNameEnumEntryWithValue()
         {
-            Assert.AreEqual(TestEnum.Value3, ParseHelpers.Convert("three", typeof(TestEnum)));
+            Assert.AreEqual(TestEnum.Value3, ParseHelpers.GetValue("three", typeof(TestEnum)));
         }
 
         [TestMethod]
         public void Convert_MultipleIntTokens_ParsesToIntArray()
         {
-            CollectionAssert.AreEqual(new int[] { 4, 2 }, (int[])ParseHelpers.Convert(["4", "2"], typeof(int[]))!);
+            CollectionAssert.AreEqual(new int[] { 4, 2 }, (int[])ParseHelpers.GetValue(["4", "2"], typeof(int[]))!);
         }
 
         [TestMethod]
         public void Convert_MultipleStringTokens_ParsesToStringArray()
         {
-            CollectionAssert.AreEqual(new string[] { "e", "a" }, (string[])ParseHelpers.Convert(["e", "a"], typeof(string[]))!);
+            CollectionAssert.AreEqual(new string[] { "e", "a" }, (string[])ParseHelpers.GetValue(["e", "a"], typeof(string[]))!);
         }
 
         #endregion

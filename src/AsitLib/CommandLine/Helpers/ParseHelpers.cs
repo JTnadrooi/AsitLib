@@ -179,7 +179,7 @@ namespace AsitLib.CommandLine
                     }
                     else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
 
-                result[i] = Convert(matchingArgument.Tokens, option.Type, option.Attributes);
+                result[i] = option.GetValue(matchingArgument.Tokens);
                 validArguments.Add(matchingArgument);
 
             Continue:;
@@ -190,13 +190,13 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? Convert(string token, Type target, IEnumerable<object>? attributes = null) => Convert([token], target, attributes);
-        public static object? Convert(IReadOnlyList<string> tokens, Type target, IEnumerable<object>? attributes = null)
+        public static object? GetValue(string token, Type target, params IEnumerable<object> attributes) => GetValue([token], target, attributes);
+        public static object? GetValue(IReadOnlyList<string> tokens, Type target, params IEnumerable<object> attributes)
         {
             ImplicitValueAttribute? implicitValueAttribute = null;
             List<ValidationAttribute> validationAttributes = new List<ValidationAttribute>();
 
-            foreach (object attribute in attributes ?? Enumerable.Empty<object>())
+            foreach (object attribute in attributes)
                 switch (attribute)
                 {
                     case ValidationAttribute a:
@@ -221,7 +221,7 @@ namespace AsitLib.CommandLine
                     Type elementType = target.GetElementType()!;
                     Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
-                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(Convert([tokens[i]], elementType), i);
+                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(GetValue([tokens[i]], elementType), i);
 
                     return toretArray;
                 }
