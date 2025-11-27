@@ -1,18 +1,11 @@
 ﻿using AsitLib.CommandLine.Attributes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Runtime.Versioning;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsitLib.CommandLine
 {
@@ -149,59 +142,46 @@ namespace AsitLib.CommandLine
 
             for (int i = 0; i < targets.Length; i++)
             {
-                OptionInfo target = targets[i];
+                OptionInfo option = targets[i];
                 Argument? matchingArgument = null;
-                ShorthandAttribute? shorthandAttribute = target.GetAttribute<ShorthandAttribute>();
-                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetAttribute<AllowAntiArgumentAttribute>();
-                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? target.Name[0].ToString());
+                ShorthandAttribute? shorthandAttribute = option.GetAttribute<ShorthandAttribute>();
+                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = option.GetAttribute<AllowAntiArgumentAttribute>();
+                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? option.Name[0].ToString());
 
                 foreach (Argument arg in argsInfo.Arguments)
-                {
-                    if ((arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == target.Name) || (arg.Target.OptionIndex == i) ||
+                    if ((arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name) || (arg.Target.OptionIndex == i) ||
                         (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName))
                     {
-                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{target.Name}'.");
+                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                         matchingArgument = arg;
                         //break;
                     }
-                }
 
                 if (allowAntiArgumentAttribute is not null)
                     foreach (Argument arg in argsInfo.Arguments)
-                    {
-                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (allowAntiArgumentAttribute.Name ?? $"no-{target.Name}"))
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (allowAntiArgumentAttribute.Name ?? $"no-{option.Name}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
-                            if (target.Type != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{target.Name}'.");
+                            if (option.Type != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                             if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
                             validArguments.Add(arg);
                             goto Continue;
                         }
-                    }
 
                 if (matchingArgument is null) // no matching argument found.
-                {
-                    if (target.HasDefaultValue) // but has default value, so set default value.
+                    if (option.HasDefaultValue) // but has default value, so set default value.
                     {
-                        result[i] = target.DefaultValue;
+                        result[i] = option.DefaultValue;
                         goto Continue;
                     }
-                    if (target.WriteState == NullabilityState.Nullable) // but can be null, so set null.
-                    {
-                        result[i] = null;
-                        goto Continue;
-                    }
+                    else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
 
-                    //if (matchingArgument.Value.Target.UsesExplicitName.) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
-
-                    throw new CommandException($"No matching value found for parameter '{target.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
-                }
-
-                result[i] = Convert(matchingArgument.Tokens, target.Type, target.Attributes);
+                result[i] = Convert(matchingArgument.Tokens, option.Type, option.Attributes);
                 validArguments.Add(matchingArgument);
+
             Continue:;
             }
 

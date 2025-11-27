@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -21,8 +22,6 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public NullabilityState WriteState { get; }
-
         public bool HasDefaultValue { get; }
 
         public object[] Attributes { get; }
@@ -38,9 +37,22 @@ namespace AsitLib.CommandLine
             Type = parameter.ParameterType;
             Name = ParseHelpers.GetSignature(parameter);
 
-            NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
-            NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(parameter);
-            WriteState = nullabilityInfo.WriteState;
+            if (!HasDefaultValue)
+                if (parameter.GetCustomAttribute<AllowNullAttribute>() is not null || new NullabilityInfoContext().Create(parameter).WriteState == NullabilityState.Nullable)
+                {
+                    HasDefaultValue = true;
+                    _defaultValue = null;
+                }
+                else if (Type.IsArray)
+                {
+                    HasDefaultValue = true;
+                    _defaultValue = Array.CreateInstance(Type.GetElementType()!, 0);
+                }
+                else if (Type == typeof(bool))
+                {
+                    HasDefaultValue = true;
+                    _defaultValue = false;
+                }
         }
 
         public TAttribute? GetAttribute<TAttribute>() where TAttribute : Attribute
