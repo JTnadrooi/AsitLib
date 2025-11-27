@@ -10,6 +10,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>2.25.0.15</AssemblyVersion>
+		<LangVersion>14.0</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
