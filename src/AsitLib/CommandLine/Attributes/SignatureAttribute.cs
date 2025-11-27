@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class CustomSignatureAttribute : Attribute
+    public class SignatureAttribute : Attribute
     {
-        public string? Name { get; }
+        public string Name { get; }
         /// <summary>
-        ///  Initializes an instance of <see cref="CustomSignatureAttribute"/>.
+        ///  Initializes an instance of <see cref="SignatureAttribute"/>.
         /// </summary>
         /// <param name="name">Overwrit</param>
-        public CustomSignatureAttribute(string? name) => Name = name;
+        public SignatureAttribute(string name) => Name = name;
     }
 }

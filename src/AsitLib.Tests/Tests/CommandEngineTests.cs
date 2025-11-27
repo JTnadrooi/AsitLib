@@ -11,7 +11,7 @@ namespace AsitLib.Tests
         Value0 = 0,
         Value1 = 1,
         Value2 = 2,
-        [CustomSignature("three")]
+        [Signature("three")]
         Value3 = 3,
     }
 
@@ -55,7 +55,7 @@ namespace AsitLib.Tests
         }
 
         [CommandAttribute("desc", InheritNamespace = false, Aliases = ["hi"])]
-        public string Greet([CustomSignature("name")] string yourName)
+        public string Greet([Signature("name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }

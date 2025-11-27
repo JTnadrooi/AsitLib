@@ -14,7 +14,7 @@ namespace AsitLib.CommandLine
     {
         /// <summary>
         /// Gets the command identifier. 
-        /// If not specified, <see cref="ParseHelpers.ParseSignature(System.Reflection.MemberInfo)"/> is used to derive one from the method name.
+        /// If not specified, <see cref="ParseHelpers.GetSignature(System.Reflection.MemberInfo)"/> is used to derive one from the method name.
         /// </summary>
         public string? Id { get; init; }
 

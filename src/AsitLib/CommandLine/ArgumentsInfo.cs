@@ -10,37 +10,37 @@ namespace AsitLib.CommandLine
 {
     public readonly struct ArgumentTarget
     {
-        public readonly string? ParameterToken { get; }
-        public readonly int? ParameterIndex { get; }
-        public readonly bool IsShorthand => UsesExplicitName && !ParameterToken!.StartsWith("--");
-        public readonly bool IsLongForm => UsesExplicitName && ParameterToken!.StartsWith("--");
-        public readonly string? SanitizedParameterToken => ParameterToken?.TrimStart('-');
+        public readonly string? OptionToken { get; }
+        public readonly int? OptionIndex { get; }
+        public readonly bool IsShorthand => UsesExplicitName && !OptionToken!.StartsWith("--");
+        public readonly bool IsLongForm => UsesExplicitName && OptionToken!.StartsWith("--");
+        public readonly string? SanitizedOptionToken => OptionToken?.TrimStart('-');
 
-        public bool UsesExplicitName => ParameterToken is not null;
+        public bool UsesExplicitName => OptionToken is not null;
 
-        public ArgumentTarget(string parameterName)
+        public ArgumentTarget(string optionName)
         {
-            ParameterToken = parameterName;
-            ParameterIndex = null;
+            OptionToken = optionName;
+            OptionIndex = null;
         }
 
-        public ArgumentTarget(int parameterIndex)
+        public ArgumentTarget(int optionIndex)
         {
-            if (parameterIndex < 0) throw new ArgumentException(nameof(parameterIndex));
+            if (optionIndex < 0) throw new ArgumentException(nameof(optionIndex));
 
-            ParameterToken = null;
-            ParameterIndex = parameterIndex;
+            OptionToken = null;
+            OptionIndex = optionIndex;
         }
 
         public bool TargetsFlag(GlobalOptionHandler flagHandler)
-            => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedParameterToken) ||
-                (IsLongForm && flagHandler.LongFormId == SanitizedParameterToken);
+            => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedOptionToken) ||
+                (IsLongForm && flagHandler.LongFormId == SanitizedOptionToken);
 
-        public override string ToString() => UsesExplicitName ? ParameterToken! : ParameterIndex!.ToString()!;
+        public override string ToString() => UsesExplicitName ? OptionToken! : OptionIndex!.ToString()!;
 
         public override bool Equals(object? obj)
         {
-            if (obj is ArgumentTarget other) return (ParameterToken == other.ParameterToken && ParameterIndex == other.ParameterIndex);
+            if (obj is ArgumentTarget other) return (OptionToken == other.OptionToken && OptionIndex == other.OptionIndex);
             return false;
         }
 
@@ -49,8 +49,8 @@ namespace AsitLib.CommandLine
             unchecked
             {
                 int hashCode = 17;
-                if (ParameterToken is not null) hashCode = hashCode * 23 + ParameterToken.GetHashCode();
-                if (ParameterIndex.HasValue) hashCode = hashCode * 23 + ParameterIndex.GetHashCode();
+                if (OptionToken is not null) hashCode = hashCode * 23 + OptionToken.GetHashCode();
+                if (OptionIndex.HasValue) hashCode = hashCode * 23 + OptionIndex.GetHashCode();
                 return hashCode;
             }
         }

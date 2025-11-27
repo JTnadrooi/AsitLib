@@ -19,7 +19,7 @@ namespace AsitLib.CommandLine
             Delegate = @delegate;
         }
 
-        public override ParameterInfo[] GetParameters() => Delegate.Method.GetParameters();
+        public override OptionInfo[] GetOptions() => Delegate.Method.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
         public override object? Invoke(object?[] parameters) => Delegate.DynamicInvoke(parameters);
     }
 
@@ -35,7 +35,7 @@ namespace AsitLib.CommandLine
             Object = @object;
         }
 
-        public override ParameterInfo[] GetParameters() => MethodInfo.GetParameters();
+        public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
         public override object? Invoke(object?[] parameters) => MethodInfo.Invoke(Object, parameters);
     }
 
@@ -90,13 +90,13 @@ namespace AsitLib.CommandLine
         }
 
         public abstract object? Invoke(object?[] parameters);
-        public abstract ParameterInfo[] GetParameters();
+        public abstract OptionInfo[] GetOptions();
 
         public virtual InvalidReason[] GetInvalidReasons()
         {
             List<InvalidReason> invalidReasons = new List<InvalidReason>();
 
-            if (IsGenericFlag && GetParameters().Length > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
+            if (IsGenericFlag && GetOptions().Length > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
 
             return invalidReasons.ToArray();
         }

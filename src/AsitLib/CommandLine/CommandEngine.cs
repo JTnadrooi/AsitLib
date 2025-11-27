@@ -65,8 +65,8 @@ namespace AsitLib.CommandLine
             AddCommand(() =>
             {
                 StringBuilder sb = new StringBuilder();
-                void WriteCommand(CommandInfo cmd) => sb.AppendLine($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetParameters()
-                    .Select(p => $"{p.ParameterType.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? ($"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) ") : " ")}").ToJoinedString("")}" +
+                void WriteCommand(CommandInfo cmd) => sb.AppendLine($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetOptions()
+                    .Select(p => $"{p.Type.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? ($"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) ") : " ")}").ToJoinedString("")}" +
                     $"# {cmd.Description}");
                 //void WriteProvider(CommandProvider provider) => sb.AppendLine($"{provider.Namespace} # {Commands.Values.Where(cmd => (cmd is ProviderCommandInfo pci) && pci.Provider == provider).Count()} commands.");
 
@@ -76,7 +76,7 @@ namespace AsitLib.CommandLine
         }
 
         public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
-            => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.ParseSignature(method)).ToArray(), description, method, isGenericFlag: isGenericFlag));
+            => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.GetSignature(method)).ToArray(), description, method, isGenericFlag: isGenericFlag));
         public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null, bool isGenericFlag = false)
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate, isGenericFlag: isGenericFlag));
         public CommandEngine AddCommand(CommandInfo info)
@@ -86,7 +86,7 @@ namespace AsitLib.CommandLine
             info.ThrowIfInvalid();
 
             List<string> additionalIds = new List<string>();
-            ParameterInfo[] parameters = info.GetParameters();
+            OptionInfo[] parameters = info.GetOptions();
 
             foreach (string id in info.Ids)
             {
@@ -215,7 +215,7 @@ namespace AsitLib.CommandLine
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
                 CommandContext context = new CommandContext(this, argsInfo);
-                object?[] conformed = Conform(ref argsInfo, commandInfo.GetParameters());
+                object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
                 GlobalOptionHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
                 ExecutingContext commandContext = ExecutingContext.Default;
 

@@ -18,29 +18,21 @@ namespace AsitLib.CommandLine
 {
     public static class ParseHelpers
     {
-        /// <summary>
-        /// Validates if a command <paramref name="argument"/> against the <see cref="ValidationAttribute"/> attributes on the <see cref="ParameterInfo"/>.
-        /// </summary>
-        /// <param name="argument">The argument to validate.</param>
-        /// <param name="parameter">The parameter to get the <see cref="ValidationAttribute"/> attributes from.</param>
-        /// <exception cref="ArgumentException">Argument is not valid.</exception>
-        public static void ValidateArgument(object? argument, IEnumerable<ValidationAttribute> validationAttributes)
+        public static string GetSignature(ParameterInfo parameterInfo)
         {
+            if (parameterInfo.Name == null) throw new InvalidOperationException("Cannot get signature from return parameter.");
+
+            SignatureAttribute? a = parameterInfo.GetCustomAttribute<SignatureAttribute>();
+            return a is null ? GetSignature(parameterInfo.Name) : a.Name;
         }
 
-        public static string ParseSignature(ParameterInfo parameterInfo)
+        public static string GetSignature(MemberInfo memberInfo)
         {
-            CustomSignatureAttribute? a = parameterInfo.GetCustomAttribute<CustomSignatureAttribute>();
-            return a is null ? ParseSignature(parameterInfo.Name!) : (a.Name ?? parameterInfo.Name!);
+            SignatureAttribute? a = memberInfo.GetCustomAttribute<SignatureAttribute>();
+            return a is null ? GetSignature(memberInfo.Name) : a.Name;
         }
 
-        public static string ParseSignature(MemberInfo memberInfo)
-        {
-            CustomSignatureAttribute? a = memberInfo.GetCustomAttribute<CustomSignatureAttribute>();
-            return a is null ? ParseSignature(memberInfo.Name) : (a.Name ?? memberInfo.Name);
-        }
-
-        public static string ParseSignature(string signature) => Regex.Replace(signature, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+        public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
         public static string[] Split(string str)
         {
@@ -149,7 +141,7 @@ namespace AsitLib.CommandLine
             return toret.ToArray();
         }
 
-        public static object?[] Conform(ref ArgumentsInfo argsInfo, ParameterInfo[] targets)
+        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] targets)
         {
             object?[] result = new object?[targets.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -157,20 +149,18 @@ namespace AsitLib.CommandLine
 
             for (int i = 0; i < targets.Length; i++)
             {
-                ParameterInfo target = targets[i];
-                string targetName = ParseSignature(target);
+                OptionInfo target = targets[i];
                 Argument? matchingArgument = null;
-                NullabilityInfo nullabilityInfo = nullabilityInfoContext.Create(target);
-                ShorthandAttribute? shorthandAttribute = target.GetCustomAttribute<ShorthandAttribute>();
-                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetCustomAttribute<AllowAntiArgumentAttribute>();
-                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? targetName[0].ToString());
+                ShorthandAttribute? shorthandAttribute = target.GetAttribute<ShorthandAttribute>();
+                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = target.GetAttribute<AllowAntiArgumentAttribute>();
+                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? target.Name[0].ToString());
 
                 foreach (Argument arg in argsInfo.Arguments)
                 {
-                    if ((arg.Target.IsLongForm && arg.Target.SanitizedParameterToken == targetName) || (arg.Target.ParameterIndex == i) ||
-                        (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedParameterToken == shortHandName))
+                    if ((arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == target.Name) || (arg.Target.OptionIndex == i) ||
+                        (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName))
                     {
-                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{target.Name}'.");
                         matchingArgument = arg;
                         //break;
                     }
@@ -179,11 +169,11 @@ namespace AsitLib.CommandLine
                 if (allowAntiArgumentAttribute is not null)
                     foreach (Argument arg in argsInfo.Arguments)
                     {
-                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedParameterToken == (allowAntiArgumentAttribute.Name ?? $"no-{targetName}"))
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (allowAntiArgumentAttribute.Name ?? $"no-{target.Name}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
-                            if (target.ParameterType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{targetName}'.");
+                            if (target.Type != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{target.Name}'.");
                             if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
@@ -199,7 +189,7 @@ namespace AsitLib.CommandLine
                         result[i] = target.DefaultValue;
                         goto Continue;
                     }
-                    if (nullabilityInfo.WriteState == NullabilityState.Nullable) // but can be null, so set null.
+                    if (target.WriteState == NullabilityState.Nullable) // but can be null, so set null.
                     {
                         result[i] = null;
                         goto Continue;
@@ -207,10 +197,10 @@ namespace AsitLib.CommandLine
 
                     //if (matchingArgument.Value.Target.UsesExplicitName.) throw new CommandException($"An anti-argument is are not allowed by the '{targetName}' parameter.");
 
-                    throw new CommandException($"No matching value found for parameter '{targetName + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
+                    throw new CommandException($"No matching value found for parameter '{target.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = Convert(matchingArgument.Tokens, target.ParameterType, target.GetCustomAttributes(true));
+                result[i] = Convert(matchingArgument.Tokens, target.Type, target.Attributes);
                 validArguments.Add(matchingArgument);
             Continue:;
             }
@@ -266,7 +256,7 @@ namespace AsitLib.CommandLine
 
                     Dictionary<string, string> names = target
                         .GetFields(BindingFlags.Public | BindingFlags.Static)
-                        .Select(f => new KeyValuePair<string, string>(ParseSignature(f), f.Name))
+                        .Select(f => new KeyValuePair<string, string>(GetSignature(f), f.Name))
                         .ToDictionary();
 
                     foreach (KeyValuePair<string, string> kvp in names)

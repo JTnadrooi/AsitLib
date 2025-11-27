@@ -10,19 +10,19 @@ namespace AsitLib.Tests
         [TestMethod]
         public void ParseSignature_PascalCase_ReturnsKebabCase()
         {
-            Assert.AreEqual("hello-world", ParseHelpers.ParseSignature("HelloWorld"));
+            Assert.AreEqual("hello-world", ParseHelpers.GetSignature("HelloWorld"));
         }
 
         [TestMethod]
         public void ParseSignature_MixedCase_ReturnsLowercaseKebabCase()
         {
-            Assert.AreEqual("http-request", ParseHelpers.ParseSignature("HTTPRequest"));
+            Assert.AreEqual("http-request", ParseHelpers.GetSignature("HTTPRequest"));
         }
 
         [TestMethod]
         public void ParseSignature_SingleWord_ReturnsLowercaseWord()
         {
-            Assert.AreEqual("word", ParseHelpers.ParseSignature("Word"));
+            Assert.AreEqual("word", ParseHelpers.GetSignature("Word"));
         }
 
         #endregion
