@@ -11,6 +11,20 @@ namespace AsitLib.CommandLine
 {
     public static class ParseHelpers
     {
+        public static bool IsValidGenericFlagCall(string signature) // maybe make signature struct
+        {
+            string sanitized = signature.TrimStart('-');
+            return (sanitized.Length == 1 && signature.Length - sanitized.Length == 1) || (sanitized.Length > 1 && signature.Length - sanitized.Length == 2);
+        }
+
+        public static string GetGenericFlagSignature(string signature) // maybe make signature struct
+        {
+            if (IsValidGenericFlagCall(signature)) throw new InvalidOperationException("'signature' is already a valid generic flag signature.");
+
+            if (signature.Length == 1) return "-" + signature;
+            else return "--" + signature;
+        }
+
         public static string GetSignature(ParameterInfo parameterInfo)
         {
             if (parameterInfo.Name == null) throw new InvalidOperationException("Cannot get signature from return parameter.");
@@ -77,7 +91,7 @@ namespace AsitLib.CommandLine
             bool noMoreParams = false;
             string token = string.Empty;
             string commandId = args[0];
-            bool callsGenericFlag = commandId.StartsWith("--");
+            bool callsGenericFlag = commandId.StartsWith('-');
 
             void PushArgument()
             {

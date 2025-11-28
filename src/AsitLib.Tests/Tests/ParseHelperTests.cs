@@ -94,5 +94,49 @@ namespace AsitLib.Tests
         }
 
         #endregion
+
+        [TestMethod]
+        public void IsValidGenericFlagCall_InvalidSignature_ReturnsFalse()
+        {
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("-help"));
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("---help"));
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("---h"));
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("--h"));
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("--?"));
+            Assert.IsFalse(ParseHelpers.IsValidGenericFlagCall("h"));
+        }
+
+        [TestMethod]
+        public void IsValidGenericFlagCall_ValidSignature_ReturnsTrue()
+        {
+            Assert.IsTrue(ParseHelpers.IsValidGenericFlagCall("--help"));
+            Assert.IsTrue(ParseHelpers.IsValidGenericFlagCall("-h"));
+        }
+
+        [TestMethod]
+        public void GetGenericFlagSignature_InputLongForm()
+        {
+            Assert.AreEqual(ParseHelpers.GetGenericFlagSignature("help"), "--help");
+        }
+
+        [TestMethod]
+        public void GetGenericFlagSignature_InputShorthand()
+        {
+            Assert.AreEqual(ParseHelpers.GetGenericFlagSignature("h"), "-h");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetGenericFlagSignature_InputValidLongformFlagCall_ThrowsError()
+        {
+            ParseHelpers.GetGenericFlagSignature("--help");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetGenericFlagSignature_InputValidShorthandFlagCall_ThrowsError()
+        {
+            ParseHelpers.GetGenericFlagSignature("-h");
+        }
     }
 }

@@ -66,7 +66,7 @@ namespace AsitLib.Tests
 
         }
 
-        [CommandAttribute("desc", InheritNamespace = false, IsGenericFlag = true)]
+        [CommandAttribute("desc", InheritNamespace = false, IsGenericFlag = true, Aliases = ["o", "basic"])]
         public void Void()
         {
 
@@ -307,6 +307,8 @@ namespace AsitLib.Tests
         {
             Engine.Execute("void");
             Engine.Execute("--void");
+            Engine.Execute("--basic");
+            Engine.Execute("-o");
         }
     }
 }

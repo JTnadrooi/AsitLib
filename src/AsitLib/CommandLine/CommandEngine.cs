@@ -91,7 +91,7 @@ namespace AsitLib.CommandLine
             foreach (string id in info.Ids)
             {
                 if (id.StartsWith('-')) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
-                if (info.IsGenericFlag) additionalIds.Add("--" + id);
+                if (info.IsGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
             }
 
             foreach (string id in info.Ids.Concat(additionalIds))
@@ -109,10 +109,11 @@ namespace AsitLib.CommandLine
         {
             if (!_uniqueCommands.ContainsKey(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
 
+            bool isGenericFlag = _uniqueCommands[id].IsGenericFlag;
+
             foreach (string aliasId in _uniqueCommands[id].Ids)
             {
-                if (_commands[id].IsGenericFlag)
-                    _commands.Remove("--" + aliasId);
+                if (isGenericFlag) _commands.Remove(ParseHelpers.GetGenericFlagSignature(aliasId));
                 _commands.Remove(aliasId);
             }
 

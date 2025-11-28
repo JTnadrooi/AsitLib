@@ -82,7 +82,7 @@ namespace AsitLib.CommandLine
         public ArgumentsInfo(string commandId, IReadOnlyList<Argument> arguments, bool callsGenericFlag)
         {
             if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Arguments call command as generic flag, but argument count is not 0.");
-            if (callsGenericFlag != commandId.StartsWith("-")) throw new CommandException("Invalid generic call command id relation.");
+            if (callsGenericFlag && !ParseHelpers.IsValidGenericFlagCall(commandId)) throw new CommandException("Invalid generic flag call.");
 
             CommandId = commandId;
             SanitizedCommandId = CommandId.TrimStart('-');
