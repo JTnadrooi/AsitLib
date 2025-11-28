@@ -46,6 +46,9 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, GlobalOptionHandler> FlagHandlers { get; }
 
+        public string NewLine { get; set; }
+        public string KeyValueSeperator { get; set; }
+
         private readonly Dictionary<string, List<string>> _srcMap;
 
         public CommandEngine()
@@ -59,6 +62,9 @@ namespace AsitLib.CommandLine
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
             FlagHandlers = _flagHandlers.AsReadOnly();
+
+            NewLine = "\n";
+            KeyValueSeperator = "=";
 
             _srcMap = new Dictionary<string, List<string>>();
 
@@ -188,7 +194,7 @@ namespace AsitLib.CommandLine
                         if (!CheckIfValid(keyStr)) throw new InvalidOperationException("Dictionary key has newline or equals sign (=), this is invalid and will conflict with parsing.");
                         if (!CheckIfValid(valueStr)) throw new InvalidOperationException("Dictionary value has newline or equals sign (=), this is invalid and will conflict with parsing.");
 
-                        sb.Append(keyStr).Append('=').Append(valueStr).Append("\n");
+                        sb.Append(keyStr).Append(KeyValueSeperator).Append(valueStr).Append(NewLine);
                     }
                     sb.Length--;
                     break;
@@ -198,7 +204,7 @@ namespace AsitLib.CommandLine
                     {
                         string s = v.ToString()!;
                         if (s.Contains('\n')) throw new InvalidOperationException("IEnumerable value has newline, this is invalid and will conflict with parsing.");
-                        sb.Append(s).Append("\n");
+                        sb.Append(s).Append(NewLine);
                     }
                     sb.Length--;
                     break;
