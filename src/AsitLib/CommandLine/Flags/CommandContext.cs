@@ -34,7 +34,7 @@ namespace AsitLib
             foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(flagHandler))
                 {
-                    value = (T?)ParseHelpers.GetValue(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true));
+                    value = (T?)ParseHelpers.GetValue(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true).Cast<Attribute>());
                     return true;
                 }
             value = default;

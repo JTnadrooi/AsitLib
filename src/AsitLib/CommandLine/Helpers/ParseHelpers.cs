@@ -190,13 +190,13 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? GetValue(string token, Type target, params IEnumerable<object> attributes) => GetValue([token], target, attributes);
-        public static object? GetValue(IReadOnlyList<string> tokens, Type target, params IEnumerable<object> attributes)
+        public static object? GetValue(string token, Type target, params IEnumerable<Attribute> attributes) => GetValue([token], target, attributes);
+        public static object? GetValue(IReadOnlyList<string> tokens, Type target, params IEnumerable<Attribute> attributes)
         {
             ImplicitValueAttribute? implicitValueAttribute = null;
             List<ValidationAttribute> validationAttributes = new List<ValidationAttribute>();
 
-            foreach (object attribute in attributes)
+            foreach (Attribute attribute in attributes)
                 switch (attribute)
                 {
                     case ValidationAttribute a:

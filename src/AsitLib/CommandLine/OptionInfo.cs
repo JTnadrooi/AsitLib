@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace AsitLib.CommandLine
 {
@@ -21,21 +22,29 @@ namespace AsitLib.CommandLine
 
         public bool HasDefaultValue { get; }
 
-        public object[] Attributes { get; }
+        public Attribute[] Attributes { get; }
         public Type Type { get; }
         public string Name { get; }
 
-        public OptionInfo(ParameterInfo parameter) : base()
-        {
-            _defaultValue = parameter.DefaultValue;
+        public OptionInfo(ParameterInfo parameter)
+            : this(ParseHelpers.GetSignature(parameter), parameter.ParameterType, parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray(), parameter.HasDefaultValue, parameter.DefaultValue, new NullabilityInfoContext().Create(parameter)) { }
+        public OptionInfo(string name, Type type, Attribute[] attributes)
+            : this(name, type, attributes, false, null) { }
+        public OptionInfo(string name, Type type, Attribute[] attributes, object? defaultValue)
+            : this(name, type, attributes, true, defaultValue) { }
 
-            HasDefaultValue = parameter.HasDefaultValue;
-            Attributes = parameter.GetCustomAttributes(true);
-            Type = parameter.ParameterType;
-            Name = ParseHelpers.GetSignature(parameter);
+        private OptionInfo(string name, Type type, Attribute[] attributes, bool hasDefaultValue, object? defaultValue = null, NullabilityInfo? nullabilityInfo = null)
+        {
+            Name = name;
+            Type = type;
+
+            Attributes = attributes;
+
+            _defaultValue = defaultValue;
+            HasDefaultValue = hasDefaultValue;
 
             if (!HasDefaultValue)
-                if (parameter.GetCustomAttribute<AllowNullAttribute>() is not null || new NullabilityInfoContext().Create(parameter).WriteState == NullabilityState.Nullable)
+                if (GetAttribute<AllowNullAttribute>() is not null || nullabilityInfo?.WriteState == NullabilityState.Nullable)
                 {
                     HasDefaultValue = true;
                     _defaultValue = null;
