@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 		<BaseOutputPath>..\..\build</BaseOutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<LangVersion>14.0</LangVersion>
+		<LangVersion>13.0</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

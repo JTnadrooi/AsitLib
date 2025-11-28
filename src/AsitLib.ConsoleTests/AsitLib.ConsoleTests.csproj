@@ -7,7 +7,7 @@
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<TieredCompilation>false</TieredCompilation>
 		<BaseOutputPath>..\..\build</BaseOutputPath>
-		<LangVersion>14.0</LangVersion>
+		<LangVersion>13.0</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
