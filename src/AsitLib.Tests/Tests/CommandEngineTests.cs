@@ -34,67 +34,67 @@ namespace AsitLib.Tests
 
         public TestCommandProvider() : base("test") { }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public string Print(string input, bool upperCase = false)
         {
             return upperCase ? input.ToUpper() : input;
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public string Tv([Option(AntiParameterName = "no-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public string TvEnable([Option(AntiParameterName = "disable-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [CommandAttribute("desc", InheritNamespace = false, Aliases = ["hi"])]
+        [Command("desc", InheritNamespace = false, Aliases = ["hi"])]
         public string Greet([Option(Name = "name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }
 
-        [CommandAttribute("desc", IsMain = true)]
+        [Command("desc", IsMain = true)]
         public void Main()
         {
 
         }
 
-        [CommandAttribute("desc", InheritNamespace = false, IsGenericFlag = true, Aliases = ["o", "basic"])]
+        [Command("desc", InheritNamespace = false, IsGenericFlag = true, Aliases = ["o", "basic"])]
         public void Void()
         {
 
         }
 
-        [CommandAttribute("desc", InheritNamespace = false, Id = "impl")]
+        [Command("desc", InheritNamespace = false, Id = "impl")]
         public int ImplicitValueAttributeTest([Option(ImplicitValue = 1)] int value = 0)
         {
             return value;
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public string Shorthand([Option(Shorthand = "wa")] string wayToLongParameterName, [Option(Shorthand = "s")] int secondWayToLongOne = 0)
         {
             return wayToLongParameterName + " | " + secondWayToLongOne;
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public string FlagConflict([Option(Shorthand = "t")] string testAlso)
         {
             return testAlso;
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public int[] Array()
         {
             return [1, 2, 3, 4];
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public Dictionary<int, int> Dictionary()
         {
             return new Dictionary<int, int> {
@@ -104,7 +104,7 @@ namespace AsitLib.Tests
             };
         }
 
-        [CommandAttribute("desc", InheritNamespace = false)]
+        [Command("desc", InheritNamespace = false)]
         public void Validation([Range(0, 10)] int i)
         {
 
