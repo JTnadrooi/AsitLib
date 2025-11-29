@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    [AttributeUsage(AttributeTargets.All & ~(AttributeTargets.Parameter | AttributeTargets.Constructor | AttributeTargets.ReturnValue))]
     public class SignatureAttribute : Attribute
     {
         public string Name { get; }

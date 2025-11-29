@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 
 namespace AsitLib.CommandLine
 {
@@ -26,15 +27,19 @@ namespace AsitLib.CommandLine
         public Type Type { get; }
         public string Name { get; }
 
-        public OptionInfo(ParameterInfo parameter)
-            : this(ParseHelpers.GetSignature(parameter), parameter.ParameterType, parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray(), parameter.HasDefaultValue, parameter.DefaultValue, new NullabilityInfoContext().Create(parameter)) { }
-        public OptionInfo(string name, Type type, Attribute[] attributes)
-            : this(name, type, attributes, false, null) { }
-        public OptionInfo(string name, Type type, Attribute[] attributes, object? defaultValue)
-            : this(name, type, attributes, true, defaultValue) { }
+        public OptionAttribute OptionAttribute { get; }
 
-        private OptionInfo(string name, Type type, Attribute[] attributes, bool hasDefaultValue, object? defaultValue = null, NullabilityInfo? nullabilityInfo = null)
+        public OptionInfo(ParameterInfo parameter)
+            : this(ParseHelpers.GetSignature(parameter), parameter.ParameterType, parameter.HasDefaultValue, parameter.DefaultValue, parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray(), new NullabilityInfoContext().Create(parameter)) { }
+        public OptionInfo(string name, Type type, Attribute[]? attributes = null)
+            : this(name, type, false, attributes: attributes) { }
+        public OptionInfo(string name, Type type, object? defaultValue = null, Attribute[]? attributes = null)
+            : this(name, type, true, defaultValue: defaultValue, attributes: attributes) { }
+
+        private OptionInfo(string name, Type type, bool hasDefaultValue, object? defaultValue = null, Attribute[]? attributes = null, NullabilityInfo? nullabilityInfo = null)
         {
+            attributes ??= Array.Empty<Attribute>();
+
             Name = name;
             Type = type;
 
@@ -42,6 +47,8 @@ namespace AsitLib.CommandLine
 
             _defaultValue = defaultValue;
             HasDefaultValue = hasDefaultValue;
+
+            OptionAttribute = (OptionAttribute?)attributes.SingleOrDefault(a => a is OptionAttribute oa) ?? AsitLib.CommandLine.OptionAttribute.Default;
 
             if (!HasDefaultValue)
                 if (GetAttribute<AllowNullAttribute>() is not null || nullabilityInfo?.WriteState == NullabilityState.Nullable)
@@ -59,6 +66,8 @@ namespace AsitLib.CommandLine
                     HasDefaultValue = true;
                     _defaultValue = false;
                 }
+
+            if (OptionAttribute.Name is not null) Name = OptionAttribute.Name;
         }
 
         public TAttribute? GetAttribute<TAttribute>() where TAttribute : Attribute
@@ -66,8 +75,8 @@ namespace AsitLib.CommandLine
             return (TAttribute?)Attributes.SingleOrDefault(a => a is TAttribute e);
         }
 
-        public object? GetValue(string token, Type target) => ParseHelpers.GetValue(token, Type, Attributes);
-        public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, Type, Attributes);
+        public object? GetValue(string token, Type target) => ParseHelpers.GetValue(token, Type, Attributes, OptionAttribute.ImplicitValue);
+        public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, Type, Attributes, OptionAttribute.ImplicitValue);
     }
 
     public static class ParameterInfoExtensions

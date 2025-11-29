@@ -1,5 +1,4 @@
-﻿using AsitLib.CommandLine.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -148,19 +147,17 @@ namespace AsitLib.CommandLine
             return toret.ToArray();
         }
 
-        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] targets)
+        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] options)
         {
-            object?[] result = new object?[targets.Length];
+            object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
-            for (int i = 0; i < targets.Length; i++)
+            for (int i = 0; i < options.Length; i++)
             {
-                OptionInfo option = targets[i];
+                OptionInfo option = options[i];
                 Argument? matchingArgument = null;
-                ShorthandAttribute? shorthandAttribute = option.GetAttribute<ShorthandAttribute>();
-                AllowAntiArgumentAttribute? allowAntiArgumentAttribute = option.GetAttribute<AllowAntiArgumentAttribute>();
-                string? shortHandName = shorthandAttribute is null ? null : (shorthandAttribute.Shorthand ?? option.Name[0].ToString());
+                string? shortHandName = option.OptionAttribute.Shorthand;
 
                 foreach (Argument arg in argsInfo.Arguments)
                     if ((arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name) || (arg.Target.OptionIndex == i) ||
@@ -171,9 +168,9 @@ namespace AsitLib.CommandLine
                         //break;
                     }
 
-                if (allowAntiArgumentAttribute is not null)
+                if (option.OptionAttribute.AntiParameterName is not null)
                     foreach (Argument arg in argsInfo.Arguments)
-                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (allowAntiArgumentAttribute.Name ?? $"no-{option.Name}"))
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (option.OptionAttribute.AntiParameterName ?? $"no-{option.Name}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (option.Type != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
@@ -204,11 +201,11 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? GetValue(string token, Type target, params IEnumerable<Attribute> attributes) => GetValue([token], target, attributes);
-        public static object? GetValue(IReadOnlyList<string> tokens, Type target, params IEnumerable<Attribute> attributes)
+        public static object? GetValue(string token, Type target, IEnumerable<Attribute>? attributes = null, object? implicitValue = null) => GetValue([token], target, attributes, implicitValue);
+        public static object? GetValue(IReadOnlyList<string> tokens, Type target, IEnumerable<Attribute>? attributes = null, object? implicitValue = null)
         {
-            ImplicitValueAttribute? implicitValueAttribute = null;
             List<ValidationAttribute> validationAttributes = new List<ValidationAttribute>();
+            attributes = attributes ?? Enumerable.Empty<Attribute>();
 
             foreach (Attribute attribute in attributes)
                 switch (attribute)
@@ -216,16 +213,13 @@ namespace AsitLib.CommandLine
                     case ValidationAttribute a:
                         validationAttributes.Add(a);
                         break;
-                    case ImplicitValueAttribute a:
-                        implicitValueAttribute = a;
-                        break;
                 }
 
             object? ConvertPrivate()
             {
                 if (tokens.Count == 0)
                 {
-                    if (implicitValueAttribute is not null) return implicitValueAttribute.Value;
+                    if (implicitValue != null) return implicitValue;
                     if (target == typeof(bool)) return true;
                     else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
                 }

@@ -1,5 +1,4 @@
 ﻿using AsitLib.CommandLine;
-using AsitLib.CommandLine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -34,7 +33,7 @@ namespace AsitLib
             foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(flagHandler))
                 {
-                    value = (T?)ParseHelpers.GetValue(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true).Cast<Attribute>());
+                    value = (T?)ParseHelpers.GetValue(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true).Cast<Attribute>(), flagHandler.ImplicitValue);
                     return true;
                 }
             value = default;

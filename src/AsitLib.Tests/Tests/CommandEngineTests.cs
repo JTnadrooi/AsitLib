@@ -1,5 +1,4 @@
 ﻿using AsitLib.CommandLine;
-using AsitLib.CommandLine.Attributes;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -15,10 +14,9 @@ namespace AsitLib.Tests
         Value3 = 3,
     }
 
-    [ImplicitValue("TEST")]
     public class AlwaysReturnTestGlobalOptionHandler : GlobalOptionHandler
     {
-        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t")
+        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", "TEST")
         {
 
         }
@@ -43,19 +41,19 @@ namespace AsitLib.Tests
         }
 
         [CommandAttribute("desc", InheritNamespace = false)]
-        public string Tv([AllowAntiArgument] bool color = true)
+        public string Tv([Option(AntiParameterName = "no-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
         [CommandAttribute("desc", InheritNamespace = false)]
-        public string TvEnable([AllowAntiArgument("disable-color")] bool color = true)
+        public string TvEnable([Option(AntiParameterName = "disable-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
         [CommandAttribute("desc", InheritNamespace = false, Aliases = ["hi"])]
-        public string Greet([Signature("name")] string yourName)
+        public string Greet([Option(Name = "name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }
@@ -73,19 +71,19 @@ namespace AsitLib.Tests
         }
 
         [CommandAttribute("desc", InheritNamespace = false, Id = "impl")]
-        public int ImplicitValueAttributeTest([ImplicitValue(1)] int value = 0)
+        public int ImplicitValueAttributeTest([Option(ImplicitValue = 1)] int value = 0)
         {
             return value;
         }
 
         [CommandAttribute("desc", InheritNamespace = false)]
-        public string Shorthand([Shorthand("wa")] string wayToLongParameterName, [Shorthand] int secondWayToLongOne = 0)
+        public string Shorthand([Option(Shorthand = "wa")] string wayToLongParameterName, [Option(Shorthand = "s")] int secondWayToLongOne = 0)
         {
             return wayToLongParameterName + " | " + secondWayToLongOne;
         }
 
         [CommandAttribute("desc", InheritNamespace = false)]
-        public string FlagConflict([Shorthand("t")] string testAlso)
+        public string FlagConflict([Option(Shorthand = "t")] string testAlso)
         {
             return testAlso;
         }

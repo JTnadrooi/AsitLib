@@ -16,11 +16,15 @@ namespace AsitLib.CommandLine
         public string Description { get; }
         public bool HasShorthandId => ShorthandId is not null;
 
-        protected GlobalOptionHandler(string longFormId, string description, string? shorthandId = null)
+        public object? ImplicitValue { get; }
+
+        protected GlobalOptionHandler(string longFormId, string description, string? shorthandId = null, object? implicitValue = null)
         {
             ShorthandId = shorthandId;
             LongFormId = longFormId;
             Description = description;
+
+            ImplicitValue = implicitValue;
         }
 
         /// <summary>
