@@ -150,13 +150,13 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddFlagHandler(GlobalOptionHandler flagHandler)
+        public CommandEngine AddGlobalOption(GlobalOptionHandler flagHandler)
         {
             _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
             return this;
         }
 
-        public CommandEngine RemoveFlagHandler(string id)
+        public CommandEngine RemoveGlobalOptionHandler(string id)
         {
             if (!_flagHandlers.Remove(id)) throw new KeyNotFoundException($"FlagHandler with Id '{id}' was not found.");
             return this;
@@ -221,7 +221,7 @@ namespace AsitLib.CommandLine
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
-                CommandContext context = new CommandContext(this, argsInfo);
+                CommandContext context = new CommandContext(this, argsInfo, true);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
                 GlobalOptionHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
                 ExecutingContext commandContext = ExecutingContext.Default;
@@ -229,16 +229,13 @@ namespace AsitLib.CommandLine
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
                 foreach (GlobalOptionHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
-                foreach (GlobalOptionHandler flagHandler in pendingFlags)
-                {
-                    commandContext = commandContext.Layer(flagHandler.GetExecutingContext(context));
-                }
 
-                context.ExecutingContext = commandContext;
+                object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+                context.PreCommand = false;
 
-                object? returned = commandContext.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+                returned = context.RunAllActions() ?? returned;
 
-                if (!commandContext.Flags.HasFlag(ExecutingContextFlags.PreventFlags))
+                if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
                     foreach (GlobalOptionHandler flagHandler in pendingFlags)
                     {
                         returned = flagHandler.OnReturned(context, returned);

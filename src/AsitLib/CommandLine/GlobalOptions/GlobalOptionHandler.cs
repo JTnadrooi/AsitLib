@@ -41,7 +41,6 @@ namespace AsitLib.CommandLine
 
         public virtual object? OnReturned(CommandContext context, object? returned) => returned;
 
-        public virtual ExecutingContext GetExecutingContext(CommandContext context) => ExecutingContext.Default;
     }
 
     [Flags]
@@ -50,26 +49,7 @@ namespace AsitLib.CommandLine
         None = 0,
         PreventCommand = 1,
         PreventFlags = 2,
-    }
-
-    public readonly struct ExecutingContext
-    {
-        public readonly ExecutingContextFlags Flags { get; init; }
-
-        public ExecutingContext() { }
-
-        public readonly ExecutingContext Layer(ExecutingContext other)
-        {
-            return new ExecutingContext()
-            {
-                Flags = other.Flags | Flags
-            };
-        }
-
-        public readonly bool HasFlag(ExecutingContextFlags flag) => Flags.HasFlag(flag);
-
-        public static ExecutingContext Default { get; } = new ExecutingContext() { Flags = ExecutingContextFlags.None };
-        public static ExecutingContext PreventAll { get; } = new ExecutingContext() { Flags = ExecutingContextFlags.PreventCommand | ExecutingContextFlags.PreventFlags };
+        FullStop = PreventCommand | PreventFlags,
     }
     ///// <summary>
     ///// Represents a command flag listener and handler with input of type <see cref="TInput"/>.
