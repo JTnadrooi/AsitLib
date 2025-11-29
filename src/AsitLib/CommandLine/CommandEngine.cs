@@ -48,6 +48,7 @@ namespace AsitLib.CommandLine
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
+        public string? NullString { get; set; }
 
         private readonly Dictionary<string, List<string>> _srcMap;
 
@@ -65,6 +66,7 @@ namespace AsitLib.CommandLine
 
             NewLine = "\n";
             KeyValueSeperator = "=";
+            NullString = StringHelpers.NULL_STRING;
 
             _srcMap = new Dictionary<string, List<string>>();
 
@@ -94,8 +96,6 @@ namespace AsitLib.CommandLine
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate, isGenericFlag: isGenericFlag));
         public CommandEngine AddCommand(CommandInfo info)
         {
-            //if (!info.IsValid()) throw new ArgumentException($"Invalid {nameof(CommandInfo)}.", nameof(info));
-
             info.ThrowIfInvalid();
 
             List<string> additionalIds = new List<string>();
@@ -180,15 +180,16 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public string Execute(string args) => Execute(Split(args));
-        public string Execute(string[] args)
+        public string? Execute(string args) => Execute(Split(args));
+        public string? Execute(string[] args)
         {
             StringBuilder sb = new StringBuilder();
             object? ret = ExecuteAndCapture(args);
             switch (ret)
             {
                 case null:
-                    sb.Append(StringHelpers.NULL_STRING);
+                    if (NullString is null) return null;
+                    else sb.Append(NullString);
                     break;
                 case IDictionary dict:
                     foreach (DictionaryEntry e in dict)
