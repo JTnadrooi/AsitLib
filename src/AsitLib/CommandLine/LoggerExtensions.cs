@@ -9,6 +9,6 @@ namespace AsitLib.CommandLine
 {
     public static class LoggerExtensions
     {
-        public static VerboseGlobalOptionHandler GetVerboseFlagHandler(this Logger logger) => new VerboseGlobalOptionHandler(logger);
+        public static VerboseGlobalOption GetVerboseFlagHandler(this Logger logger) => new VerboseGlobalOption(logger);
     }
 }

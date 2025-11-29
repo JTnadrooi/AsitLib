@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class HelpGlobalOptionHandler : GlobalOptionHandler
+    public class HelpGlobalOption : GlobalOption
     {
-        public HelpGlobalOptionHandler() : base("help", "Display command help.", "h")
+        public HelpGlobalOption() : base("help", "Display command help.", "h")
         {
 
         }

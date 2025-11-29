@@ -14,7 +14,7 @@ namespace AsitLib.Tests
         Value3 = 3,
     }
 
-    public class AlwaysReturnTestGlobalOptionHandler : GlobalOptionHandler
+    public class AlwaysReturnTestGlobalOptionHandler : GlobalOption
     {
         public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", "TEST")
         {

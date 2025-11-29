@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
     /// <summary>
     /// Represents a global option listener.
     /// </summary>
-    public abstract class GlobalOptionHandler
+    public abstract class GlobalOption
     {
         public string? ShorthandId { get; }
         public string LongFormId { get; }
@@ -18,7 +18,7 @@ namespace AsitLib.CommandLine
 
         public object? ImplicitValue { get; }
 
-        protected GlobalOptionHandler(string longFormId, string description, string? shorthandId = null, object? implicitValue = null)
+        protected GlobalOption(string longFormId, string description, string? shorthandId = null, object? implicitValue = null)
         {
             ShorthandId = shorthandId;
             LongFormId = longFormId;

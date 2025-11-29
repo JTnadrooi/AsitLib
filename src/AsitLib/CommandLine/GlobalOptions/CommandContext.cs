@@ -69,13 +69,13 @@ namespace AsitLib
             return this;
         }
 
-        public T? GetFlagHandlerArgument<T>(GlobalOptionHandler flagHandler)
+        public T? GetFlagHandlerArgument<T>(GlobalOption flagHandler)
         {
             if (TryGetFlagHandlerArgument<T>(flagHandler, out T? value)) return value;
             else throw new InvalidOperationException($"No flag argument provided for flag '{flagHandler.LongFormId}'.");
         }
 
-        public bool TryGetFlagHandlerArgument<T>(GlobalOptionHandler flagHandler, out T? value)
+        public bool TryGetFlagHandlerArgument<T>(GlobalOption flagHandler, out T? value)
         {
             foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(flagHandler))

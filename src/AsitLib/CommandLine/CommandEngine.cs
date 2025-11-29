@@ -19,7 +19,7 @@ namespace AsitLib.CommandLine
     {
         private bool _disposedValue;
 
-        private readonly Dictionary<string, GlobalOptionHandler> _flagHandlers;
+        private readonly Dictionary<string, GlobalOption> _globalOptions;
         private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
@@ -27,7 +27,7 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
-        public ReadOnlyDictionary<string, GlobalOptionHandler> FlagHandlers { get; }
+        public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -40,12 +40,12 @@ namespace AsitLib.CommandLine
             _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
-            _flagHandlers = new Dictionary<string, GlobalOptionHandler>();
+            _globalOptions = new Dictionary<string, GlobalOption>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
-            FlagHandlers = _flagHandlers.AsReadOnly();
+            GlobalOptions = _globalOptions.AsReadOnly();
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -65,12 +65,12 @@ namespace AsitLib.CommandLine
                 else
                     foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
 
-                sb.Length--;
+                sb.Length -= NewLine.Length;
 
                 return sb.ToString();
             }, "help", "Print help.", ["?", "h"], isGenericFlag: true);
 
-            AddGlobalOption(new HelpGlobalOptionHandler());
+            AddGlobalOption(new HelpGlobalOption());
         }
 
         public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
@@ -140,15 +140,15 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddGlobalOption(GlobalOptionHandler flagHandler)
+        public CommandEngine AddGlobalOption(GlobalOption flagHandler)
         {
-            _flagHandlers.Add(flagHandler.LongFormId, flagHandler);
+            _globalOptions.Add(flagHandler.LongFormId, flagHandler);
             return this;
         }
 
-        public CommandEngine RemoveGlobalOptionHandler(string id)
+        public CommandEngine RemoveGlobalOption(string id)
         {
-            if (!_flagHandlers.Remove(id)) throw new KeyNotFoundException($"FlagHandler with Id '{id}' was not found.");
+            if (!_globalOptions.Remove(id)) throw new KeyNotFoundException($"FlagHandler with Id '{id}' was not found.");
             return this;
         }
 
@@ -187,7 +187,7 @@ namespace AsitLib.CommandLine
 
                         sb.Append(keyStr).Append(KeyValueSeperator).Append(valueStr).Append(NewLine);
                     }
-                    sb.Length--;
+                    sb.Length -= NewLine.Length;
                     break;
                 case string s: goto default; // because string implements IEnumerable<char>.
                 case IEnumerable values:
@@ -197,7 +197,7 @@ namespace AsitLib.CommandLine
                         if (s.Contains('\n')) throw new InvalidOperationException("IEnumerable value has newline, this is invalid and will conflict with parsing.");
                         sb.Append(s).Append(NewLine);
                     }
-                    sb.Length--;
+                    sb.Length -= NewLine.Length;
                     break;
                 default:
                     sb.Append(ret.ToString());
@@ -214,11 +214,11 @@ namespace AsitLib.CommandLine
             {
                 CommandContext context = new CommandContext(this, argsInfo, true);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
-                GlobalOptionHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
+                GlobalOption[] pendingFlags = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
 
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
-                foreach (GlobalOptionHandler flagHandler in pendingFlags) flagHandler.PreCommand(context);
+                foreach (GlobalOption flagHandler in pendingFlags) flagHandler.PreCommand(context);
 
                 object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
                 context.PreCommand = false;
@@ -226,7 +226,7 @@ namespace AsitLib.CommandLine
                 returned = context.RunAllActions() ?? returned;
 
                 if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
-                    foreach (GlobalOptionHandler flagHandler in pendingFlags)
+                    foreach (GlobalOption flagHandler in pendingFlags)
                     {
                         returned = flagHandler.OnReturned(context, returned);
                         flagHandler.PostCommand(context);
