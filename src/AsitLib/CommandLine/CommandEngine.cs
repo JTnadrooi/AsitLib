@@ -68,7 +68,7 @@ namespace AsitLib.CommandLine
 
             _srcMap = new Dictionary<string, List<string>>();
 
-            AddCommand(() =>
+            AddCommand((string? commandId = null) =>
             {
                 StringBuilder sb = new StringBuilder();
                 void WriteCommand(CommandInfo cmd) => sb.AppendLine($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetOptions()
@@ -76,9 +76,13 @@ namespace AsitLib.CommandLine
                     $"# {cmd.Description}");
                 //void WriteProvider(CommandProvider provider) => sb.AppendLine($"{provider.Namespace} # {Commands.Values.Where(cmd => (cmd is ProviderCommandInfo pci) && pci.Provider == provider).Count()} commands.");
 
-                foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
+                if (commandId is not null) WriteCommand(Commands[commandId]);
+                else
+                    foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
                 return sb.ToString();
             }, "help", "Print help.", ["?", "h"], isGenericFlag: true);
+
+            AddGlobalOption(new HelpGlobalOptionHandler());
         }
 
         public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
@@ -224,7 +228,6 @@ namespace AsitLib.CommandLine
                 CommandContext context = new CommandContext(this, argsInfo, true);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
                 GlobalOptionHandler[] pendingFlags = ExtractFlags(ref argsInfo, _flagHandlers.Values.ToArray());
-                ExecutingContext commandContext = ExecutingContext.Default;
 
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 

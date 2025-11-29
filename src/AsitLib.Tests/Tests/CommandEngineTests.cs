@@ -119,7 +119,7 @@ namespace AsitLib.Tests
         {
             Engine = new CommandEngine()
                 .AddProvider(new TestCommandProvider(), CommandInfoFactory.Default)
-                .AddFlagHandler(new AlwaysReturnTestGlobalOptionHandler());
+                .AddGlobalOption(new AlwaysReturnTestGlobalOptionHandler());
         }
 
         [ClassCleanup]
@@ -136,6 +136,10 @@ namespace AsitLib.Tests
         public static void AssertExecute(string expected, string[] args)
         {
             Assert.AreEqual(expected, Engine.Execute(args));
+        }
+        public static void AssertCheckOutput()
+        {
+            Assert.Inconclusive("Check output.");
         }
 
         [TestMethod]
@@ -307,6 +311,15 @@ namespace AsitLib.Tests
             Engine.Execute("--void");
             Engine.Execute("--basic");
             Engine.Execute("-o");
+        }
+
+        [TestMethod]
+        public void HelpGlobalOptionHandler()
+        {
+            Console.WriteLine(Engine.Execute("void --help"));
+            Console.WriteLine("\n" + Engine.Execute("void -h"));
+
+            AssertCheckOutput();
         }
     }
 }
