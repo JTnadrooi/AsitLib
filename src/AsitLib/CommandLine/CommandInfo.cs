@@ -96,7 +96,7 @@ namespace AsitLib.CommandLine
         {
             List<InvalidReason> invalidReasons = new List<InvalidReason>();
 
-            if (IsGenericFlag && GetOptions().Length > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
+            if (IsGenericFlag && GetOptions().Count(o => !o.HasDefaultValue) > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
 
             return invalidReasons.ToArray();
         }
