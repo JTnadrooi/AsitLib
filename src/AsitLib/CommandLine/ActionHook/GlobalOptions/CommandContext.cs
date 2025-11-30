@@ -11,18 +11,20 @@ namespace AsitLib
 {
     public sealed class CommandContext
     {
-        public ArgumentsInfo ArgumentsInfo { get; internal set; }
-        public CommandEngine Engine { get; internal set; }
+        public ArgumentsInfo ArgumentsInfo { get; }
+        public CommandEngine Engine { get; }
+        public CommandInfo Command { get; }
         public ExecutingContextFlags Flags { get; set; }
         internal bool PreCommand { get; set; }
 
         private List<Func<object?>> _actions;
 
-        internal CommandContext(CommandEngine source, ArgumentsInfo argumentsInfo, bool preCommand)
+        internal CommandContext(CommandEngine engine, ArgumentsInfo argumentsInfo, bool preCommand, CommandInfo command)
         {
             ArgumentsInfo = argumentsInfo;
-            Engine = source;
+            Engine = engine;
             Flags = ExecutingContextFlags.None;
+            Command = command;
 
             _actions = new List<Func<object?>>();
             PreCommand = preCommand;
