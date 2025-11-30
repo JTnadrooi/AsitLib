@@ -67,7 +67,7 @@ namespace AsitLib.CommandLine
                 sb.Length -= NewLine.Length;
 
                 return sb.ToString();
-            }, "help", "Print help.", ["?", "h"], isGenericFlag: true);
+            }, "help", "Prints help.", ["?", "h"], isGenericFlag: true);
 
             AddGlobalOption(new HelpGlobalOption());
         }
