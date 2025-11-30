@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
     /// <summary>
     /// Represents a global option listener.
     /// </summary>
-    public abstract class GlobalOption
+    public abstract class GlobalOption : ActionHook
     {
         public string? ShorthandId { get; }
         public string LongFormId { get; }
@@ -18,7 +18,7 @@ namespace AsitLib.CommandLine
 
         public object? ImplicitValue { get; }
 
-        protected GlobalOption(string longFormId, string description, string? shorthandId = null, object? implicitValue = null)
+        protected GlobalOption(string longFormId, string description, string? shorthandId = null, object? implicitValue = null) : base(longFormId)
         {
             ShorthandId = shorthandId;
             LongFormId = longFormId;
@@ -26,21 +26,6 @@ namespace AsitLib.CommandLine
 
             ImplicitValue = implicitValue;
         }
-
-        /// <summary>
-        /// Gets called before the command executes. Only calls if the <see cref="ShouldListen(ArgumentsInfo)"/> returns <see langword="true"/>.
-        /// </summary>
-        /// <param name="context">The </param>
-        public virtual void PreCommand(CommandContext context) { }
-
-        /// <summary>
-        /// Gets called after the command executes. Only calls if the <see cref="ShouldListen(ArgumentsInfo)"/> returns <see langword="true"/>.
-        /// </summary>
-        /// <param name="arguments">The command arguments. Do not check if this flag is present, that is done by the <see cref="ShouldListen(ArgumentsInfo)"/> method.</param>
-        public virtual void PostCommand(CommandContext context) { }
-
-        public virtual object? OnReturned(CommandContext context, object? returned) => returned;
-
     }
 
     [Flags]

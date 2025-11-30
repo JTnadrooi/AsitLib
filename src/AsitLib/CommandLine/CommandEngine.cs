@@ -23,11 +23,13 @@ namespace AsitLib.CommandLine
         private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
+        private readonly Dictionary<string, ActionHook> _hooks;
 
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
+        public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -41,11 +43,13 @@ namespace AsitLib.CommandLine
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
             _globalOptions = new Dictionary<string, GlobalOption>();
+            _hooks = new Dictionary<string, ActionHook>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
             GlobalOptions = _globalOptions.AsReadOnly();
+            Hooks = _hooks.AsReadOnly();
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -150,6 +154,18 @@ namespace AsitLib.CommandLine
             return this;
         }
 
+        public CommandEngine AddHook(ActionHook hook)
+        {
+            _hooks.Add(hook.Id, hook);
+            return this;
+        }
+
+        public CommandEngine RemoveHook(string id)
+        {
+            if (!_hooks.Remove(id)) throw new KeyNotFoundException($"ActionHook with Id '{id}' was not found.");
+            return this;
+        }
+
         public ProviderCommandInfo[] GetProviderCommands(string @namespace)
         {
             List<ProviderCommandInfo> providerCommands = new List<ProviderCommandInfo>();
@@ -212,11 +228,13 @@ namespace AsitLib.CommandLine
             {
                 CommandContext context = new CommandContext(this, argsInfo, true);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
-                GlobalOption[] pendingFlags = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
+                GlobalOption[] toRunGlobalOptions = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
+                List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
+                toRunHooks.AddRange(_hooks.Values);
 
                 if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
 
-                foreach (GlobalOption flagHandler in pendingFlags) flagHandler.PreCommand(context);
+                foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 
                 object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
                 context.PreCommand = false;
@@ -224,10 +242,10 @@ namespace AsitLib.CommandLine
                 returned = context.RunAllActions() ?? returned;
 
                 if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
-                    foreach (GlobalOption flagHandler in pendingFlags)
+                    foreach (ActionHook hook in toRunHooks)
                     {
-                        returned = flagHandler.OnReturned(context, returned);
-                        flagHandler.PostCommand(context);
+                        returned = hook.OnReturned(context, returned);
+                        hook.PostCommand(context);
                     }
 
                 return returned;
