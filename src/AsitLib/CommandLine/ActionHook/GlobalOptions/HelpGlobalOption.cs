@@ -23,7 +23,7 @@ namespace AsitLib.CommandLine
 
             context
                 .AddFlag(ExecutingContextFlags.FullStop)
-                .AddAction(() => context.Source.Execute("help " + context.ArgumentsInfo.CommandId));
+                .AddAction(() => context.Engine.Execute("help " + context.ArgumentsInfo.CommandId));
         }
     }
 }

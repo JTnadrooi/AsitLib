@@ -113,7 +113,7 @@ namespace AsitLib.Tests
         [Command("desc", InheritNamespace = false)]
         public int ContextInject(CommandContext context)
         {
-            return context.Source.UniqueCommands.Count;
+            return context.Engine.UniqueCommands.Count;
         }
     }
 
