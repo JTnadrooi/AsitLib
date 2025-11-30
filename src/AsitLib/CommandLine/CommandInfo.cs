@@ -103,20 +103,24 @@ namespace AsitLib.CommandLine
 
         public virtual string GetHelpString()
         {
-            StringBuilder sb = new StringBuilder(Id);
+            StringBuilder sb = new StringBuilder(Id).Append(" ");
+            OptionInfo[] options = GetOptions();
 
-            if (HasAliases) sb.Append($"[{Ids.Skip(1).ToJoinedString(", ")}]");
+            if (HasAliases) sb.Append($"[{Ids.Skip(1).ToJoinedString(", ")}] ");
 
-            string optionsString = GetOptions().Select(p =>
-                $"{p.Type.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
-                .ToJoinedString();
+            if (options.Length != 0)
+            {
+                string optionsString = GetOptions().Select(p =>
+                    $"{p.Type.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
+                    .ToJoinedString();
 
-            sb.Append(optionsString);
+                sb.Append(optionsString);
+            }
+
             sb.Append($"# {Description}");
 
             return sb.ToString();
         }
-
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
