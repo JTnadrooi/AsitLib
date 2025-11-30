@@ -227,7 +227,7 @@ namespace AsitLib.CommandLine
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
                 CommandContext context = new CommandContext(this, argsInfo, true);
-                object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions());
+                object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions(), context);
                 GlobalOption[] toRunGlobalOptions = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
                 List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
                 toRunHooks.AddRange(_hooks.Values);

@@ -30,7 +30,7 @@ namespace AsitLib.Tests
 
     public class TestCommandProvider : CommandProvider
     {
-        public const int COMMAND_COUNT = 12;
+        public const int COMMAND_COUNT = 13;
 
         public TestCommandProvider() : base("test") { }
 
@@ -108,6 +108,12 @@ namespace AsitLib.Tests
         public void Validation([Range(0, 10)] int i)
         {
 
+        }
+
+        [Command("desc", InheritNamespace = false)]
+        public int ContextInject(CommandContext context)
+        {
+            return context.Source.UniqueCommands.Count;
         }
     }
 
@@ -320,6 +326,12 @@ namespace AsitLib.Tests
             Console.WriteLine("\n" + Engine.Execute("void -h"));
 
             AssertCheckOutput();
+        }
+
+        [TestMethod]
+        public void Execute_ContextOption_InjectsContext()
+        {
+            AssertExecute((TestCommandProvider.COMMAND_COUNT + 1).ToString(), "context-inject"); // bc help command=
         }
     }
 }

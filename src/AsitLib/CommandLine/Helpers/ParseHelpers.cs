@@ -147,7 +147,7 @@ namespace AsitLib.CommandLine
             return toret.ToArray();
         }
 
-        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] options)
+        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] options, CommandContext? context = null)
         {
             object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -183,13 +183,19 @@ namespace AsitLib.CommandLine
                         }
 
                 if (matchingArgument is null) // no matching argument found.
-                    if (option.HasDefaultValue) // but has default value, so set default value.
+                {
+                    if (option.Type == typeof(CommandContext))
+                    {
+                        result[i] = context ?? throw new CommandException("Cannot inject engine when engine is not passed to Conform function.");
+                        goto Continue;
+                    }
+                    else if (option.HasDefaultValue) // but has default value, so set default value.
                     {
                         result[i] = option.DefaultValue;
                         goto Continue;
                     }
                     else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
-
+                }
                 result[i] = option.GetValue(matchingArgument.Tokens);
                 validArguments.Add(matchingArgument);
 
