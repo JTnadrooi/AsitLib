@@ -263,6 +263,19 @@ namespace AsitLib.CommandLine
         public T? ExecuteAndCapture<T>(string[] args)
             => (T?)ExecuteAndCapture(args) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands.");
 
+        public void ExecuteWriteLine(string[] args, TextWriter? @out = null) => ExecuteWriteLineInternal(Execute(args), @out);
+        public void ExecuteWriteLine(string args, TextWriter? @out = null) => ExecuteWriteLineInternal(Execute(args), @out);
+
+        private void ExecuteWriteLineInternal(string? executeReturn, TextWriter? @out = null)
+        {
+            if (executeReturn is null) return;
+
+            @out ??= Console.Out;
+
+            @out.WriteLine(executeReturn);
+            @out.Flush();
+        }
+
         /// <summary>
         /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
         /// </summary>
@@ -280,7 +293,7 @@ namespace AsitLib.CommandLine
             activator ??= t => (CommandProvider)Activator.CreateInstance(t)!;
             infoFactory = CommandInfoFactory.Default;
 
-            IEnumerable<Type> types = (assembly ?? Assembly.GetExecutingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
+            IEnumerable<Type> types = (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
 
             if (predicate is not null) types = types.Where(t => predicate.Invoke(t));
 
