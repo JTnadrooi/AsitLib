@@ -271,6 +271,24 @@ namespace AsitLib.CommandLine
         public TProvider GetProvider<TProvider>() where TProvider : CommandProvider
             => (TProvider)Providers.Values.First(p => p.GetType() == typeof(TProvider));
 
+        public CommandEngine Populate(
+            ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null,
+            Assembly? assembly = null,
+            Func<Type, bool>? predicate = null,
+            Func<Type, CommandProvider>? activator = null)
+        {
+            activator ??= t => (CommandProvider)Activator.CreateInstance(t)!;
+            infoFactory = CommandInfoFactory.Default;
+
+            IEnumerable<Type> types = (assembly ?? Assembly.GetExecutingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
+
+            if (predicate is not null) types = types.Where(t => predicate.Invoke(t));
+
+            foreach (Type type in types) AddProvider(activator.Invoke(type), infoFactory);
+
+            return this;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
