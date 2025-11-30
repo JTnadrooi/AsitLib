@@ -21,7 +21,7 @@ namespace AsitLib.CommandLine
         /// <summary>
         /// Gets the description.
         /// </summary>
-        public string Description { get; init; }
+        public string Description { get; }
 
         /// <summary>
         /// Gets whether the provider namespace is prefixed to the identifier.
