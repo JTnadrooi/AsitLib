@@ -30,9 +30,7 @@ namespace AsitLib
 
         internal object? RunAllActions()
         {
-            object? toret = null;
-
-            foreach (var action in _actions) toret = action.Invoke();
+            object? toret = _actions.Aggregate((object?)null, (result, action) => action.Invoke() ?? result);
 
             return toret;
         }

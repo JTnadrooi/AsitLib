@@ -56,14 +56,9 @@ namespace AsitLib.CommandLine
             AddCommand((string? commandId = null) =>
             {
                 StringBuilder sb = new StringBuilder();
-                void WriteCommand(CommandInfo cmd) => sb.Append($"{cmd.Id}{(cmd.HasAliases ? $"[{cmd.Ids.Skip(1).ToJoinedString(", ")}]" : string.Empty)} {cmd.GetOptions()
-                    .Select(p => $"{p.Type.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? ($"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) ") : " ")}").ToJoinedString("")}" +
-                    $"# {cmd.Description}" + NewLine);
-                //void WriteProvider(CommandProvider provider) => sb.AppendLine($"{provider.Namespace} # {Commands.Values.Where(cmd => (cmd is ProviderCommandInfo pci) && pci.Provider == provider).Count()} commands.");
-
-                if (commandId is not null) WriteCommand(Commands[commandId]);
+                if (commandId is not null) return Commands[commandId].GetHelpString();
                 else
-                    foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) WriteCommand(cmd);
+                    foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) sb.Append(cmd.GetHelpString()).Append(NewLine);
 
                 sb.Length -= NewLine.Length;
 
@@ -127,7 +122,10 @@ namespace AsitLib.CommandLine
 
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
-                    AddCommand(infoFactory.Convert(attribute, provider, methodInfo));
+                {
+                    TCommandInfo? info = infoFactory.Convert(attribute, provider, methodInfo);
+                    if (info is not null) AddCommand(info);
+                }
 
             return this;
         }

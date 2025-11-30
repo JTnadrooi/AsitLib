@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
 {
     public interface ICommandInfoFactory<in TAttribute, out TCommandInfo> where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
-        public TCommandInfo Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
+        public TCommandInfo? Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
     }
 
     public static class CommandInfoFactory
@@ -17,7 +17,7 @@ namespace AsitLib.CommandLine
         public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, ProviderCommandInfo>
         {
             public DefaultInfoFactory() { }
-            public ProviderCommandInfo Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+            public ProviderCommandInfo? Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
                 => new ProviderCommandInfo(CommandHelpers.CreateCommandId(attribute, provider, methodInfo).ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, provider);
         }
 
