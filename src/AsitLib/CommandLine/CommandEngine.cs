@@ -15,10 +15,8 @@ using static System.Net.WebRequestMethods;
 
 namespace AsitLib.CommandLine
 {
-    public class CommandEngine : IDisposable
+    public sealed class CommandEngine
     {
-        private bool _disposedValue;
-
         private readonly Dictionary<string, GlobalOption> _globalOptions;
         private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
@@ -300,27 +298,6 @@ namespace AsitLib.CommandLine
             foreach (Type type in types) AddProvider(activator.Invoke(type), infoFactory);
 
             return this;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects)
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                _disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }
