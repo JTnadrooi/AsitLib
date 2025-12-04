@@ -1,0 +1,145 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AsitLib;
+using System;
+using System.Linq;
+
+namespace AsitLib.Tests
+{
+    [TestClass]
+    public class EnumerableExtensionsTests
+    {
+        [TestMethod]
+        public void EndsWith_ShouldReturnTrue_WhenArrayEndsWithValue()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+            int[] value = { 4, 5 };
+
+            bool result = source.EndsWith(value);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void EndsWith_ShouldReturnFalse_WhenArrayDoesNotEndWithValue()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+            int[] value = { 3, 4 };
+
+            bool result = source.EndsWith(value);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void Copy_ShouldReturnIdenticalArray()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            int[] result = source.Copy();
+
+            CollectionAssert.AreEqual(source, result);
+        }
+
+        [TestMethod]
+        public void SwitchIndexes_ShouldSwitchElements()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            source.SwitchIndexes(1, 3);
+
+            Assert.AreEqual(4, source[1]);
+            Assert.AreEqual(2, source[3]);
+        }
+
+        [TestMethod]
+        public void SqueezeIndexes_ShouldRemoveNullsAndKeepNonNullValues()
+        {
+            int?[] source = { 1, null, 2, null, 3 };
+
+            int?[] result = source.SqueezeIndexes();
+
+            CollectionAssert.AreEqual(new int?[] { 1, 2, 3, null, null }, result);
+        }
+
+        [TestMethod]
+        public void SetSize_ShouldShrinkArray()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            int[] result = source.SetSize(3);
+
+            CollectionAssert.AreEqual(new int[] { 1, 2, 3 }, result);
+        }
+
+        [TestMethod]
+        public void SetSize_ShouldExpandArray()
+        {
+            int[] source = { 1, 2, 3 };
+
+            int[] result = source.SetSize(5);
+
+            CollectionAssert.AreEqual(new int[] { 1, 2, 3, 0, 0 }, result);
+        }
+
+        // Test for Shift method
+        [TestMethod]
+        public void Shift_ShouldShiftArrayCorrectly()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            int[] result = source.Shift(2);
+
+            CollectionAssert.AreEqual(new int[] { 0, 0, 1, 2, 3 }, result);
+        }
+
+        [TestMethod]
+        public void GetFirstIndexWhere_ShouldReturnCorrectIndex()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            int result = source.GetFirstIndexWhere(x => x == 3);
+
+            Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void GetFirstIndexWhere_ShouldThrowException_WhenNoMatch()
+        {
+            int[] source = { 1, 2, 3, 4, 5 };
+
+            source.GetFirstIndexWhere(x => x == 6);
+        }
+
+        [TestMethod]
+        public void To2DJoinedString_ShouldReturnCorrectString()
+        {
+            int[][] source = { new[] { 1, 2 }, new[] { 3, 4 } };
+
+            string result = source.To2DJoinedString();
+
+            Assert.AreEqual("{1,2},{3,4}", result);
+        }
+
+        [TestMethod]
+        public void ConcatToStart_ShouldPrependValueToArray()
+        {
+            int[] source = { 2, 3, 4 };
+            int value = 1;
+
+            var result = source.ConcatToStart(value).ToArray();
+
+            CollectionAssert.AreEqual(new int[] { 1, 2, 3, 4 }, result);
+        }
+
+        [TestMethod]
+        public void ToJoinedString_ShouldReturnJoinedString()
+        {
+            int?[] source = { 1, null, 3, 4 };
+
+            string result = source.ToJoinedString(',');
+
+            Assert.AreEqual("1,null,3,4", result);
+        }
+    }
+}

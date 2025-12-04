@@ -65,14 +65,6 @@ namespace AsitLib
             }
         }
 
-        public static T[] AddValuesTo<T>(this T[] source, params T[] values)
-        {
-            int startIndex = source.GetFirstIndexWhere(t => t is null);
-            for (int i = 0; i < values.Length; i++)
-                if (source.Length > i + startIndex && source[startIndex + i] is null) source[startIndex + i] = values[i];
-            return source;
-        }
-
         public static T[] Shift<T>(this T[] source, int amount)
         {
             T[] shiftedArray = new T[source.Length];
@@ -85,16 +77,6 @@ namespace AsitLib
             }
 
             return shiftedArray;
-        }
-
-        public static T[] ShiftIndexes<T>(this T[] source, int oldIndex, int newIndex)
-        {
-            if (oldIndex == newIndex) return source;
-            T atIndex = source[oldIndex];
-            if (newIndex < oldIndex) Array.Copy(source, newIndex, source, newIndex + 1, oldIndex - newIndex);
-            else Array.Copy(source, oldIndex + 1, source, oldIndex, newIndex - oldIndex);
-            source[newIndex] = atIndex;
-            return source;
         }
 
         public static T[] ToSingleArray<T>(this T value) => [value]; // still needed in rare cases where [] doesn't work.
@@ -142,7 +124,7 @@ namespace AsitLib
             foreach (T item in source)
                 if (predicate.Invoke(item)) return index;
                 else index++;
-            throw new Exception();
+            throw new InvalidOperationException("No items match the given predicate.");
         }
 
         public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, out int value)

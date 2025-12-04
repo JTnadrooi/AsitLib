@@ -118,7 +118,7 @@ namespace AsitLib.Tests
     }
 
     [TestClass]
-    public class CommandEngineTests
+    public class CommandEngineExecuteTests
     {
         [ClassInitialize]
         public static void ClassInit(TestContext context)
@@ -131,7 +131,7 @@ namespace AsitLib.Tests
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Engine.Dispose();
+
         }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -331,7 +331,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_ContextOption_InjectsContext()
         {
-            AssertExecute((TestCommandProvider.COMMAND_COUNT + 1).ToString(), "context-inject"); // bc help command=
+            AssertExecute((TestCommandProvider.COMMAND_COUNT + 1).ToString(), "context-inject");
         }
     }
 }

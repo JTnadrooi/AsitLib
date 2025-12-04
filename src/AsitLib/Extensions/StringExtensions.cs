@@ -11,10 +11,10 @@ namespace AsitLib
 {
     public static class StringExtensions
     {
-        public static string? FirstLine(this string str)
+        public static string FirstLine(this string str)
         {
             using StringReader reader = new StringReader(str);
-            return reader.ReadLine();
+            return reader.ReadLine() ?? throw new InvalidOperationException("End of reader reached.");
         }
 
         public static string Between(this string str, string FirstString, string LastString, BetweenMethod method = BetweenMethod.FirstFirst)
@@ -57,8 +57,5 @@ namespace AsitLib
                    i.Equals("false", StringComparison.OrdinalIgnoreCase) ? false :
                    (bool?)null;
         }
-
-        public static bool Contains(this string input, string str, int maxcount) => Regex.Matches(input, str).Count <= maxcount;
-        public static bool Contains(this string input, char c, int maxcount) => input.Count(cc => c == cc) <= maxcount;
     }
 }
