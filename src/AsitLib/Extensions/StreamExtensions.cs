@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AsitLib
+{
+    public static class StreamExtensions
+    {
+        public static IEnumerable<string> Chunk(this Stream stream, string delimiter, StringSplitOptions options)
+        {
+            char[] buffer = new char[50];
+            StringBuilder output = new StringBuilder();
+            int read;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                do
+                {
+                    read = reader.ReadBlock(buffer, 0, buffer.Length);
+                    output.Append(buffer, 0, read);
+
+                    string text = output.ToString();
+                    int id = 0, total = 0;
+                    while ((id = text.IndexOf(delimiter, id)) >= 0)
+                    {
+                        string line = text[total..id];
+                        id += delimiter.Length;
+                        if (options != StringSplitOptions.RemoveEmptyEntries || line != string.Empty)
+                            yield return line;
+                        total = id;
+                    }
+                    output.Remove(0, total);
+                }
+                while (read == buffer.Length);
+            }
+
+            if (options != StringSplitOptions.RemoveEmptyEntries || output.Length > 0)
+                yield return output.ToString();
+        }
+    }
+}
