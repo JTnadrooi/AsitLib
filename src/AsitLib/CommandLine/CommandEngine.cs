@@ -60,7 +60,7 @@ namespace AsitLib.CommandLine
                 StringBuilder sb = new StringBuilder();
                 if (commandId is not null) return Commands[commandId].GetHelpString();
                 else
-                    foreach (CommandInfo cmd in UniqueCommands.Values.OrderBy(c => c.Id)) sb.Append(cmd.GetHelpString()).Append(NewLine);
+                    foreach (CommandInfo cmd in GetEnabledCommands().OrderBy(c => c.Id)) sb.Append(cmd.GetHelpString()).Append(NewLine);
 
                 sb.Length -= NewLine.Length;
 
@@ -224,6 +224,8 @@ namespace AsitLib.CommandLine
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
+                if (!commandInfo.IsEnabled) throw new InvalidOperationException("Cannot call disabled command.");
+
                 CommandContext context = new CommandContext(this, argsInfo, true, commandInfo);
                 object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions(), context);
                 GlobalOption[] toRunGlobalOptions = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
@@ -289,7 +291,7 @@ namespace AsitLib.CommandLine
             Func<Type, CommandProvider>? activator = null)
         {
             activator ??= t => (CommandProvider)Activator.CreateInstance(t)!;
-            infoFactory = CommandInfoFactory.Default;
+            infoFactory ??= CommandInfoFactory.Default;
 
             IEnumerable<Type> types = (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
 
@@ -299,5 +301,7 @@ namespace AsitLib.CommandLine
 
             return this;
         }
+
+        public IEnumerable<CommandInfo> GetEnabledCommands() => UniqueCommands.Values.Where(c => c.IsEnabled);
     }
 }

@@ -80,13 +80,17 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool IsGenericFlag { get; }
 
-        public CommandInfo(string[] ids, string description, bool isGenericFlag = false)
+        public bool IsEnabled { get; }
+
+        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, bool isEnabled = true)
         {
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
             Ids = ids.AsReadOnly();
             Description = description;
             IsGenericFlag = isGenericFlag;
+
+            IsEnabled = isEnabled;
         }
 
         public abstract object? Invoke(object?[] parameters);
