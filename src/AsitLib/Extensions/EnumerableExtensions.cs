@@ -1,6 +1,7 @@
 ﻿using AsitLib.Numerics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -10,13 +11,11 @@ namespace AsitLib
 {
     public static class EnumerableExtensions
     {
-        public static bool EndsWith<T>(this T[] source, T[] value)
+        public static bool EndsWith<T>(this T[] array1, T[] array2)
         {
-            if (source is null) throw new ArgumentNullException(nameof(source));
-            if (value is null) throw new ArgumentNullException(nameof(value));
-            if (value.Length > source.Length) throw new ArgumentException(nameof(value) + " lenght exeeds base array lenght.");
+            if (array2.Length > array1.Length) throw new ArgumentException($"Lenght exeeds base array lenght.", nameof(array2));
 
-            return source[(source.Length - value.Length)..].SequenceEqual(value);
+            return array1[(array1.Length - array2.Length)..].SequenceEqual(array2);
         }
 
         public static T[] Copy<T>(this T[] source)
@@ -28,12 +27,7 @@ namespace AsitLib
 
         public static T[] SwitchIndexes<T>(this T[] source, int index1, int index2)
         {
-            T item1 = source[index1];
-            T item2 = source[index2];
-
-            source[index1] = item2;
-            source[index2] = item1;
-
+            (source[index1], source[index2]) = (source[index2], source[index1]);
             return source;
         }
 
@@ -67,7 +61,7 @@ namespace AsitLib
             throw new InvalidOperationException("No items match the given predicate.");
         }
 
-        public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, out int value)
+        public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullWhen(true)] out int? value)
         {
             try
             {
@@ -76,42 +70,31 @@ namespace AsitLib
             }
             catch
             {
-                value = default;
+                value = null;
                 return false;
             }
         }
 
-        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range) => values.ToArray()[range];
-        public static int[] GetIndexes<T>(this IEnumerable<T> values, Func<T, bool> validator)
-            => Enumerable.Range(0, values.Count()).Where(i => validator.Invoke(values.ToArray()[i])).ToArray();
-        public static Range[] ToBetweenRanges(this IEnumerable<int> ints)
+        public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range)
         {
-            if (ints.Any(i => i < 0) || ints.Count() != ints.Distinct().Count()) throw new ArgumentException("Invalid int array.");
-            List<Range> toret = new List<Range>();
-            int last = 0;
-            foreach (int i in ints)
+            NormalizedRange normalizedRange = NormalizedRange.CreateFromFactory(range, values);
+            return values.Skip(normalizedRange.Start).Take(normalizedRange.End - normalizedRange.Start);
+        }
+
+        public static int[] GetIndexesWhere<T>(this IEnumerable<T> values, Func<T, bool> predicate)
+        {
+            List<int> indexes = new List<int>();
+            int index = 0;
+            foreach (T? item in values)
             {
-                toret.Add(new Range(last, i));
-                last = i;
+                if (predicate.Invoke(item)) indexes.Add(index);
+                index++;
             }
-            return toret.ToArray()[1..];
+            return indexes.ToArray();
         }
 
-        public static IEnumerable<T> ConcatToStart<T>(this IEnumerable<T> values, T value)
-        {
-            T[] newValues = new T[values.Count() + 1];
-            newValues[0] = value;
-            Array.Copy(values.ToArray(), 0, newValues, 1, values.Count());
-            return newValues;
-        }
-
-        public static string ToJoinedString<T>(this IEnumerable<T?>? values, char joiner)
-        {
-            if (values is null) return StringHelpers.NULL_STRING;
-            return string.Join(joiner, values.Select(v => v?.ToString() ?? StringHelpers.NULL_STRING));
-        }
-
-        public static string ToJoinedString<T>(this IEnumerable<T?>? values, string? joiner = null)
+        public static string ToJoinedString<T>(this IEnumerable<T> values, char joiner) => ToJoinedString(values, joiner.ToString());
+        public static string ToJoinedString<T>(this IEnumerable<T> values, string? joiner = null)
         {
             joiner ??= string.Empty;
             if (values is null) return StringHelpers.NULL_STRING;
