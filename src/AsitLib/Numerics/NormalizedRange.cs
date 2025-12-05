@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -105,6 +106,12 @@ namespace AsitLib.Numerics
         /// <returns>A <see cref="NormalizedRange"/> ranging the difference between the two values.</returns>
         public static NormalizedRange GetFromValues(int value1, int value2)
             => new NormalizedRange(System.Math.Min(value1, value2), System.Math.Max(value1, value2));
+
+        public static NormalizedRange CreateFromFactory<T>(Range source, IEnumerable<T> values)
+        {
+            if (source.IsNormalized()) return new NormalizedRange(source);
+            else return new NormalizedRange(source, values.Count());
+        }
     }
 
     /// <summary>
