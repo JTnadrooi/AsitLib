@@ -122,6 +122,14 @@ namespace AsitLib.Numerics
             => new NormalizedRange(range, collectionLength);
 
         /// <summary>
+        /// Converts a <see cref="Range"/> to a <see cref="NormalizedRange"/>.
+        /// </summary>
+        /// <param name="range">The <see cref="Range"/> to normalize.</param>
+        /// <returns>A <see cref="NormalizedRange"/> representing the input <paramref name="range"/>, normalized.</returns>
+        public static NormalizedRange ToNormalizedRange(this Range range)
+            => new NormalizedRange(range);
+
+        /// <summary>
         /// Gets if the <paramref name="range"/> is normalized.
         /// </summary>
         /// <param name="range"></param>
