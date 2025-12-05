@@ -48,67 +48,7 @@ namespace AsitLib
             return squeezedList.ToArray();
         }
 
-        public static T?[] SetSize<T>(this T[] source, int newSize)
-        {
-            if (source.Length == newSize) return source;
-            else if (source.Length > newSize)
-            {
-                source = source[..newSize];
-                return source;
-            }
-            else
-            {
-                List<T?> values = new List<T?>(source);
-                int diff = (int)MathFI.Diff(source.Length, newSize);
-                for (int i = 0; i < diff; i++) values.Add(default(T));
-                return values.ToArray();
-            }
-        }
-
-        public static T[] Shift<T>(this T[] source, int amount)
-        {
-            T[] shiftedArray = new T[source.Length];
-            int newIndex;
-
-            for (int i = 0; i < source.Length; i++)
-            {
-                newIndex = i + amount;
-                if (newIndex >= 0 && newIndex < source.Length) shiftedArray[newIndex] = source[i];
-            }
-
-            return shiftedArray;
-        }
-
         public static T[] ToSingleArray<T>(this T value) => [value]; // still needed in rare cases where [] doesn't work.
-        public static T[,] CreateRectangularArray<T>(this T[][] arrays)
-        {
-            // TODO: Validation and special-casing for arrays.Count == 0
-            int lenght0 = arrays.GetLength(0);
-            int minorLength = arrays[0].Length;
-            T[,] ret = new T[lenght0, minorLength];
-            for (int i = 0; i < lenght0; i++)
-            {
-                T[] array = arrays[i];
-                if (array.Length != minorLength)
-                {
-                    throw new ArgumentException
-                        ("All arrays must be the same length");
-                }
-                for (int j = 0; j < minorLength; j++)
-                {
-                    ret[i, j] = array[j];
-                }
-            }
-            return ret;
-        }
-
-        public static object?[] GetItems(this ITuple tuple)
-        {
-            List<object?> toret2 = new List<object?>();
-            for (int i = 0; i < tuple.Length; i++)
-                toret2.Add(tuple[i]);
-            return toret2.ToArray();
-        }
 
         /// <summary>
         /// Get the first index where the set conditions are met. If none are found a <see cref="Exception"/> is thrown.
@@ -176,25 +116,6 @@ namespace AsitLib
             joiner ??= string.Empty;
             if (values is null) return StringHelpers.NULL_STRING;
             return string.Join(joiner, values.Select(v => v?.ToString() ?? StringHelpers.NULL_STRING));
-        }
-
-        public static string To2DJoinedString<T>(this T[][] values, string joiner = "")
-        {
-            if (values is null) return "Null";
-            string result = string.Empty;
-            int maxI = values.Length;
-            int maxJ = values[0].Length;
-            for (int i = 0; i < maxI; i++)
-            {
-                result += ",{";
-                for (int j = 0; j < maxJ; j++)
-                {
-                    result += $"{values[i][j]},";
-                }
-
-                result += "}";
-            }
-            return result.Replace(",}", "}")[1..];
         }
     }
 }

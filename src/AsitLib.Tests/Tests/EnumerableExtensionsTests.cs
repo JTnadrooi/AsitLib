@@ -61,36 +61,6 @@ namespace AsitLib.Tests
             CollectionAssert.AreEqual(new int?[] { 1, 2, 3, null, null }, result);
         }
 
-        [TestMethod]
-        public void SetSize_ShouldShrinkArray()
-        {
-            int[] source = { 1, 2, 3, 4, 5 };
-
-            int[] result = source.SetSize(3);
-
-            CollectionAssert.AreEqual(new int[] { 1, 2, 3 }, result);
-        }
-
-        [TestMethod]
-        public void SetSize_ShouldExpandArray()
-        {
-            int[] source = { 1, 2, 3 };
-
-            int[] result = source.SetSize(5);
-
-            CollectionAssert.AreEqual(new int[] { 1, 2, 3, 0, 0 }, result);
-        }
-
-        // Test for Shift method
-        [TestMethod]
-        public void Shift_ShouldShiftArrayCorrectly()
-        {
-            int[] source = { 1, 2, 3, 4, 5 };
-
-            int[] result = source.Shift(2);
-
-            CollectionAssert.AreEqual(new int[] { 0, 0, 1, 2, 3 }, result);
-        }
 
         [TestMethod]
         public void GetFirstIndexWhere_ShouldReturnCorrectIndex()
@@ -109,27 +79,6 @@ namespace AsitLib.Tests
             int[] source = { 1, 2, 3, 4, 5 };
 
             source.GetFirstIndexWhere(x => x == 6);
-        }
-
-        [TestMethod]
-        public void To2DJoinedString_ShouldReturnCorrectString()
-        {
-            int[][] source = { new[] { 1, 2 }, new[] { 3, 4 } };
-
-            string result = source.To2DJoinedString();
-
-            Assert.AreEqual("{1,2},{3,4}", result);
-        }
-
-        [TestMethod]
-        public void ConcatToStart_ShouldPrependValueToArray()
-        {
-            int[] source = { 2, 3, 4 };
-            int value = 1;
-
-            var result = source.ConcatToStart(value).ToArray();
-
-            CollectionAssert.AreEqual(new int[] { 1, 2, 3, 4 }, result);
         }
 
         [TestMethod]
