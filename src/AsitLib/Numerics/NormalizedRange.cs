@@ -81,6 +81,12 @@ namespace AsitLib.Numerics
         /// <returns>A <see cref="bool"/> indicating of the <see cref="int"/> falls within the range of this <see cref="NormalizedRange"/>.</returns>
         public readonly bool Contains(int i) => i >= Start && i < End;
 
+        public void Deconstruct(out int start, out int end)
+        {
+            start = Start;
+            end = End;
+        }
+
         /// <summary>
         /// Gets this <see cref="NormalizedRange"/> as a normal <see cref="Range"/>.
         /// </summary>
