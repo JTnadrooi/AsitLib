@@ -21,12 +21,12 @@ namespace AsitLib.Chance
             int randomValue = random.Next(values.Values.Sum());
             int cumulativeWeight = 0;
 
-            foreach (var kvp in values)
+            foreach ((T k, int v) in values)
             {
-                cumulativeWeight += kvp.Value;
+                cumulativeWeight += v;
                 if (randomValue < cumulativeWeight)
                 {
-                    return kvp.Key;
+                    return k;
                 }
             }
 
