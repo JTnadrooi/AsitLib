@@ -115,17 +115,18 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddProvider<TAttribute, TCommandInfo>(CommandProvider provider, ICommandInfoFactory<TAttribute, TCommandInfo> infoFactory) where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
+        public CommandEngine AddProvider(CommandProvider provider, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null)
         {
             if (!_providers.TryAdd(provider.Namespace, provider)) throw new InvalidOperationException($"CommandProvider with duplicate namespace '{provider.Namespace}' found.");
+            infoFactory ??= CommandInfoFactory.Default;
 
             MethodInfo[] commandMethods = provider.GetType().GetMethods();
             _srcMap.Add(provider.Namespace, new List<string>());
 
             foreach (MethodInfo methodInfo in commandMethods)
-                if (methodInfo.GetCustomAttribute<TAttribute>() is TAttribute attribute)
+                if (methodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
                 {
-                    TCommandInfo? info = infoFactory.Convert(attribute, provider, methodInfo);
+                    CommandInfo? info = infoFactory.Convert(attribute, provider, methodInfo);
                     if (info is not null) AddCommand(info);
                 }
 
@@ -291,7 +292,6 @@ namespace AsitLib.CommandLine
             Func<Type, CommandProvider>? activator = null)
         {
             activator ??= t => (CommandProvider)Activator.CreateInstance(t)!;
-            infoFactory ??= CommandInfoFactory.Default;
 
             IEnumerable<Type> types = (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
 
