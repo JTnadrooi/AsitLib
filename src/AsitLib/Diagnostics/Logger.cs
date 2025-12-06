@@ -47,6 +47,7 @@ namespace AsitLib.Diagnostics
         public bool IsConsole { get; }
         public bool AutoFlush { get; }
         public int DisplaysCapasity { get; }
+        public bool Freeze { get; set; }
 
         public Logger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
@@ -65,12 +66,15 @@ namespace AsitLib.Diagnostics
 
         public void Header(string msg)
         {
-            if (Silent) return;
+            if (Silent || Freeze) return;
+
             Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
         }
 
         public void Log(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
+            if (Freeze) return;
+
             void InternalLog(ReadOnlySpan<object?> displays = default)
             {
                 if (msg is null) msg = "_NULL_";
@@ -107,6 +111,8 @@ namespace AsitLib.Diagnostics
 
         public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
+            if (Freeze) return;
+
             if (!string.IsNullOrEmpty(msg))
             {
                 NormalizeMessage(msg!, out int delta, out char? prefix);
@@ -123,6 +129,8 @@ namespace AsitLib.Diagnostics
 
         private string BuildStatusMsg(string? msg, string status)
         {
+            if (Freeze) return string.Empty;
+
             Stopwatch? sw = EndTiming();
             StringBuilder content = new StringBuilder().Append("<").Append(status);
 
