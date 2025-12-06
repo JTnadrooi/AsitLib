@@ -109,9 +109,9 @@ namespace AsitLib.Stele
             ReadMetadata(_reader, out _, out _width, out _height);
         }
 
-        public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
+        public void Decode(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
-            InternalGetData(_reader, outData, map, bufferSize, VERSION, Width, Height);
+            InternalDecode(_reader, outData, map, bufferSize, VERSION, Width, Height);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -217,19 +217,19 @@ namespace AsitLib.Stele
             writer.BaseStream.Flush();
         }
 
-        public static void GetData(string path, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
+        public static void Decode(string path, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
             using FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-            GetData(fs, outData, map, bufferSize);
+            Decode(fs, outData, map, bufferSize);
         }
 
-        public static void GetData(Stream source, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
+        public static void Decode(Stream source, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
             using BinaryReader reader = new BinaryReader(source, Encoding.ASCII, true);
-            InternalGetData(reader, outData, map, bufferSize);
+            InternalDecode(reader, outData, map, bufferSize);
         }
 
-        private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, int version = 0, int width = -1, int height = -1)
+        private static void InternalDecode(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, int version = 0, int width = -1, int height = -1)
         {
             if (version == 0)
             {

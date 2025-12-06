@@ -99,7 +99,7 @@ namespace AsitLib.ConsoleTests
                 float swRLEMs = Test(() => SteleData<Rgba32>.Encode(OutPath, data, img.Width, img.Height, map), "new(stele, RLE)", 100);
 
                 Rgba32[] outData = new Rgba32[img.Width * img.Height];
-                float swDecodeMs = Test(() => SteleData<Rgba32>.GetData(OutPath, outData, map), "dec(stele)", 1000, false);
+                float swDecodeMs = Test(() => SteleData<Rgba32>.Decode(OutPath, outData, map), "dec(stele)", 1000, false);
                 Console.WriteLine($"\tpassed: " + Enumerable.SequenceEqual(data, outData));
                 Console.WriteLine($"\tspeed increase: ~" + Math.Round(pngDec.ElapsedMilliseconds / swDecodeMs) + "x");
             }
