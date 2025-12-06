@@ -176,51 +176,8 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public string? Execute(string args) => Execute(Split(args));
-        public string? Execute(string[] args)
-        {
-            StringBuilder sb = new StringBuilder();
-            object? ret = ExecuteAndCapture(args);
-            switch (ret)
-            {
-                case null:
-                    if (NullString is null) return null;
-                    else sb.Append(NullString);
-                    break;
-                case IDictionary dict:
-                    foreach (DictionaryEntry e in dict)
-                    {
-                        string keyStr = e.Key.ToString()!;
-                        string valueStr = e.Value?.ToString() ?? StringHelpers.NULL_STRING;
-
-                        static bool CheckIfValid(string s) => !s.Contains('\n') || !s.Contains('=');
-
-                        if (!CheckIfValid(keyStr)) throw new InvalidOperationException("Dictionary key has newline or equals sign (=), this is invalid and will conflict with parsing.");
-                        if (!CheckIfValid(valueStr)) throw new InvalidOperationException("Dictionary value has newline or equals sign (=), this is invalid and will conflict with parsing.");
-
-                        sb.Append(keyStr).Append(KeyValueSeperator).Append(valueStr).Append(NewLine);
-                    }
-                    sb.Length -= NewLine.Length;
-                    break;
-                case string s: goto default; // because string implements IEnumerable<char>.
-                case IEnumerable values:
-                    foreach (object v in values)
-                    {
-                        string s = v.ToString()!;
-                        if (s.Contains('\n')) throw new InvalidOperationException("IEnumerable value has newline, this is invalid and will conflict with parsing.");
-                        sb.Append(s).Append(NewLine);
-                    }
-                    sb.Length -= NewLine.Length;
-                    break;
-                default:
-                    sb.Append(ret.ToString());
-                    break;
-            }
-            return sb.ToString();
-        }
-
-        public object? ExecuteAndCapture(string args) => ExecuteAndCapture(Split(args));
-        public object? ExecuteAndCapture(string[] args)
+        public CommandResultInfo Execute(string args) => Execute(Split(args));
+        public CommandResultInfo Execute(string[] args)
         {
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
@@ -252,7 +209,7 @@ namespace AsitLib.CommandLine
                         hook.PostCommand(context);
                     }
 
-                return returned;
+                return new CommandResultInfo(this, returned);
             }
             else if (argsInfo.CallsGenericFlag)
             {
@@ -260,24 +217,6 @@ namespace AsitLib.CommandLine
                 throw new InvalidOperationException($"Generic flag with ID '{argsInfo.CommandId}' not found.");
             }
             else throw new InvalidOperationException($"Command with ID '{argsInfo.CommandId}' not found.");
-        }
-
-        public T? ExecuteAndCapture<T>(string args)
-            => (T?)ExecuteAndCapture(Split(args)) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands.");
-        public T? ExecuteAndCapture<T>(string[] args)
-            => (T?)ExecuteAndCapture(args) ?? throw new InvalidOperationException("Cannot capture return type from void-returning commands.");
-
-        public void ExecuteWriteLine(string[] args, TextWriter? @out = null) => ExecuteWriteLineInternal(Execute(args), @out);
-        public void ExecuteWriteLine(string args, TextWriter? @out = null) => ExecuteWriteLineInternal(Execute(args), @out);
-
-        private void ExecuteWriteLineInternal(string? executeReturn, TextWriter? @out = null)
-        {
-            if (executeReturn is null) return;
-
-            @out ??= Console.Out;
-
-            @out.WriteLine(executeReturn);
-            @out.Flush();
         }
 
         /// <summary>

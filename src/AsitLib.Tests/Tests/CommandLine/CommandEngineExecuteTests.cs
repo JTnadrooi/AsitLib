@@ -141,7 +141,7 @@ namespace AsitLib.Tests
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
         public static void AssertExecute(string expected, string[] args)
         {
-            Assert.AreEqual(expected, Engine.Execute(args));
+            Assert.AreEqual(expected, Engine.Execute(args).ToOutputString());
         }
         public static void AssertCheckOutput()
         {
@@ -232,9 +232,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_VoidReturningCommand_ReturnsNull()
+        public void Execute_VoidReturningCommand_IsVoid()
         {
-            Assert.IsNull(Engine.ExecuteAndCapture("void"), "Void command executing did not return null.");
+            Assert.IsTrue(Engine.Execute("void").IsVoid);
         }
 
         [TestMethod]

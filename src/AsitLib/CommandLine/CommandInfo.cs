@@ -24,12 +24,15 @@ namespace AsitLib.CommandLine
     {
         public MethodInfo MethodInfo { get; }
         public object? Target { get; }
+        public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
         public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false)
             : base(ids, description, isGenericFlag: isGenericFlag)
         {
             MethodInfo = methodInfo;
             Target = target;
+
+            if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return type DBNull.", nameof(methodInfo));
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
@@ -37,7 +40,7 @@ namespace AsitLib.CommandLine
         {
             object? result = MethodInfo.Invoke(Target, parameters); // so always runs.
 
-            return MethodInfo.ReturnType == typeof(void) ? DBNull.Value : result;
+            return IsVoid ? DBNull.Value : result;
         }
     }
 
