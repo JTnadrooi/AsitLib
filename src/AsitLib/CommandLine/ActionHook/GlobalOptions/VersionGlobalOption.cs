@@ -13,7 +13,7 @@ namespace AsitLib.CommandLine
         private string _versionString;
 
         public VersionGlobalOption(Version version) : this(version.ToString()) { }
-        public VersionGlobalOption(string versionString) : base("version", "Print version.")
+        public VersionGlobalOption(string versionString) : base("version", "Prints version.")
         {
             _versionString = versionString;
         }

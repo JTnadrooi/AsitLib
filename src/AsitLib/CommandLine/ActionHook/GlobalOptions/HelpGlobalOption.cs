@@ -8,19 +8,15 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class HelpGlobalOption : GlobalOption
+    public sealed class HelpGlobalOption : GlobalOption
     {
-        public HelpGlobalOption() : base("help", "Display command help.", "h")
+        public HelpGlobalOption() : base("help", "Displays command help.", "h")
         {
 
         }
 
         public override void PreCommand(CommandContext context)
         {
-            //context
-            //    .AddFlag(ExecutingContextFlags.FullStop)
-            //    .AddAction(() => context.ArgumentsInfo.CommandId);
-
             context
                 .AddFlag(ExecutingContextFlags.FullStop)
                 .AddAction(() => context.Engine.Execute("help " + context.ArgumentsInfo.CommandId));

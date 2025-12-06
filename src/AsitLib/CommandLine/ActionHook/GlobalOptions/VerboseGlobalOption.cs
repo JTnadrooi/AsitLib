@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class VerboseGlobalOption : GlobalOption
+    public sealed class VerboseGlobalOption : GlobalOption
     {
         private bool _initialVerboseState;
 
         private Logger _logger;
 
-        public VerboseGlobalOption(Logger logger) : base("verbose", "Enable verbose logging.", "v")
+        public VerboseGlobalOption(Logger logger) : base("verbose", "Enables verbose logging.", "v")
         {
             _logger = logger;
         }
