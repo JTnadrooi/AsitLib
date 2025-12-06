@@ -61,6 +61,8 @@ namespace AsitLib
             throw new InvalidOperationException("No items match the given predicate.");
         }
 
+        public static bool HasDuplicates<T>(this IEnumerable<T> source) => source.GroupBy(x => x).Any(g => g.Count() > 1);
+
         public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullWhen(true)] out int? value)
         {
             try
