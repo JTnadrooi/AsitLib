@@ -104,7 +104,7 @@ namespace AsitLib.Stele
         public SteleData(Stream source)
         {
             _sourceStream = source;
-            _reader = new BinaryReader(_sourceStream);
+            _reader = new BinaryReader(_sourceStream, Encoding.ASCII, true);
 
             ReadMetadata(_reader, out _, out _width, out _height);
         }
@@ -146,7 +146,7 @@ namespace AsitLib.Stele
 
         public static void Encode(Stream source, TPixel[] data, int width, int height, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
-            using BinaryWriter writer = new BinaryWriter(source);
+            using BinaryWriter writer = new BinaryWriter(source, Encoding.ASCII, true); // encoding irrelevant.
 
             if ((width % 4) != 0 || width < 4) throw new ArgumentException(nameof(width));
             if ((height % 4) != 0 || height < 4) throw new ArgumentException(nameof(height));
@@ -225,12 +225,10 @@ namespace AsitLib.Stele
 
         public static void GetData(Stream source, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
         {
-            using BinaryReader reader = new BinaryReader(source);
+            using BinaryReader reader = new BinaryReader(source, Encoding.ASCII, true);
             InternalGetData(reader, outData, map, bufferSize);
         }
 
-        //public static void GetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
-        //    => InternalGetData(reader, outData, map, bufferSize);
         private static void InternalGetData(BinaryReader reader, TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE, int version = 0, int width = -1, int height = -1)
         {
             if (version == 0)
