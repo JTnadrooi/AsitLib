@@ -36,21 +36,22 @@ namespace AsitLib.Stele
             foreach (TPixel value in values)
             {
                 uniqueValues.Add(value);
-                if (uniqueValues.Count == 3) break;
             }
 
-            if (uniqueValues.Count < 2) throw new ArgumentException("Values does not contain enough different values.", nameof(values));
+            if (uniqueValues.Count == 0) throw new ArgumentException("Values does not contain any differing values.", nameof(values));
+            if (uniqueValues.Count > 3) throw new ArgumentException("Values does not contain to many differing values.", nameof(values));
 
             return CreateFromUnique(uniqueValues);
         }
 
         public static SteleMap<TPixel> CreateFromUnique(TPixel value1, TPixel value2, TPixel value3) => CreateFromUnique([value1, value2, value3]);
         public static SteleMap<TPixel> CreateFromUnique(TPixel value1, TPixel value2) => CreateFromUnique([value1, value2]);
+        public static SteleMap<TPixel> CreateFromUnique(TPixel value) => CreateFromUnique([value]);
         public static SteleMap<TPixel> CreateFromUnique(IEnumerable<TPixel> values)
         {
             switch (values.Count())
             {
-                case 2 or 3:
+                case 1 or 2 or 3:
                     if (values.HasDuplicates()) throw new ArgumentException("Values contain duplicates.", nameof(values));
                     return new SteleMap<TPixel>(values.Select((v, i) => new KeyValuePair<TPixel, int>(v, i)).ToFrozenDictionary());
                 default:
