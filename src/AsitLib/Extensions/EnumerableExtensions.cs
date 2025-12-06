@@ -18,7 +18,7 @@ namespace AsitLib
             return array1[(array1.Length - array2.Length)..].SequenceEqual(array2);
         }
 
-        public static T[] Copy<T>(this T[] source)
+        public static T[] GetShallowCopy<T>(this T[] source)
         {
             T[] toret = new T[source.Length];
             Array.Copy(source, toret, source.Length);

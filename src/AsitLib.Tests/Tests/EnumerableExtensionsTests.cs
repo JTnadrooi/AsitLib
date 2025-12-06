@@ -31,11 +31,11 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Copy_ShouldReturnIdenticalArray()
+        public void GetShallowCopy_ShouldReturnIdenticalArray()
         {
             int[] source = { 1, 2, 3, 4, 5 };
 
-            int[] result = source.Copy();
+            int[] result = source.GetShallowCopy();
 
             CollectionAssert.AreEqual(source, result);
         }
