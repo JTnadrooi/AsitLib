@@ -19,6 +19,7 @@ namespace AsitLib.Stele
         public const string FILE_EXTENSION = "stele";
         public const int VERSION = 1;
         public const int DEFAULT_BUFFER_SIZE = 8192; // 2 ^ 13
+
         /// <summary>
         /// Calculated as follows: <code>sizeof(byte) + sizeof(ushort) + sizeof(ushort)</code>
         /// </summary>
@@ -33,28 +34,25 @@ namespace AsitLib.Stele
         /// <param name="version">The STELE version. Cannot be 0 and must be less than <see cref="byte.MaxValue"/>.</param>
         /// <param name="width">The image width. Cannot be less than 4 and must be divisible by 4.</param>
         /// <param name="height">The image height. Cannot be less than 4 and must be divisible by 4.</param>
-        public static void ReadMetadata(BinaryReader reader, bool throwVersionError, bool throwDimensionsError, out int version, out int width, out int height)
+        public static void ReadMetadata(BinaryReader reader, out int version, out int width, out int height)
         {
             version = reader.ReadByte();
-            if (throwVersionError)
-                switch (version)
-                {
-                    case 0: throw new InvalidDataException("Version 0 is not supported.");
-                    case > byte.MaxValue: throw new InvalidDataException($"Version {version} exceeds the maximum allowed version ({byte.MaxValue}).");
-                    case VERSION: break; // only 1 supported version.
-                    default: throw new InvalidDataException($"Version {version} is invalid.");
-                }
-
             width = reader.ReadUInt16();
             height = reader.ReadUInt16();
-            if (throwDimensionsError)
-            {
-                if (width < 4) throw new InvalidDataException($"Width ({width}) cannot be less than 4.");
-                if (width % 4 != 0) throw new InvalidDataException($"Width ({width}) must be divisible by 4.");
 
-                if (height < 4) throw new InvalidDataException($"Height ({height}) cannot be less than 4.");
-                if (height % 4 != 0) throw new InvalidDataException($"Height ({height}) must be divisible by 4.");
+            switch (version)
+            {
+                case 0: throw new InvalidDataException("Version 0 is not supported.");
+                case > byte.MaxValue: throw new InvalidDataException($"Version {version} exceeds the maximum allowed version ({byte.MaxValue}).");
+                case VERSION: break; // only 1 supported version.
+                default: throw new InvalidDataException($"Version {version} is invalid.");
             }
+
+            if (width < 4) throw new InvalidDataException($"Width ({width}) cannot be less than 4.");
+            if (width % 4 != 0) throw new InvalidDataException($"Width ({width}) must be divisible by 4.");
+
+            if (height < 4) throw new InvalidDataException($"Height ({height}) cannot be less than 4.");
+            if (height % 4 != 0) throw new InvalidDataException($"Height ({height}) must be divisible by 4.");
         }
     }
 
@@ -69,11 +67,11 @@ namespace AsitLib.Stele
         /// <summary>
         /// The width of the image.
         /// </summary>
-        public int Width => width;
+        public int Width => _width;
         /// <summary>
         /// The height of the image.
         /// </summary>
-        public int Height => height;
+        public int Height => _height;
         /// <summary>
         /// The amount of pixels this SteleData blob stores.
         /// </summary>
@@ -91,9 +89,9 @@ namespace AsitLib.Stele
 
         private Stream _sourceStream;
         private BinaryReader _reader;
-        private bool disposedValue;
-        private readonly int height;
-        private readonly int width;
+        private bool _disposedValue;
+        private readonly int _height;
+        private readonly int _width;
 
         public SteleData(string path, int bufferSize = DEFAULT_BUFFER_SIZE) : this(new FileStream(path, new FileStreamOptions()
         {
@@ -102,12 +100,13 @@ namespace AsitLib.Stele
             Access = FileAccess.Write,
         }))
         { }
+
         public SteleData(Stream source)
         {
             _sourceStream = source;
             _reader = new BinaryReader(_sourceStream);
 
-            ReadMetadata(_reader, true, true, out _, out width, out height);
+            ReadMetadata(_reader, out _, out _width, out _height);
         }
 
         public void GetData(TPixel[] outData, SteleMap<TPixel> map, int bufferSize = DEFAULT_BUFFER_SIZE)
@@ -117,14 +116,14 @@ namespace AsitLib.Stele
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     _sourceStream.Dispose();
                     _reader.Dispose();
                 }
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
@@ -236,7 +235,7 @@ namespace AsitLib.Stele
         {
             if (version == 0)
             {
-                ReadMetadata(reader, true, true, out version, out width, out height);
+                ReadMetadata(reader, out version, out width, out height);
             }
 
             if (outData.Length != width * height) throw new ArgumentException(nameof(outData));

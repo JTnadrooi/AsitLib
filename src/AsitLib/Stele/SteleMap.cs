@@ -41,6 +41,7 @@ namespace AsitLib.Stele
 
             return CreateFromUnique(uniqueValues);
         }
+
         public static SteleMap<TPixel> CreateFromUnique(IEnumerable<TPixel> values)
         {
             int count = values.Count();
