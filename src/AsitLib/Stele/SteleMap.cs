@@ -39,14 +39,23 @@ namespace AsitLib.Stele
                 if (uniqueValues.Count == 3) break;
             }
 
+            if (uniqueValues.Count < 2) throw new ArgumentException("Values does not contain enough different values.", nameof(values));
+
             return CreateFromUnique(uniqueValues);
         }
 
+        public static SteleMap<TPixel> CreateFromUnique(TPixel value1, TPixel value2, TPixel value3) => CreateFromUnique([value1, value2, value3]);
+        public static SteleMap<TPixel> CreateFromUnique(TPixel value1, TPixel value2) => CreateFromUnique([value1, value2]);
         public static SteleMap<TPixel> CreateFromUnique(IEnumerable<TPixel> values)
         {
-            int count = values.Count();
-            if (count > 3 || count < 2) throw new ArgumentException("Invalid source array size.", nameof(values));
-            return new SteleMap<TPixel>(values.Select((v, i) => new KeyValuePair<TPixel, int>(v, i)).ToFrozenDictionary());
+            switch (values.Count())
+            {
+                case 2 or 3:
+                    if (values.HasDuplicates()) throw new ArgumentException("Values contain duplicates.", nameof(values));
+                    return new SteleMap<TPixel>(values.Select((v, i) => new KeyValuePair<TPixel, int>(v, i)).ToFrozenDictionary());
+                default:
+                    throw new ArgumentException("Invalid values enumerable size.", nameof(values));
+            }
         }
     }
 }
