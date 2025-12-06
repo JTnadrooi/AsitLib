@@ -19,7 +19,7 @@ namespace AsitLib.CommandLine
         {
             context
                 .AddFlag(ExecutingContextFlags.FullStop)
-                .AddAction(() => context.Engine.Execute("help " + context.ArgumentsInfo.CommandId));
+                .AddFunction(() => context.Engine.Execute("help " + context.ArgumentsInfo.CommandId));
         }
     }
 }

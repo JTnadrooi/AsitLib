@@ -18,9 +18,12 @@ namespace AsitLib.ConsoleTests
         {
             //LogShowCase();
             //ConsoleAcces.Run();
-            CommandEngine engine = new CommandEngine();
+            //CommandEngine engine = new CommandEngine();
 
-            Console.WriteLine(engine.Execute(Console.ReadLine()!));
+            //Console.WriteLine(engine.Execute(Console.ReadLine()!));
+
+            Delegate a = (string a) => Console.WriteLine(a);
+            Console.WriteLine(a.Method.Invoke(a.Target, ["aaa"]));
 
             Console.Read();
         }

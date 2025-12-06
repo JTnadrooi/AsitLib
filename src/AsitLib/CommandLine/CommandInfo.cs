@@ -33,7 +33,12 @@ namespace AsitLib.CommandLine
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
-        public override object? Invoke(object?[] parameters) => MethodInfo.Invoke(Target, parameters);
+        public override object? Invoke(object?[] parameters)
+        {
+            object? result = MethodInfo.Invoke(Target, parameters); // so always runs.
+
+            return MethodInfo.ReturnType == typeof(void) ? DBNull.Value : result;
+        }
     }
 
     public class ProviderCommandInfo : MethodCommandInfo

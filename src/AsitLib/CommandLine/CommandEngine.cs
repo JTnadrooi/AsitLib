@@ -237,10 +237,13 @@ namespace AsitLib.CommandLine
 
                 foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 
-                object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? null : commandInfo.Invoke(conformed);
+                object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? DBNull.Value : commandInfo.Invoke(conformed);
                 context.PreCommand = false;
 
-                returned = context.RunAllActions() ?? returned;
+                object?[] contextResults = context.RunAll();
+
+                if (contextResults.Length == 1) returned = contextResults[0];
+                else if (contextResults.Length > 1) throw new CommandException("Multiple context-action/function returns is invalid.");
 
                 if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
                     foreach (ActionHook hook in toRunHooks)

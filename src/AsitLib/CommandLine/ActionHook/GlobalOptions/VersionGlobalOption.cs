@@ -22,7 +22,7 @@ namespace AsitLib.CommandLine
         {
             context
                 .AddFlag(ExecutingContextFlags.FullStop)
-                .AddAction(() => _versionString);
+                .AddFunction(() => _versionString);
         }
     }
 }

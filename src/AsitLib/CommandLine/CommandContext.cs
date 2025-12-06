@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AsitLib
+namespace AsitLib.CommandLine
 {
     public sealed class CommandContext
     {
@@ -17,7 +17,7 @@ namespace AsitLib
         public ExecutingContextFlags Flags { get; set; }
         internal bool PreCommand { get; set; }
 
-        private List<Func<object?>> _actions;
+        private List<Func<object?>> _funcs;
 
         internal CommandContext(CommandEngine engine, ArgumentsInfo argumentsInfo, bool preCommand, CommandInfo command)
         {
@@ -26,15 +26,24 @@ namespace AsitLib
             Flags = ExecutingContextFlags.None;
             Command = command;
 
-            _actions = new List<Func<object?>>();
+            _funcs = new List<Func<object?>>();
             PreCommand = preCommand;
         }
 
-        internal object? RunAllActions()
+        internal object?[] RunAll()
         {
-            object? toret = _actions.Aggregate((object?)null, (result, action) => action.Invoke() ?? result);
+            List<object?> results = new List<object?>();
 
-            return toret;
+            foreach (Func<object?> action in _funcs)
+            {
+                object? actionResult = action.Invoke();
+
+                if (actionResult is DBNull) continue;
+
+                results.Add(actionResult);
+            }
+
+            return results.ToArray();
         }
 
         internal void ThrowIfNotPreCommand()
@@ -51,21 +60,16 @@ namespace AsitLib
             return this;
         }
 
-        public CommandContext AddAction(Action action)
-        {
-            ThrowIfNotPreCommand();
-            AddAction(() =>
+        public CommandContext AddAction(Action action) => AddFunction(() =>
             {
                 action.Invoke();
-                return null;
+                return DBNull.Value;
             });
-            return this;
-        }
 
-        public CommandContext AddAction(Func<object?> action)
+        public CommandContext AddFunction(Func<object?> func)
         {
             ThrowIfNotPreCommand();
-            _actions.Add(action);
+            _funcs.Add(func);
             return this;
         }
 
