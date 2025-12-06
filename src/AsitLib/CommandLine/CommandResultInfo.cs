@@ -41,12 +41,12 @@ namespace AsitLib.CommandLine
         public string ToOutputString()
         {
             ThrowIfVoid();
+
+            if (Value is null) return StringHelpers.NULL_STRING;
+
             StringBuilder sb = new StringBuilder();
             switch (Value)
             {
-                case null:
-                    sb.Append(StringHelpers.NULL_STRING);
-                    break;
                 case IDictionary dict:
                     foreach (DictionaryEntry e in dict)
                     {
