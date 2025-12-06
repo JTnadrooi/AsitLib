@@ -10,33 +10,30 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public class DelegateCommandInfo : CommandInfo
+    public class DelegateCommandInfo : MethodCommandInfo
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false) : base(ids, description, isGenericFlag: isGenericFlag)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false) : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag)
         {
             Delegate = @delegate;
         }
-
-        public override OptionInfo[] GetOptions() => Delegate.Method.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
-        public override object? Invoke(object?[] parameters) => Delegate.DynamicInvoke(parameters);
     }
 
     public class MethodCommandInfo : CommandInfo
     {
         public MethodInfo MethodInfo { get; }
-        public object? Object { get; }
+        public object? Target { get; }
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? @object = null, bool isGenericFlag = false)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false)
             : base(ids, description, isGenericFlag: isGenericFlag)
         {
             MethodInfo = methodInfo;
-            Object = @object;
+            Target = target;
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
-        public override object? Invoke(object?[] parameters) => MethodInfo.Invoke(Object, parameters);
+        public override object? Invoke(object?[] parameters) => MethodInfo.Invoke(Target, parameters);
     }
 
     public class ProviderCommandInfo : MethodCommandInfo
@@ -46,10 +43,10 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool IsMain { get; }
 
-        public CommandProvider Provider => (CommandProvider)base.Object!;
+        public CommandProvider Provider => (CommandProvider)base.Target!;
 
-        [Obsolete("Use the Provider property instead.")]
-        public new object? Object => base.Object;
+        [Obsolete($"Use the {nameof(Provider)} property instead.")]
+        public new object? Target => base.Target;
 
         public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
         {
