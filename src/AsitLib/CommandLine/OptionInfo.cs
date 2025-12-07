@@ -33,7 +33,7 @@ namespace AsitLib.CommandLine
             : this(ParseHelpers.GetSignature(parameter), parameter.ParameterType, parameter.HasDefaultValue, parameter.DefaultValue, parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray(), new NullabilityInfoContext().Create(parameter)) { }
         public OptionInfo(string name, Type type, Attribute[]? attributes = null)
             : this(name, type, false, attributes: attributes) { }
-        public OptionInfo(string name, Type type, object? defaultValue = null, Attribute[]? attributes = null)
+        public OptionInfo(string name, Type type, object? defaultValue, Attribute[]? attributes = null)
             : this(name, type, true, defaultValue: defaultValue, attributes: attributes) { }
 
         private OptionInfo(string name, Type type, bool hasDefaultValue, object? defaultValue = null, Attribute[]? attributes = null, NullabilityInfo? nullabilityInfo = null)
@@ -75,7 +75,7 @@ namespace AsitLib.CommandLine
             return (TAttribute?)Attributes.SingleOrDefault(a => a is TAttribute e);
         }
 
-        public object? GetValue(string token, Type target) => ParseHelpers.GetValue(token, Type, Attributes, OptionAttribute.ImplicitValue);
+        public object? GetValue(string token) => ParseHelpers.GetValue(token, Type, Attributes, OptionAttribute.ImplicitValue);
         public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, Type, Attributes, OptionAttribute.ImplicitValue);
     }
 
