@@ -30,71 +30,63 @@ namespace AsitLib.Tests
 
     public class TestCommandProvider : CommandProvider
     {
-        public const int COMMAND_COUNT = 13;
+        public TestCommandProvider() : base("test") { }
 
-        public TestCommandProvider() : base("test", nameof(Main)) { }
-
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public string Print(string input, bool upperCase = false)
         {
             return upperCase ? input.ToUpper() : input;
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public string Tv([Option(AntiParameterName = "no-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public string TvEnable([Option(AntiParameterName = "disable-color")] bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
-        [Command("desc", InheritNamespace = false, Aliases = ["hi"])]
+        [Command("desc", Aliases = ["hi"])]
         public string Greet([Option(Name = "name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }
 
-        [Command("desc")]
-        public void Main()
-        {
-
-        }
-
-        [Command("desc", InheritNamespace = false, IsGenericFlag = true, Aliases = ["o", "basic"])]
+        [Command("desc", IsGenericFlag = true, Aliases = ["o", "basic"])]
         public void Void()
         {
 
         }
 
-        [Command("desc", InheritNamespace = false, Id = "impl")]
+        [Command("desc", Id = "impl")]
         public int ImplicitValueAttributeTest([Option(ImplicitValue = 1)] int value = 0)
         {
             return value;
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public string Shorthand([Option(Shorthand = "wa")] string wayToLongParameterName, [Option(Shorthand = "s")] int secondWayToLongOne = 0)
         {
             return wayToLongParameterName + " | " + secondWayToLongOne;
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public string FlagConflict([Option(Shorthand = "t")] string testAlso)
         {
             return testAlso;
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public int[] Array()
         {
             return [1, 2, 3, 4];
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public Dictionary<int, int> Dictionary()
         {
             return new Dictionary<int, int> {
@@ -104,16 +96,16 @@ namespace AsitLib.Tests
             };
         }
 
-        [Command("desc", InheritNamespace = false)]
+        [Command("desc")]
         public void Validation([Range(0, 10)] int i)
         {
 
         }
 
-        [Command("desc", InheritNamespace = false)]
-        public int ContextInject(CommandContext context)
+        [Command("desc")]
+        public string ContextInject(CommandContext context)
         {
-            return context.Engine.UniqueCommands.Count;
+            return context.Engine.Providers["test"].Name;
         }
     }
 
@@ -280,12 +272,6 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_Namespace_CallsMainCommand()
-        {
-            Engine.Execute("test");
-        }
-
-        [TestMethod]
         public void Execute_ArrayReturningCommand_PrintsValuesOnNewLine()
         {
             AssertExecute("1\n2\n3\n4", "array");
@@ -307,7 +293,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void GetProviderCommands_FromTestProvider()
         {
-            Assert.AreEqual(Engine.GetProviderCommands("test").LongLength, TestCommandProvider.COMMAND_COUNT);
+            Assert.AreEqual(Engine.GetProviderCommands("test").First().Provider.Name, "test");
         }
 
         [TestMethod]
@@ -331,7 +317,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_ContextOption_InjectsContext()
         {
-            AssertExecute((TestCommandProvider.COMMAND_COUNT + 1).ToString(), "context-inject");
+            AssertExecute("test", "context-inject");
         }
     }
 }

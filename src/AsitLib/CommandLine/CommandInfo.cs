@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
@@ -46,19 +44,35 @@ namespace AsitLib.CommandLine
 
     public class ProviderCommandInfo : MethodCommandInfo
     {
-        /// <summary>
-        /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="Id"/> from the source <see cref="CommandProvider.FullNamespace"/>.
-        /// </summary>
-        public bool IsMain { get; }
-
-        public CommandProvider Provider => (CommandProvider)base.Target!;
+        public ICommandProvider Provider => (ICommandProvider)base.Target!;
 
         [Obsolete($"Use the {nameof(Provider)} property instead.")]
         public new object? Target => base.Target;
 
-        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
+        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, ICommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
         {
-            IsMain = provider.NameOfMainCommandMethod == methodInfo.Name;
+
+        }
+    }
+
+    public class CommandGroupCommandInfo : ProviderCommandInfo
+    {
+        /// <summary>
+        /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="CommandInfo.Id"/> from the source <see cref="CommandGroup.Name"/>.
+        /// </summary>
+        public bool IsMain { get; }
+
+        public CommandGroup SourceGroup => (CommandGroup)base.Provider!;
+
+        [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
+        public new object? Provider => base.Provider;
+
+        [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
+        public new object? Target => base.Target;
+
+        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup) : base(ids, attribute, methodInfo, sourceGroup)
+        {
+            IsMain = sourceGroup.NameOfMainMethod == methodInfo.Name;
         }
     }
 

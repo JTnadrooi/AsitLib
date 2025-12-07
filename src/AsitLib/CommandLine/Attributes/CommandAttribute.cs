@@ -24,11 +24,6 @@ namespace AsitLib.CommandLine
         public string Description { get; }
 
         /// <summary>
-        /// Gets whether the provider namespace is prefixed to the identifier.
-        /// </summary>
-        public bool InheritNamespace { get; init; }
-
-        /// <summary>
         /// Gets alternative identifiers for invoking the command.
         /// </summary>
         public string[] Aliases { get; init; }
@@ -42,7 +37,6 @@ namespace AsitLib.CommandLine
         public CommandAttribute(string desc)
         {
             Description = desc;
-            InheritNamespace = true;
             Aliases = Array.Empty<string>();
         }
     }

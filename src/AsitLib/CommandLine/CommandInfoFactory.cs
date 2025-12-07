@@ -9,22 +9,31 @@ namespace AsitLib.CommandLine
 {
     public interface ICommandInfoFactory<in TAttribute, out TCommandInfo> where TAttribute : CommandAttribute where TCommandInfo : CommandInfo
     {
-        public TCommandInfo? Convert(TAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
+        public TCommandInfo? Convert(TAttribute attribute, ICommandProvider provider, MethodInfo methodInfo);
     }
 
     public static class CommandInfoFactory
     {
-        public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, ProviderCommandInfo>
+        public class DefaultInfoFactory : ICommandInfoFactory<CommandAttribute, CommandInfo>
         {
             public DefaultInfoFactory() { }
 
-            public ProviderCommandInfo? Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+            public CommandInfo? Convert(CommandAttribute attribute, ICommandProvider provider, MethodInfo methodInfo)
             {
                 string cmdId;
-                if (provider.NameOfMainCommandMethod == methodInfo.Name) cmdId = provider.Namespace;
-                else cmdId = (attribute.InheritNamespace ? (provider.Namespace + "-") : string.Empty) + (attribute.Id ?? ParseHelpers.GetSignature(methodInfo));
+                switch (provider)
+                {
+                    case CommandGroup g:
+                        if (g.NameOfMainMethod == methodInfo.Name) cmdId = g.Name;
+                        else cmdId = provider.Name + "-" + (attribute.Id ?? ParseHelpers.GetSignature(methodInfo));
+                        return new CommandGroupCommandInfo(cmdId.ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, g);
+                    case CommandProvider p:
+                        cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
+                        return new ProviderCommandInfo(cmdId.ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, p);
+                    default:
+                        throw new Exception();
+                }
 
-                return new ProviderCommandInfo(cmdId.ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, provider);
             }
         }
 

@@ -7,25 +7,44 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    public interface ICommandProvider
+    {
+        public string Name { get; }
+    }
+
     /// <summary>
     /// Represents a command provider.
     /// </summary>
-    public abstract class CommandProvider
+    public abstract class CommandProvider : ICommandProvider
     {
-        public string Namespace { get; }
+        public string Name { get; }
 
-        public string? NameOfMainCommandMethod { get; }
-
-        public CommandProvider(string @namespace, string? nameOfMainCommandMethod = null)
+        public CommandProvider(string name)
         {
-            Namespace = @namespace;
-            NameOfMainCommandMethod = nameOfMainCommandMethod;
+            Name = name;
+        }
 
-            if (nameOfMainCommandMethod is not null && GetType().GetMethod(nameOfMainCommandMethod) is null)
-                throw new ArgumentException($"Method with name '{nameOfMainCommandMethod}' not found.", nameof(nameOfMainCommandMethod));
+
+        //public override string ToString()
+        //    => $"{{Namespace: {Namespace}{(NameOfMainCommandMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainCommandMethod}")}}}";
+    }
+
+    public abstract class CommandGroup : ICommandProvider
+    {
+        public string Name { get; }
+
+        public string? NameOfMainMethod { get; }
+
+        public CommandGroup(string name, string? nameOfMainMethod = null)
+        {
+            Name = name;
+            NameOfMainMethod = nameOfMainMethod;
+
+            if (nameOfMainMethod is not null && GetType().GetMethod(nameOfMainMethod) is null)
+                throw new ArgumentException($"Method with name '{nameOfMainMethod}' not found.", nameof(nameOfMainMethod));
         }
 
         public override string ToString()
-            => $"{{Namespace: {Namespace}{(NameOfMainCommandMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainCommandMethod}")}}}";
+            => $"{{Namespace: {Name}{(NameOfMainMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainMethod}")}}}";
     }
 }
