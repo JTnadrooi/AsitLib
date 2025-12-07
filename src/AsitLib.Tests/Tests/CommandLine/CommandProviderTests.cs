@@ -110,7 +110,7 @@ namespace AsitLib.Tests
     }
 
     [TestClass]
-    public class CommandEngineExecuteTests
+    public class CommandProviderTests
     {
         [ClassInitialize]
         public static void ClassInit(TestContext context)

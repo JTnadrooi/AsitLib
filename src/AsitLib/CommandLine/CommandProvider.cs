@@ -40,8 +40,14 @@ namespace AsitLib.CommandLine
             Name = name;
             NameOfMainMethod = nameOfMainMethod;
 
-            if (nameOfMainMethod is not null && GetType().GetMethod(nameOfMainMethod) is null)
-                throw new ArgumentException($"Method with name '{nameOfMainMethod}' not found.", nameof(nameOfMainMethod));
+            if (nameOfMainMethod is not null)
+            {
+                MethodInfo? mainMethod = GetType().GetMethod(nameOfMainMethod);
+                if (mainMethod is null)
+                    throw new ArgumentException($"(main)Method with name '{nameOfMainMethod}' not found.", nameof(nameOfMainMethod));
+                else if (mainMethod.GetCustomAttribute<CommandAttribute>() is null)
+                    throw new ArgumentException($"(main)Method with name '{nameOfMainMethod}' does not have a {nameof(CommandAttribute)}.", nameof(nameOfMainMethod));
+            }
         }
 
         public override string ToString()

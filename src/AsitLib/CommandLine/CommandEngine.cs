@@ -3,15 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
-using static AsitLib.CommandLine.ParseHelpers;
-using static System.Net.WebRequestMethods;
 
 namespace AsitLib.CommandLine
 {
@@ -22,12 +20,14 @@ namespace AsitLib.CommandLine
         private readonly Dictionary<string, CommandInfo> _commands;
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
         private readonly Dictionary<string, ActionHook> _hooks;
+        private readonly HashSet<string> _groups;
 
         public ReadOnlyDictionary<string, ICommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
         public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
+        public IReadOnlySet<string> Groups { get; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -41,12 +41,14 @@ namespace AsitLib.CommandLine
             _uniqueCommands = new Dictionary<string, CommandInfo>();
             _globalOptions = new Dictionary<string, GlobalOption>();
             _hooks = new Dictionary<string, ActionHook>();
+            _groups = new HashSet<string>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
             GlobalOptions = _globalOptions.AsReadOnly();
             Hooks = _hooks.AsReadOnly();
+            Groups = _groups; // casting it back is possible I suppose.. Immutable hashset makes a copy.
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -68,6 +70,8 @@ namespace AsitLib.CommandLine
             AddGlobalOption(new HelpGlobalOption());
         }
 
+        #region ADD_REMOVE
+
         public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
             => AddCommand(new MethodCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(ParseHelpers.GetSignature(method)).ToArray(), description, method, isGenericFlag: isGenericFlag));
         public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null, bool isGenericFlag = false)
@@ -83,6 +87,13 @@ namespace AsitLib.CommandLine
             {
                 if (id.StartsWith('-')) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
                 if (info.IsGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
+                if (_groups.Contains(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
+            }
+
+            if (info.HasGroup)
+            {
+                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible())
+                    throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
 
             foreach (string id in info.Ids.Concat(additionalIds))
@@ -92,6 +103,7 @@ namespace AsitLib.CommandLine
 
             _uniqueCommands.Add(info.Id, info);
             if (info is ProviderCommandInfo pCInfo) _srcMap[pCInfo.Provider.Name].Add(info.Id);
+            if (info.HasGroup) _groups.Add(info.Group!);
 
             return this;
         }
@@ -100,14 +112,16 @@ namespace AsitLib.CommandLine
         {
             if (!_uniqueCommands.ContainsKey(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
 
-            bool isGenericFlag = _uniqueCommands[id].IsGenericFlag;
+            CommandInfo info = _uniqueCommands[id];
+
 
             foreach (string aliasId in _uniqueCommands[id].Ids)
             {
-                if (isGenericFlag) _commands.Remove(ParseHelpers.GetGenericFlagSignature(aliasId));
+                if (info.IsGenericFlag) _commands.Remove(ParseHelpers.GetGenericFlagSignature(aliasId));
                 _commands.Remove(aliasId);
             }
 
+            if (info.HasGroup) _groups.Remove(_uniqueCommands[id].Group!); // may fail, is ok.
             _uniqueCommands.Remove(id);
 
             return this;
@@ -131,11 +145,12 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine RemoveProvider(string @namespace)
+        public CommandEngine RemoveProvider(string name)
         {
-            if (!_providers.Remove(@namespace)) throw new KeyNotFoundException($"CommandProvider with Namespace '{@namespace}' was not found.");
-            foreach (string id in _srcMap[@namespace])
+            if (!_providers.Remove(name)) throw new KeyNotFoundException($"CommandProvider with Namespace '{name}' was not found.");
+            foreach (string id in _srcMap[name])
                 RemoveCommand(id);
+            _srcMap.Remove(name);
             return this;
         }
 
@@ -163,6 +178,65 @@ namespace AsitLib.CommandLine
             return this;
         }
 
+        #endregion
+
+        public ArgumentsInfo Parse(string[] args)
+        {
+            if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
+
+            List<string> currentValues = new List<string>();
+            List<Argument> outArgs = new List<Argument>();
+            string? currentName = null;
+            int position = 0;
+            bool noMoreParams = false;
+            string token = string.Empty;
+            string commandId = args[0];
+            bool callsGenericFlag = commandId.StartsWith('-');
+
+            void PushArgument()
+            {
+                outArgs.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
+                currentValues.Clear();
+            }
+
+            for (int i = 1; i < args.Length; i++)
+            {
+                token = args[i];
+
+                if (!noMoreParams && token == "--")
+                {
+                    noMoreParams = true;
+                    continue;
+                }
+
+                if (!noMoreParams && token.StartsWith("-"))
+                {
+                    if (currentName is not null)
+                    {
+                        PushArgument();
+                    }
+
+                    currentName = token;
+                }
+                else
+                {
+                    if (currentName is null) outArgs.Add(new Argument(new ArgumentTarget(position++), [token]));
+                    else currentValues.Add(token);
+                }
+            }
+
+            if (currentName is not null) PushArgument();
+
+            ArgumentsInfo toret = new ArgumentsInfo(args[0], outArgs.ToArray(), callsGenericFlag);
+
+            if (_groups.Contains(commandId) && outArgs.Count > 0)
+            {
+                toret = Parse(ArrayHelpers.Combine(args[0] + " " + args[1], args[2..]));
+            }
+
+            return toret;
+        }
+
         public ProviderCommandInfo[] GetProviderCommands(string @namespace)
         {
             List<ProviderCommandInfo> providerCommands = new List<ProviderCommandInfo>();
@@ -174,7 +248,7 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public CommandResultInfo Execute(string args) => Execute(Split(args));
+        public CommandResultInfo Execute(string args) => Execute(ParseHelpers.Split(args));
         public CommandResultInfo Execute(string[] args)
         {
             ArgumentsInfo argsInfo = Parse(args);
@@ -183,8 +257,8 @@ namespace AsitLib.CommandLine
                 if (!commandInfo.IsEnabled) throw new InvalidOperationException("Cannot call disabled command.");
 
                 CommandContext context = new CommandContext(this, argsInfo, true, commandInfo);
-                object?[] conformed = Conform(ref argsInfo, commandInfo.GetOptions(), context);
-                GlobalOption[] toRunGlobalOptions = ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
+                object?[] conformed = ParseHelpers.Conform(ref argsInfo, commandInfo.GetOptions(), context);
+                GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
                 List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
                 toRunHooks.AddRange(_hooks.Values);
 

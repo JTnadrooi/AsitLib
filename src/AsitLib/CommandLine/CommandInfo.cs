@@ -88,6 +88,10 @@ namespace AsitLib.CommandLine
         public bool HasAliases => Ids.Count > 1;
         public string Id => Ids[0];
 
+        public string? Group { get; }
+
+        public bool HasGroup => Group is not null;
+
         /// <summary>
         /// <inheritdoc cref="CommandAttribute.Description" path="/summary"/>
         /// </summary>
@@ -105,11 +109,29 @@ namespace AsitLib.CommandLine
         {
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
+            string? group = null;
+            string mainId = ids[0];
+
+            foreach (string id in ids)
+            {
+                switch (id.Count(c => c == ' '))
+                {
+                    case 0: break;
+                    case 1:
+                        string idGroup = id.Split(' ')[0];
+                        group ??= idGroup;
+                        if (group != idGroup) throw new InvalidOperationException($"Command aliasses for command '{mainId}' use differing groups.");
+                        break;
+                    case > 1:
+                        throw new InvalidOperationException($"Command nested subgroups are invalid.");
+                }
+            }
+
             Ids = ids.AsReadOnly();
             Description = description;
             IsGenericFlag = isGenericFlag;
-
             IsEnabled = isEnabled;
+            Group = group;
         }
 
         public abstract object? Invoke(object?[] parameters);
@@ -144,6 +166,8 @@ namespace AsitLib.CommandLine
 
             return sb.ToString();
         }
+
+        public bool IsMainCommandEligible() => GetOptions().Length == 0;
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
