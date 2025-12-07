@@ -31,7 +31,6 @@ namespace AsitLib.CommandLine
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
-        public string? NullString { get; set; }
 
         private readonly Dictionary<string, List<string>> _srcMap;
 
@@ -51,7 +50,6 @@ namespace AsitLib.CommandLine
 
             NewLine = "\n";
             KeyValueSeperator = "=";
-            NullString = StringHelpers.NULL_STRING;
 
             _srcMap = new Dictionary<string, List<string>>();
 

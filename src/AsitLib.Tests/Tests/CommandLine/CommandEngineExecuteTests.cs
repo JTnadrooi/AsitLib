@@ -32,7 +32,7 @@ namespace AsitLib.Tests
     {
         public const int COMMAND_COUNT = 13;
 
-        public TestCommandProvider() : base("test") { }
+        public TestCommandProvider() : base("test", nameof(Main)) { }
 
         [Command("desc", InheritNamespace = false)]
         public string Print(string input, bool upperCase = false)
@@ -58,7 +58,7 @@ namespace AsitLib.Tests
             return $"Hi, {yourName}!";
         }
 
-        [Command("desc", IsMain = true)]
+        [Command("desc")]
         public void Main()
         {
 

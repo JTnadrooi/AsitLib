@@ -33,11 +33,6 @@ namespace AsitLib.CommandLine
         /// </summary>
         public string[] Aliases { get; init; }
 
-        /// <summary>
-        /// Gets whether this command's <see cref="Id"/> will be equal to the encapsulating <see cref="CommandProvider.Namespace"/>.
-        /// </summary>
-        public bool IsMain { get; init; }
-
         public bool IsGenericFlag { get; init; }
 
         /// <summary>
