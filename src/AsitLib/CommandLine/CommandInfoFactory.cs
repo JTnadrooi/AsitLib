@@ -25,11 +25,11 @@ namespace AsitLib.CommandLine
                 {
                     case CommandGroup g:
                         if (g.NameOfMainMethod == methodInfo.Name) cmdId = g.Name;
-                        else cmdId = provider.Name + "-" + (attribute.Id ?? ParseHelpers.GetSignature(methodInfo));
-                        return new CommandGroupCommandInfo(cmdId.ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, g);
+                        else cmdId = $"{provider.Name}-{(attribute.Id ?? ParseHelpers.GetSignature(methodInfo))}";
+                        return new CommandGroupCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute, methodInfo, g);
                     case CommandProvider p:
                         cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
-                        return new ProviderCommandInfo(cmdId.ToSingleArray().Concat(attribute.Aliases).ToArray(), attribute, methodInfo, p);
+                        return new ProviderCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute, methodInfo, p);
                     default:
                         throw new Exception();
                 }
