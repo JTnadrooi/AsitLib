@@ -25,8 +25,6 @@ namespace AsitLib.CommandLine
                 throw new ArgumentException($"Method with name '{nameOfMainCommandMethod}' not found.", nameof(nameOfMainCommandMethod));
         }
 
-        public virtual void AddCommands(CommandBuilder builder) { }
-
         public override string ToString()
             => $"{{Namespace: {Namespace}{(NameOfMainCommandMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainCommandMethod}")}}}";
     }
