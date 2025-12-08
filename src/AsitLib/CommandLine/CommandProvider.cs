@@ -7,37 +7,30 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public interface ICommandProvider
-    {
-        public string Name { get; }
-    }
-
     /// <summary>
     /// Represents a command provider.
     /// </summary>
-    public abstract class CommandProvider : ICommandProvider
+    public abstract class CommandProvider
     {
         public string Name { get; }
 
         public CommandProvider(string name)
         {
+            ParseHelpers.ThrowIfInvalidName(name, false, "CommandProvider Name");
+
             Name = name;
         }
-
 
         //public override string ToString()
         //    => $"{{Namespace: {Namespace}{(NameOfMainCommandMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainCommandMethod}")}}}";
     }
 
-    public abstract class CommandGroup : ICommandProvider
+    public abstract class CommandGroup : CommandProvider
     {
-        public string Name { get; }
-
         public string? NameOfMainMethod { get; }
 
-        public CommandGroup(string name, string? nameOfMainMethod = null)
+        public CommandGroup(string name, string? nameOfMainMethod = null) : base(name)
         {
-            Name = name;
             NameOfMainMethod = nameOfMainMethod;
 
             if (nameOfMainMethod is not null)

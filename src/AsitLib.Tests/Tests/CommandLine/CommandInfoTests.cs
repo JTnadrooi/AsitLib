@@ -107,7 +107,7 @@ namespace AsitLib.Tests
             Engine.AddCommand(info2);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("testg  print")]
         [DataRow("!print")]
         [DataRow("=print")]
@@ -116,14 +116,17 @@ namespace AsitLib.Tests
         [DataRow("print  ")]
         [DataRow("print\n")]
         [DataRow("  print")]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("      ")]
         [DataRow(" print")]
         [DataRow("-print")]
         [DataRow("testg -print")]
         [DataRow("testg1 testg2 -print")]
-        public void Contruct_InvalidCommandInfo_ThrowsEx(string command)
+        public void Contruct_InvalidCommandInfo_ThrowsEx(string name)
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
-                new DummyCommandInfo(command)
+                new DummyCommandInfo(name)
             );
         }
     }

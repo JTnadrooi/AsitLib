@@ -10,6 +10,19 @@ namespace AsitLib.CommandLine
 {
     public static class ParseHelpers
     {
+        public static IReadOnlyList<char> s_invalidChars = [
+            '@', '<', '>', '.', '!', '#', '$',
+            '%', '^', '&', '*', '(', ')',
+            '+', '=', '{', '}', '[', ']',
+            '|', '\\', '/', ':', ';', '"', '\'',
+            ',', '`', '~',
+            '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
+        ];
+
+        public static IReadOnlyList<char> s_invalidStartChars = [
+            '-', ' ',
+        ];
+
         public static bool IsValidGenericFlagCall(string signature) // maybe make signature struct
         {
             string sanitized = signature.TrimStart('-');
@@ -36,6 +49,20 @@ namespace AsitLib.CommandLine
         {
             SignatureAttribute? a = memberInfo.GetCustomAttribute<SignatureAttribute>();
             return a is null ? GetSignature(memberInfo.Name) : a.Name;
+        }
+
+        public static void ThrowIfInvalidName(string name, bool allowSpace, string? valueName = "Input")
+        {
+            if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"{valueName} '{name}' contains a space.");
+            if (name == string.Empty) throw new InvalidOperationException($"{valueName} is an empty string.");
+
+            foreach (string part in name.Split(' '))
+            {
+                if (part == string.Empty) throw new InvalidOperationException($"{valueName} '{name}' has invalid spaces.");
+                if (s_invalidChars.TryGetFirst(c => part.Contains(c), out char containedChar)) throw new InvalidOperationException($"{valueName} '{name}' contains invalid character '{containedChar}'.");
+                if (s_invalidStartChars.TryGetFirst(c => part.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{name}' starts with invalid character '{startChar}'.");
+                if (part.StartsWith('-') || part.EndsWith('-')) throw new InvalidOperationException($"{valueName} '{name}' cannot start or end with a dash.");
+            }
         }
 
         public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();

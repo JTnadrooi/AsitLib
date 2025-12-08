@@ -16,13 +16,13 @@ namespace AsitLib.CommandLine
     public sealed class CommandEngine
     {
         private readonly Dictionary<string, GlobalOption> _globalOptions;
-        private readonly Dictionary<string, ICommandProvider> _providers;
+        private readonly Dictionary<string, CommandProvider> _providers;
         private readonly Dictionary<string, CommandInfo> _commands;
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
         private readonly Dictionary<string, ActionHook> _hooks;
         private readonly HashSet<string> _groups;
 
-        public ReadOnlyDictionary<string, ICommandProvider> Providers { get; }
+        public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
@@ -36,7 +36,7 @@ namespace AsitLib.CommandLine
 
         public CommandEngine()
         {
-            _providers = new Dictionary<string, ICommandProvider>();
+            _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
             _uniqueCommands = new Dictionary<string, CommandInfo>();
             _globalOptions = new Dictionary<string, GlobalOption>();
@@ -122,7 +122,7 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddProvider(ICommandProvider provider, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null)
+        public CommandEngine AddProvider(CommandProvider provider, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null)
         {
             if (!_providers.TryAdd(provider.Name, provider)) throw new InvalidOperationException($"CommandProvider with duplicate Name '{provider.Name}' found.");
             infoFactory ??= CommandInfoFactory.Default;
@@ -291,18 +291,18 @@ namespace AsitLib.CommandLine
         /// </summary>
         /// <typeparam name="TProvider">The <see cref="CommandProvider"/> type.</typeparam>
         /// <returns>The instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.</returns>
-        public TProvider GetProvider<TProvider>() where TProvider : ICommandProvider
+        public TProvider GetProvider<TProvider>() where TProvider : CommandProvider
             => (TProvider)Providers.Values.First(p => p.GetType() == typeof(TProvider));
 
         public CommandEngine Populate(
             ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null,
             Assembly? assembly = null,
             Func<Type, bool>? predicate = null,
-            Func<Type, ICommandProvider>? activator = null)
+            Func<Type, CommandProvider>? activator = null)
         {
-            activator ??= t => (ICommandProvider)Activator.CreateInstance(t)!;
+            activator ??= t => (CommandProvider)Activator.CreateInstance(t)!;
 
-            IEnumerable<Type> types = (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ICommandProvider)));
+            IEnumerable<Type> types = (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CommandProvider)));
 
             if (predicate is not null) types = types.Where(t => predicate.Invoke(t));
 

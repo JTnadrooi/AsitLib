@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace AsitLib.CommandLine
 {
@@ -45,12 +46,12 @@ namespace AsitLib.CommandLine
 
     public class ProviderCommandInfo : MethodCommandInfo
     {
-        public ICommandProvider Provider => (ICommandProvider)base.Target!;
+        public CommandProvider Provider => (CommandProvider)base.Target!;
 
         [Obsolete($"Use the {nameof(Provider)} property instead.")]
         public new object? Target => base.Target;
 
-        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, ICommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
+        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
         {
 
         }
@@ -106,17 +107,6 @@ namespace AsitLib.CommandLine
 
         public bool IsEnabled { get; }
 
-        private static readonly HashSet<char> s_invalidChars = new HashSet<char>([
-            '@', '<', '>', '.', '!', '#', '$',
-            '%', '^', '&', '*', '(', ')',
-            '+', '=', '{', '}', '[', ']',
-            '|', '\\', '/', ':', ';', '"', '\'',
-            ',', '`', '~',
-            '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
-        ]);
-        private static readonly char[] s_invalidStartChars = [
-            '-', ' ',
-        ];
 
         public CommandInfo(string[] ids, string description, bool isGenericFlag = false, bool isEnabled = true)
         {
@@ -128,8 +118,8 @@ namespace AsitLib.CommandLine
 
             foreach (string id in ids)
             {
-                if (s_invalidStartChars.Any(c => id.StartsWith(c) || id.Contains($" {c.ToString()}"))) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
-                if (id.Any(c => s_invalidChars.Contains(c))) throw new InvalidOperationException($"Command id '{id}' contains an invalid character.");
+                ParseHelpers.ThrowIfInvalidName(id, true, "Command Id");
+
                 switch (id.Count(c => c == ' '))
                 {
                     case 0: break;
