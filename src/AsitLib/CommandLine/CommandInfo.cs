@@ -105,6 +105,17 @@ namespace AsitLib.CommandLine
         public bool IsGenericFlag { get; }
 
         public bool IsEnabled { get; }
+        private readonly HashSet<char> s_invalidChars = new HashSet<char>([
+            '@', '<', '>', '.', '!', '#', '$',
+            '%', '^', '&', '*', '(', ')',
+            '+', '=', '{', '}', '[', ']',
+            '|', '\\', '/', ':', ';', '"', '\'',
+            ',', '`', '~',
+            '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
+        ]);
+        private readonly char[] s_invalidStartChars = [
+            '-', ' ',
+        ];
 
         public CommandInfo(string[] ids, string description, bool isGenericFlag = false, bool isEnabled = true)
         {
@@ -116,6 +127,8 @@ namespace AsitLib.CommandLine
 
             foreach (string id in ids)
             {
+                if (s_invalidStartChars.Any(c => id.StartsWith(c) || id.Contains($" {c.ToString()}"))) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
+                if (id.Any(c => s_invalidChars.Contains(c))) throw new InvalidOperationException($"Command id '{id}' contains an invalid character.");
                 switch (id.Count(c => c == ' '))
                 {
                     case 0: break;
@@ -125,13 +138,9 @@ namespace AsitLib.CommandLine
                         if (group != idGroup) throw new InvalidOperationException($"Command aliasses for command '{mainId}' use differing groups.");
                         break;
                     case > 1:
-                        throw new InvalidOperationException($"Command nested subgroups are invalid.");
+                        if (id.Contains("  ")) throw new InvalidOperationException($"Command cannot have double spaces; '{id}'.");
+                        else throw new InvalidOperationException($"Command nested subgroups are invalid.");
                 }
-            }
-
-            foreach (string id in ids)
-            {
-                if (id.StartsWith('-') || id.Contains(" -")) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
                 if (isGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
             }
 

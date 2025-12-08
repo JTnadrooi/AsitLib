@@ -56,14 +56,14 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void GroupedCommand_WithInvalidAliases_ThrowsException()
+        public void GroupedCommand_WithInvalidAliases_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo(["debug print", "testg writel"]);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsException()
+        public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo("testg", options: [
                 new OptionInfo("a", typeof(string)),
@@ -76,7 +76,7 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsException()
+        public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo("testg print");
             Engine.AddCommand(info);
@@ -108,9 +108,19 @@ namespace AsitLib.Tests
         }
 
         [DataTestMethod]
+        [DataRow("testg  print")]
+        [DataRow("!print")]
+        [DataRow("=print")]
+        [DataRow("print+")]
+        [DataRow("print@")]
+        [DataRow("print  ")]
+        [DataRow("print\n")]
+        [DataRow("  print")]
+        [DataRow(" print")]
         [DataRow("-print")]
         [DataRow("testg -print")]
-        public void Add_CommandWithInvalidFirstCharacter_ThrowsException(string command)
+        [DataRow("testg1 testg2 -print")]
+        public void Contruct_InvalidCommandInfo_ThrowsEx(string command)
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
                 new DummyCommandInfo(command)
