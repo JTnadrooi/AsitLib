@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AsitLib.CommandLine
 {
@@ -111,6 +112,7 @@ namespace AsitLib.CommandLine
 
             string? group = null;
             string mainId = ids[0];
+            List<string> additionalIds = new List<string>();
 
             foreach (string id in ids)
             {
@@ -127,7 +129,13 @@ namespace AsitLib.CommandLine
                 }
             }
 
-            Ids = ids.AsReadOnly();
+            foreach (string id in ids)
+            {
+                if (id.StartsWith('-') || id.Contains(" -")) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
+                if (isGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
+            }
+
+            Ids = ids.Concat(additionalIds).ToArray().AsReadOnly();
             Description = description;
             IsGenericFlag = isGenericFlag;
             IsEnabled = isEnabled;

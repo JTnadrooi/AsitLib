@@ -80,13 +80,8 @@ namespace AsitLib.CommandLine
         {
             info.ThrowIfInvalid();
 
-            List<string> additionalIds = new List<string>();
-            OptionInfo[] parameters = info.GetOptions();
-
             foreach (string id in info.Ids)
             {
-                if (id.StartsWith('-') || id.Contains(" -")) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
-                if (info.IsGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
                 if (_groups.Contains(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }
 
@@ -96,7 +91,7 @@ namespace AsitLib.CommandLine
                     throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
 
-            foreach (string id in info.Ids.Concat(additionalIds))
+            foreach (string id in info.Ids)
             {
                 if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
             }
