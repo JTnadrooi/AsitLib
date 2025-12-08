@@ -85,7 +85,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in info.Ids)
             {
-                if (id.StartsWith('-')) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
+                if (id.StartsWith('-') || id.Contains(" -")) throw new InvalidOperationException($"Invalid command id '{id}'; invalid first character.");
                 if (info.IsGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
                 if (_groups.Contains(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }

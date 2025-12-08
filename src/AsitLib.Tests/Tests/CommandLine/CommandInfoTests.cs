@@ -106,5 +106,17 @@ namespace AsitLib.Tests
             CommandInfo info2 = new DummyCommandInfo("testg print");
             Engine.AddCommand(info2);
         }
+
+        [DataTestMethod]
+        [DataRow("-print")]
+        [DataRow("testg -print")]
+        public void Add_CommandWithInvalidFirstCharacter_ThrowsException(string command)
+        {
+            CommandInfo info = new DummyCommandInfo(command);
+
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                Engine.AddCommand(info)
+            );
+        }
     }
 }
