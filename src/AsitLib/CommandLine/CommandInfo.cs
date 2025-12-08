@@ -105,7 +105,8 @@ namespace AsitLib.CommandLine
         public bool IsGenericFlag { get; }
 
         public bool IsEnabled { get; }
-        private readonly HashSet<char> s_invalidChars = new HashSet<char>([
+
+        private static readonly HashSet<char> s_invalidChars = new HashSet<char>([
             '@', '<', '>', '.', '!', '#', '$',
             '%', '^', '&', '*', '(', ')',
             '+', '=', '{', '}', '[', ']',
@@ -113,7 +114,7 @@ namespace AsitLib.CommandLine
             ',', '`', '~',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ]);
-        private readonly char[] s_invalidStartChars = [
+        private static readonly char[] s_invalidStartChars = [
             '-', ' ',
         ];
 
