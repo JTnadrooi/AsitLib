@@ -9,10 +9,10 @@ namespace AsitLib.Tests
     {
         public OptionInfo[] Options { get; }
 
-        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, bool isEnabled = true, OptionInfo[]? options = null)
-            : this([id], description, isGenericFlag, isEnabled, options) { }
-        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, bool isEnabled = true, OptionInfo[]? options = null)
-            : base(ids, description ?? "No desc.", isGenericFlag, isEnabled)
+        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null)
+            : this([id], description, isGenericFlag, options, provider) { }
+        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null)
+            : base(ids, description ?? "No desc.", isGenericFlag, provider)
         {
             Options = options ?? Array.Empty<OptionInfo>();
         }

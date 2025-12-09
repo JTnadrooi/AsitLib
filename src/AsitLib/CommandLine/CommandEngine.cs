@@ -15,24 +15,23 @@ namespace AsitLib.CommandLine
 {
     public sealed class CommandEngine
     {
-        private readonly Dictionary<string, GlobalOption> _globalOptions;
-        private readonly Dictionary<string, CommandProvider> _providers;
-        private readonly Dictionary<string, CommandInfo> _commands;
-        private readonly Dictionary<string, CommandInfo> _uniqueCommands;
-        private readonly Dictionary<string, ActionHook> _hooks;
-        private readonly HashSet<string> _groups;
-
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
         public ReadOnlyDictionary<string, CommandInfo> Commands { get; }
         public ReadOnlyDictionary<string, CommandInfo> UniqueCommands { get; }
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
         public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
-        public IReadOnlySet<string> Groups { get; }
+        public IReadOnlyCollection<string> Groups { get; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
 
         private readonly Dictionary<string, List<string>> _srcMap;
+        private readonly Dictionary<string, List<string>> _groupMap;
+        private readonly Dictionary<string, GlobalOption> _globalOptions;
+        private readonly Dictionary<string, CommandProvider> _providers;
+        private readonly Dictionary<string, CommandInfo> _commands;
+        private readonly Dictionary<string, CommandInfo> _uniqueCommands;
+        private readonly Dictionary<string, ActionHook> _hooks;
 
         public CommandEngine()
         {
@@ -41,14 +40,14 @@ namespace AsitLib.CommandLine
             _uniqueCommands = new Dictionary<string, CommandInfo>();
             _globalOptions = new Dictionary<string, GlobalOption>();
             _hooks = new Dictionary<string, ActionHook>();
-            _groups = new HashSet<string>();
+            _groupMap = new Dictionary<string, List<string>>();
 
             Providers = _providers.AsReadOnly();
             Commands = _commands.AsReadOnly();
             UniqueCommands = _uniqueCommands.AsReadOnly();
             GlobalOptions = _globalOptions.AsReadOnly();
             Hooks = _hooks.AsReadOnly();
-            Groups = _groups; // casting it back is possible I suppose.. Immutable hashset makes a copy.
+            Groups = _groupMap.Keys;
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -82,7 +81,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in info.Ids)
             {
-                if (_groups.Contains(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
+                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }
 
             if (info.HasGroup)
@@ -92,13 +91,28 @@ namespace AsitLib.CommandLine
             }
 
             foreach (string id in info.Ids)
-            {
                 if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
-            }
 
             _uniqueCommands.Add(info.Id, info);
-            if (info is ProviderCommandInfo pCInfo) _srcMap[pCInfo.Provider.Name].Add(info.Id);
-            if (info.HasGroup) _groups.Add(info.Group!);
+
+            if (info.HasProvider)
+            {
+                CommandProvider provider = info.Provider!;
+
+                if (_providers.ContainsKey(provider.Name) && _providers[provider.Name].GetType() != provider.GetType())
+                    throw new InvalidOperationException("Command is provided by a provider with a name equal to a different-type already registered provider.");
+
+                _providers.TryAdd(provider.Name, provider);
+                _srcMap.TryAdd(provider.Name, new List<string>());
+
+                _srcMap[provider.Name].Add(info.Id);
+            }
+
+            if (info.HasGroup)
+            {
+                _groupMap.TryAdd(info.Group!, new List<string>());
+                _groupMap[info.Group!].Add(info.Id);
+            }
 
             return this;
         }
@@ -109,14 +123,31 @@ namespace AsitLib.CommandLine
 
             CommandInfo info = _uniqueCommands[id];
 
-
             foreach (string aliasId in _uniqueCommands[id].Ids)
             {
                 if (info.IsGenericFlag) _commands.Remove(ParseHelpers.GetGenericFlagSignature(aliasId));
                 _commands.Remove(aliasId);
             }
 
-            if (info.HasGroup) _groups.Remove(_uniqueCommands[id].Group!); // may fail, is ok.
+            if (info.HasProvider)
+            {
+                CommandProvider provider = info.Provider!;
+
+                _srcMap[provider.Name].Remove(info.Id);
+
+                if (_srcMap.Count == 0)
+                {
+                    _srcMap.Remove(provider.Name);
+                    _providers.Remove(provider.Name);
+                }
+            }
+
+            if (info.HasGroup)
+            {
+                _groupMap[info.Group!].Remove(info.Id);
+                if (_groupMap.Count == 0) _groupMap.Remove(info.Group!);
+            }
+
             _uniqueCommands.Remove(id);
 
             return this;
@@ -124,18 +155,18 @@ namespace AsitLib.CommandLine
 
         public CommandEngine AddProvider(CommandProvider provider)
         {
-            if (!_providers.TryAdd(provider.Name, provider)) throw new InvalidOperationException($"CommandProvider with duplicate Name '{provider.Name}' found.");
-            _srcMap.Add(provider.Name, new List<string>());
+            CommandInfo[] commands = provider.GetCommands();
 
-            foreach (CommandInfo info in provider.GetCommands())
-                AddCommand(info);
+            if (commands.Length == 0) throw new InvalidOperationException("Cannot add empty command provider, GetCommands() returned an empty array.");
+
+            foreach (CommandInfo command in commands)
+                AddCommand(command);
 
             return this;
         }
 
         public CommandEngine RemoveProvider(string name)
         {
-            if (!_providers.Remove(name)) throw new KeyNotFoundException($"CommandProvider with Namespace '{name}' was not found.");
             foreach (string id in _srcMap[name])
                 RemoveCommand(id);
             _srcMap.Remove(name);
@@ -217,7 +248,7 @@ namespace AsitLib.CommandLine
 
             ArgumentsInfo toret = new ArgumentsInfo(args[0], outArgs.ToArray(), callsGenericFlag);
 
-            if (_groups.Contains(commandId) && outArgs.Count > 0)
+            if (_groupMap.ContainsKey(commandId) && outArgs.Count > 0)
             {
                 toret = Parse(ArrayHelpers.Combine(args[0] + " " + args[1], args[2..]));
             }
@@ -225,13 +256,13 @@ namespace AsitLib.CommandLine
             return toret;
         }
 
-        public ProviderCommandInfo[] GetProviderCommands(string @namespace)
+        public CommandInfo[] GetProviderCommands(string name)
         {
-            List<ProviderCommandInfo> providerCommands = new List<ProviderCommandInfo>();
+            List<CommandInfo> providerCommands = new List<CommandInfo>();
 
-            foreach (string id in _srcMap[@namespace])
+            foreach (string id in _srcMap[name])
                 if (_uniqueCommands.TryGetValue(id, out CommandInfo? commandInfo))
-                    providerCommands.Add((ProviderCommandInfo)commandInfo);
+                    providerCommands.Add((CommandInfo)commandInfo);
 
             return providerCommands.ToArray();
         }

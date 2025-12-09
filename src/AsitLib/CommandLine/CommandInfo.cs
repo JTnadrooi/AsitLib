@@ -26,13 +26,15 @@ namespace AsitLib.CommandLine
         public object? Target { get; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false)
-            : base(ids, description, isGenericFlag: isGenericFlag)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false)
+            : this(ids, description, methodInfo, provider, isGenericFlag: isGenericFlag, provider: provider) { }
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false, CommandProvider? provider = null)
+            : base(ids, description, isGenericFlag: isGenericFlag, provider: provider)
         {
             MethodInfo = methodInfo;
             Target = target;
 
-            if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return type DBNull.", nameof(methodInfo));
+            if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
@@ -44,20 +46,7 @@ namespace AsitLib.CommandLine
         }
     }
 
-    public class ProviderCommandInfo : MethodCommandInfo
-    {
-        public CommandProvider Provider => (CommandProvider)base.Target!;
-
-        [Obsolete($"Use the {nameof(Provider)} property instead.")]
-        public new object? Target => base.Target;
-
-        public ProviderCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandProvider provider) : base(ids, attribute.Description, methodInfo, provider, attribute.IsGenericFlag)
-        {
-
-        }
-    }
-
-    public class CommandGroupCommandInfo : ProviderCommandInfo
+    public class CommandGroupCommandInfo : MethodCommandInfo
     {
         /// <summary>
         /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="CommandInfo.Id"/> from the source <see cref="CommandGroup.Name"/>.
@@ -72,7 +61,7 @@ namespace AsitLib.CommandLine
         [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
         public new object? Target => base.Target;
 
-        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup) : base(ids, attribute, methodInfo, sourceGroup)
+        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup) : base(ids, attribute.Description, methodInfo, sourceGroup, attribute.IsGenericFlag)
         {
             IsMain = sourceGroup.NameOfMainMethod == methodInfo.Name;
         }
@@ -94,6 +83,9 @@ namespace AsitLib.CommandLine
 
         public bool HasGroup => Group is not null;
 
+        public CommandProvider? Provider { get; }
+
+        public bool HasProvider => Provider is not null;
         /// <summary>
         /// <inheritdoc cref="CommandAttribute.Description" path="/summary"/>
         /// </summary>
@@ -105,10 +97,9 @@ namespace AsitLib.CommandLine
         /// </summary>
         public bool IsGenericFlag { get; }
 
-        public bool IsEnabled { get; }
+        public bool IsEnabled { get; set; }
 
-
-        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, bool isEnabled = true)
+        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, CommandProvider? provider = null)
         {
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
@@ -138,8 +129,9 @@ namespace AsitLib.CommandLine
             Ids = ids.Concat(additionalIds).ToArray().AsReadOnly();
             Description = description;
             IsGenericFlag = isGenericFlag;
-            IsEnabled = isEnabled;
             Group = group;
+            Provider = provider;
+            IsEnabled = true;
         }
 
         public abstract object? Invoke(object?[] parameters);

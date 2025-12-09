@@ -27,11 +27,9 @@ namespace AsitLib.CommandLine
                         if (g.NameOfMainMethod == methodInfo.Name) cmdId = g.Name;
                         else cmdId = $"{provider.Name} {(attribute.Id ?? ParseHelpers.GetSignature(methodInfo))}";
                         return new CommandGroupCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute, methodInfo, g);
-                    case CommandProvider p:
-                        cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
-                        return new ProviderCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute, methodInfo, p);
                     default:
-                        throw new Exception();
+                        cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
+                        return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, provider, attribute.IsGenericFlag);
                 }
 
             }
