@@ -105,58 +105,6 @@ namespace AsitLib.CommandLine
             return result.ToArray();
         }
 
-        public static ArgumentsInfo Parse(string args) => Parse(Split(args));
-        public static ArgumentsInfo Parse(string[] args)
-        {
-            if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
-
-            List<string> currentValues = new List<string>();
-            List<Argument> arguments = new List<Argument>();
-            string? currentName = null;
-            int position = 0;
-            bool noMoreParams = false;
-            string token = string.Empty;
-            string commandId = args[0];
-            bool callsGenericFlag = commandId.StartsWith('-');
-
-            void PushArgument()
-            {
-                arguments.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
-                currentValues.Clear();
-            }
-
-            for (int i = 1; i < args.Length; i++)
-            {
-                token = args[i];
-
-                if (!noMoreParams && token == "--")
-                {
-                    noMoreParams = true;
-                    continue;
-                }
-
-                if (!noMoreParams && token.StartsWith("-"))
-                {
-                    if (currentName is not null)
-                    {
-                        PushArgument();
-                    }
-
-                    currentName = token;
-                }
-                else
-                {
-                    if (currentName is null) arguments.Add(new Argument(new ArgumentTarget(position++), [token]));
-                    else currentValues.Add(token);
-                }
-            }
-
-            if (currentName is not null) PushArgument();
-
-
-            return new ArgumentsInfo(args[0], arguments.ToArray(), callsGenericFlag);
-        }
-
         public static GlobalOption[] ExtractFlags(ref ArgumentsInfo argsInfo, GlobalOption[] flagHandlers)
         {
             HashSet<GlobalOption> toret = new HashSet<GlobalOption>();
