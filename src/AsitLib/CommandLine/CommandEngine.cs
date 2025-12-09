@@ -33,6 +33,8 @@ namespace AsitLib.CommandLine
         private readonly Dictionary<string, CommandInfo> _uniqueCommands;
         private readonly Dictionary<string, ActionHook> _hooks;
 
+        public CommandInfo this[string id] => Commands[id];
+
         public CommandEngine()
         {
             _providers = new Dictionary<string, CommandProvider>();
