@@ -14,9 +14,9 @@ namespace AsitLib.CommandLine
     {
         public string Name { get; }
 
-        protected ICommandInfoFactory<CommandAttribute, CommandInfo>? InfoFactory { get; }
+        protected ICommandInfoFactory? InfoFactory { get; }
 
-        public CommandProvider(string name, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory)
+        public CommandProvider(string name, ICommandInfoFactory? infoFactory)
         {
             ParseHelpers.ThrowIfInvalidName(name, false, "CommandProvider Name");
 
@@ -49,7 +49,7 @@ namespace AsitLib.CommandLine
     {
         public string? NameOfMainMethod { get; }
 
-        public CommandGroup(string name, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null, string? nameOfMainMethod = null) : base(name, infoFactory)
+        public CommandGroup(string name, ICommandInfoFactory? infoFactory = null, string? nameOfMainMethod = null) : base(name, infoFactory)
         {
             NameOfMainMethod = nameOfMainMethod;
 
