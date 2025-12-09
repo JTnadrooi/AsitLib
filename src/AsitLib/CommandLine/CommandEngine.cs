@@ -122,20 +122,13 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddProvider(CommandProvider provider, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null)
+        public CommandEngine AddProvider(CommandProvider provider)
         {
             if (!_providers.TryAdd(provider.Name, provider)) throw new InvalidOperationException($"CommandProvider with duplicate Name '{provider.Name}' found.");
-            infoFactory ??= CommandInfoFactory.Default;
-
-            MethodInfo[] commandMethods = provider.GetType().GetMethods();
             _srcMap.Add(provider.Name, new List<string>());
 
-            foreach (MethodInfo methodInfo in commandMethods)
-                if (methodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
-                {
-                    CommandInfo? info = infoFactory.Convert(attribute, provider, methodInfo);
-                    if (info is not null) AddCommand(info);
-                }
+            foreach (CommandInfo info in provider.GetCommands())
+                AddCommand(info);
 
             return this;
         }
@@ -295,7 +288,6 @@ namespace AsitLib.CommandLine
             => (TProvider)Providers.Values.First(p => p.GetType() == typeof(TProvider));
 
         public CommandEngine Populate(
-            ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null,
             Assembly? assembly = null,
             Func<Type, bool>? predicate = null,
             Func<Type, CommandProvider>? activator = null)
@@ -306,7 +298,7 @@ namespace AsitLib.CommandLine
 
             if (predicate is not null) types = types.Where(t => predicate.Invoke(t));
 
-            foreach (Type type in types) AddProvider(activator.Invoke(type), infoFactory);
+            foreach (Type type in types) AddProvider(activator.Invoke(type));
 
             return this;
         }

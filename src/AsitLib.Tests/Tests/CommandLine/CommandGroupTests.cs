@@ -7,7 +7,7 @@ namespace AsitLib.Tests
 {
     public class TestCommandGroup : CommandGroup
     {
-        public TestCommandGroup() : base("testg")
+        public TestCommandGroup() : base("testg", CommandInfoFactory.Default)
         //public TestCommandGroup() : base("testg", nameof(Main))
         {
 
@@ -30,7 +30,7 @@ namespace AsitLib.Tests
         public static void ClassInit(TestContext context)
         {
             Engine = new CommandEngine()
-                .AddProvider(new TestCommandGroup(), CommandInfoFactory.Default);
+                .AddProvider(new TestCommandGroup());
         }
 
         [ClassCleanup]

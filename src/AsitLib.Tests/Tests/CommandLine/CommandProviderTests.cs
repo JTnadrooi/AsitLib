@@ -7,7 +7,7 @@ namespace AsitLib.Tests
 {
     public class DummyCommandProvider : CommandProvider
     {
-        public DummyCommandProvider(string name) : base(name) { }
+        public DummyCommandProvider(string name) : base(name, null) { }
     }
 
     [TestClass]

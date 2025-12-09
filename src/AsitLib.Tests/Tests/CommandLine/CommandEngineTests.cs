@@ -30,7 +30,7 @@ namespace AsitLib.Tests
 
     public class TestCommandProvider : CommandProvider
     {
-        public TestCommandProvider() : base("test") { }
+        public TestCommandProvider() : base("test", CommandInfoFactory.Default) { }
 
         [Command("desc")]
         public string Print(string input, bool upperCase = false)
@@ -116,7 +116,7 @@ namespace AsitLib.Tests
         public static void ClassInit(TestContext context)
         {
             Engine = new CommandEngine()
-                .AddProvider(new TestCommandProvider(), CommandInfoFactory.Default)
+                .AddProvider(new TestCommandProvider())
                 .AddGlobalOption(new AlwaysReturnTestGlobalOptionHandler());
         }
 

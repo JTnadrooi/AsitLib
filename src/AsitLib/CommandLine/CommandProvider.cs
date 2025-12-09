@@ -14,11 +14,31 @@ namespace AsitLib.CommandLine
     {
         public string Name { get; }
 
-        public CommandProvider(string name)
+        protected ICommandInfoFactory<CommandAttribute, CommandInfo>? InfoFactory { get; }
+
+        public CommandProvider(string name, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory)
         {
             ParseHelpers.ThrowIfInvalidName(name, false, "CommandProvider Name");
 
             Name = name;
+            InfoFactory = infoFactory;
+        }
+
+        public virtual CommandInfo[] GetCommands()
+        {
+            if (InfoFactory is null) throw new InvalidOperationException("Cannot get commands if InfoFactory is null.");
+
+            MethodInfo[] commandMethods = GetType().GetMethods();
+            List<CommandInfo> commands = new List<CommandInfo>();
+
+            foreach (MethodInfo methodInfo in commandMethods)
+                if (methodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
+                {
+                    CommandInfo? info = InfoFactory.Convert(attribute, this, methodInfo);
+                    if (info is not null) commands.Add(info);
+                }
+
+            return commands.ToArray();
         }
 
         //public override string ToString()
@@ -29,7 +49,7 @@ namespace AsitLib.CommandLine
     {
         public string? NameOfMainMethod { get; }
 
-        public CommandGroup(string name, string? nameOfMainMethod = null) : base(name)
+        public CommandGroup(string name, ICommandInfoFactory<CommandAttribute, CommandInfo>? infoFactory = null, string? nameOfMainMethod = null) : base(name, infoFactory)
         {
             NameOfMainMethod = nameOfMainMethod;
 
