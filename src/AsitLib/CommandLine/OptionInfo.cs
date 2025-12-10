@@ -88,6 +88,7 @@ namespace AsitLib.CommandLine
         {
             OptionType = optionType;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
+            PassingOptions = OptionPassingOptions.All;
         }
 
         public OptionInfo(string name, Type optionType)
@@ -95,13 +96,14 @@ namespace AsitLib.CommandLine
             Name = name;
             OptionType = optionType;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
+            PassingOptions = OptionPassingOptions.All;
         }
 
         public void ThrowExceptionIfInvalidValue(object? value)
         {
             foreach (ValidationAttribute attribute in ValidationAttributes)
             {
-                ValidationResult? result = attribute.GetValidationResult(value, new ValidationContext(value!) { DisplayName = "INPUT" });
+                ValidationResult? result = attribute.GetValidationResult(value, new ValidationContext(value!) { DisplayName = Name is null ? "INPUT" : $"{Name}_INPUT" });
                 if (result != ValidationResult.Success) throw new CommandException($"Argument value '{value}' is invalid: {result!.ErrorMessage}");
             }
         }

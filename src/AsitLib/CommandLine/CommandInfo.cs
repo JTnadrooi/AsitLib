@@ -166,7 +166,7 @@ namespace AsitLib.CommandLine
             return sb.ToString();
         }
 
-        public bool IsMainCommandEligible() => GetOptions().Length == 0;
+        public bool IsMainCommandEligible() => GetOptions().Count(o => o.PassingOptions.HasFlag(OptionPassingOptions.Positional)) == 0;
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }

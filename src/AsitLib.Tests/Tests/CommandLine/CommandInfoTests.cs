@@ -108,6 +108,39 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void IsMainCommandEligible_CommandWithoutOptions_ReturnsTrue()
+        {
+            CommandInfo info = new DummyCommandInfo("testg", options: []);
+            Assert.IsTrue(info.IsMainCommandEligible());
+        }
+
+        [TestMethod]
+        public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
+        {
+            CommandInfo info = new DummyCommandInfo("testg", options: [
+                new OptionInfo("testop", typeof(string)) {
+                    PassingOptions = OptionPassingOptions.Named,
+                },
+                new OptionInfo("testop2", typeof(string)) {
+                    PassingOptions = OptionPassingOptions.Named,
+                },
+            ]);
+
+            Assert.IsTrue(info.IsMainCommandEligible());
+        }
+
+        [TestMethod]
+        public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
+        {
+            CommandInfo info = new DummyCommandInfo("testg", options: [
+                new OptionInfo("testop", typeof(string)),
+                new OptionInfo("testop2", typeof(string)),
+            ]);
+
+            Assert.IsFalse(info.IsMainCommandEligible());
+        }
+
+        [TestMethod]
         [DataRow("testg  print")]
         [DataRow("!print")]
         [DataRow("=print")]
