@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    [Flags]
+    public enum OptionPassingOptions
+    {
+        None = 0,
+        Positional = 1,
+        Named = 2,
+        All = Positional | Named
+    }
+
     [AttributeUsage(AttributeTargets.Parameter)]
     public class OptionAttribute : Attribute
     {
@@ -28,6 +37,8 @@ namespace AsitLib.CommandLine
         public string? Name { get; init; }
 
         public string? AntiParameterName { get; init; }
+
+        public OptionPassingOptions PassingOptions { get; init; } = OptionPassingOptions.All;
 
         public OptionAttribute() { }
 

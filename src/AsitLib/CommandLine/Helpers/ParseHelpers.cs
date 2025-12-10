@@ -135,12 +135,12 @@ namespace AsitLib.CommandLine
                 string? shortHandName = option.OptionAttribute.Shorthand;
 
                 foreach (Argument arg in argsInfo.Arguments)
-                    if ((arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name) || (arg.Target.OptionIndex == i) ||
-                        (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName))
+                    if ((arg.Target.OptionIndex == i) // positional.
+                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.OptionAttribute.PassingOptions.HasFlag(OptionPassingOptions.Named)) // longform.
+                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.OptionAttribute.PassingOptions.HasFlag(OptionPassingOptions.Named))) // shorthand.
                     {
                         if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                         matchingArgument = arg;
-                        //break;
                     }
 
                 if (option.OptionAttribute.AntiParameterName is not null)

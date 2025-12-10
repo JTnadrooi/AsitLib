@@ -48,7 +48,7 @@ namespace AsitLib.CommandLine
             _defaultValue = defaultValue;
             HasDefaultValue = hasDefaultValue;
 
-            OptionAttribute = (OptionAttribute?)attributes.SingleOrDefault(a => a is OptionAttribute oa) ?? AsitLib.CommandLine.OptionAttribute.Default;
+            OptionAttribute = (OptionAttribute?)attributes.FirstOrDefault(a => a is OptionAttribute oa) ?? OptionAttribute.Default;
 
             if (!HasDefaultValue)
                 if (GetAttribute<AllowNullAttribute>() is not null || nullabilityInfo?.WriteState == NullabilityState.Nullable)
