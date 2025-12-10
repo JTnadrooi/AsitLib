@@ -91,8 +91,5 @@ namespace AsitLib.CommandLine
         }
 
         public override string ToString() => $"{{Id: '{CommandId}', Expected parameters: [{Arguments.Select(a => a.Target).ToJoinedString(", ")}]}}";
-
-        public static ArgumentsInfo Parse(string args) => ParseHelpers.Parse(args);
-        public static ArgumentsInfo Parse(string[] args) => ParseHelpers.Parse(args);
     }
 }
