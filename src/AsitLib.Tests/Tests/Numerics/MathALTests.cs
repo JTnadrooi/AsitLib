@@ -16,21 +16,21 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Invert_InvalidValue_NaN()
+        public void Invert_InvalidValueNaN_ThrowsEx()
         {
             MathAL.Invert(float.NaN, 0f);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Invert_InvalidValue_PositiveInfinity()
+        public void Invert_InvalidValueInf_ThrowsEx()
         {
             MathAL.Invert(float.PositiveInfinity, 0f);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Invert_InvalidValue_NegativeInfinity()
+        public void Invert_InvalidValueNegInf_ThrowsEx()
         {
             MathAL.Invert(float.NegativeInfinity, 0f);
         }
@@ -65,14 +65,14 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Average_InvalidValue_NaN()
+        public void Average_InvalidValueNaN_ThrowsEx()
         {
             MathAL.Average(10f, 20f, float.NaN);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Average_InvalidValue_Infinity()
+        public void Average_InvalidValueInf_ThrowsEx()
         {
             MathAL.Average(10f, float.PositiveInfinity, 20f);
         }
@@ -131,7 +131,7 @@ namespace AsitLib.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void ToBigInteger_InvalidType()
+        public void ToBigInteger_InvalidType_ThrowsEx()
         {
             string value = "test";
             MathHelperAL.ToBigInteger(value);
