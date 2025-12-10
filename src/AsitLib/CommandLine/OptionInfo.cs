@@ -37,6 +37,7 @@ namespace AsitLib.CommandLine
 
         public Type OptionType { get; }
 
+        [DisallowNull]
         public string? Name { get; }
 
         private object? _implicitValue;
@@ -52,8 +53,10 @@ namespace AsitLib.CommandLine
             }
         }
 
+        [DisallowNull]
         public string? Shorthand { get; init; }
 
+        [DisallowNull]
         public string? AntiParameterName { get; init; }
 
         public OptionPassingOptions PassingOptions { get; init; }
@@ -70,8 +73,12 @@ namespace AsitLib.CommandLine
 
             OptionType = parameter.ParameterType;
             Name = optionAttribute.Name ?? ParseHelpers.GetSignature(parameter);
+
+#pragma warning disable CS8601
             Shorthand = optionAttribute.Shorthand;
             AntiParameterName = optionAttribute.AntiParameterName;
+#pragma warning restore CS8601
+
             PassingOptions = optionAttribute.PassingOptions;
             ValidationAttributes = attributes.Where(a => a is ValidationAttribute).Cast<ValidationAttribute>().ToArray();
 
