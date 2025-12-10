@@ -120,7 +120,7 @@ namespace AsitLib.CommandLine
                         break;
                     case > 1:
                         if (id.Contains("  ")) throw new InvalidOperationException($"Command cannot have double spaces; '{id}'.");
-                        else throw new InvalidOperationException($"Command nested subgroups are invalid.");
+                        else throw new InvalidOperationException($"Nested command subgroups are invalid.");
                 }
                 if (isGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
             }
