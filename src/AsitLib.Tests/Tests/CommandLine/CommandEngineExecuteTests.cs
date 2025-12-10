@@ -18,14 +18,17 @@ namespace AsitLib.Tests
 
     public class AlwaysReturnTestGlobalOptionHandler : GlobalOption
     {
-        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", "TEST")
+        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", new OptionInfo(typeof(string))
+        {
+            ImplicitValue = "TEST",
+        })
         {
 
         }
 
         public override object? OnReturned(CommandContext context, object? returned)
         {
-            if (context.TryGetFlagHandlerArgument<string>(this, out string? value)) return value;
+            if (context.TryGetGlobalOptionValue<string>(this, out string? value)) return value;
             else return returned;
         }
     }

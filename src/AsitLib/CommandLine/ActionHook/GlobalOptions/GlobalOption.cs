@@ -16,15 +16,14 @@ namespace AsitLib.CommandLine
         public string Description { get; }
         public bool HasShorthandId => ShorthandId is not null;
 
-        public object? ImplicitValue { get; }
+        public OptionInfo? Option { get; }
 
-        protected GlobalOption(string longFormId, string description, string? shorthandId = null, object? implicitValue = null) : base(longFormId)
+        protected GlobalOption(string longFormId, string description, string? shorthandId = null, OptionInfo? option = null) : base(longFormId)
         {
             ShorthandId = shorthandId;
             LongFormId = longFormId;
             Description = description;
-
-            ImplicitValue = implicitValue;
+            Option = option;
         }
     }
 

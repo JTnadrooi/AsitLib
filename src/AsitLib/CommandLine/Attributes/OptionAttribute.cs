@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,15 +21,14 @@ namespace AsitLib.CommandLine
     {
         private object? _implicitValue;
 
-        public bool UsesImplicitValue { get; private set; }
-
+        [DisallowNull]
         public object? ImplicitValue
         {
             get => _implicitValue;
             init
             {
-                _implicitValue = value;
-                UsesImplicitValue = true;
+                if (value == DBNull.Value) throw new Exception($"{nameof(DBNull.Value)} is not valid as implicit value.");
+                _implicitValue = value ?? throw new InvalidOperationException("Cannot set null as implicit value.");
             }
         }
 

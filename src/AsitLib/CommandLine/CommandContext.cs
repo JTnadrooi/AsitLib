@@ -73,18 +73,20 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public T? GetFlagHandlerArgument<T>(GlobalOption flagHandler)
+        public T? GetGlobalOptionValue<T>(GlobalOption globalOption)
         {
-            if (TryGetFlagHandlerArgument<T>(flagHandler, out T? value)) return value;
-            else throw new InvalidOperationException($"No flag argument provided for flag '{flagHandler.LongFormId}'.");
+            if (TryGetGlobalOptionValue<T>(globalOption, out T? value)) return value;
+            else throw new InvalidOperationException($"No option provided for GlobalOption '{globalOption.LongFormId}'.");
         }
 
-        public bool TryGetFlagHandlerArgument<T>(GlobalOption flagHandler, out T? value)
+        public bool TryGetGlobalOptionValue<T>(GlobalOption globalOption, out T? value)
         {
+            if (globalOption.Option is null) throw new InvalidOperationException("Cannot get value passed to GlobalOption without Option.");
+
             foreach (Argument argument in ArgumentsInfo.Arguments)
-                if (argument.Target.TargetsFlag(flagHandler))
+                if (argument.Target.TargetsFlag(globalOption))
                 {
-                    value = (T?)ParseHelpers.GetValue(argument.Tokens, typeof(T), flagHandler.GetType().GetCustomAttributes(true).Cast<Attribute>(), flagHandler.ImplicitValue);
+                    value = (T?)ParseHelpers.GetValue(argument.Tokens, globalOption.Option);
                     return true;
                 }
             value = default;

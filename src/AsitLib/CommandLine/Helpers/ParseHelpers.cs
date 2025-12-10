@@ -132,23 +132,25 @@ namespace AsitLib.CommandLine
             {
                 OptionInfo option = options[i];
                 Argument? matchingArgument = null;
-                string? shortHandName = option.OptionAttribute.Shorthand;
+                string? shortHandName = option.Shorthand;
+
+                option.ThrowExceptionIfNoName();
 
                 foreach (Argument arg in argsInfo.Arguments)
                     if ((arg.Target.OptionIndex == i) // positional.
-                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.OptionAttribute.PassingOptions.HasFlag(OptionPassingOptions.Named)) // longform.
-                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.OptionAttribute.PassingOptions.HasFlag(OptionPassingOptions.Named))) // shorthand.
+                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.PassingOptions.HasFlag(OptionPassingOptions.Named)) // longform.
+                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.PassingOptions.HasFlag(OptionPassingOptions.Named))) // shorthand.
                     {
                         if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                         matchingArgument = arg;
                     }
 
-                if (option.OptionAttribute.AntiParameterName is not null)
+                if (option.AntiParameterName is not null)
                     foreach (Argument arg in argsInfo.Arguments)
-                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (option.OptionAttribute.AntiParameterName ?? $"no-{option.Name}"))
+                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (option.AntiParameterName ?? $"no-{option.Name}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
-                            if (option.Type != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
+                            if (option.OptionType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
                             if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                             if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
@@ -159,7 +161,7 @@ namespace AsitLib.CommandLine
 
                 if (matchingArgument is null) // no matching argument found.
                 {
-                    if (option.Type == typeof(CommandContext))
+                    if (option.OptionType == typeof(CommandContext))
                     {
                         result[i] = context ?? throw new CommandException("Cannot inject engine when engine is not passed to Conform function.");
                         goto Continue;
@@ -182,32 +184,23 @@ namespace AsitLib.CommandLine
             return result;
         }
 
-        public static object? GetValue(string token, Type target, IEnumerable<Attribute>? attributes = null, object? implicitValue = null) => GetValue([token], target, attributes, implicitValue);
-        public static object? GetValue(IReadOnlyList<string> tokens, Type target, IEnumerable<Attribute>? attributes = null, object? implicitValue = null)
+        public static object? GetValue(string token, Type target) => GetValue([token], target);
+        public static object? GetValue(string token, OptionInfo target) => GetValue([token], target);
+        public static object? GetValue(IReadOnlyList<string> tokens, Type target) => GetValue(tokens, new OptionInfo("__noname__", target));
+        public static object? GetValue(IReadOnlyList<string> tokens, OptionInfo target)
         {
-            List<ValidationAttribute> validationAttributes = new List<ValidationAttribute>();
-            attributes = attributes ?? Enumerable.Empty<Attribute>();
-
-            foreach (Attribute attribute in attributes)
-                switch (attribute)
-                {
-                    case ValidationAttribute a:
-                        validationAttributes.Add(a);
-                        break;
-                }
-
-            object? ConvertPrivate()
+            object? GetValuePrivate()
             {
                 if (tokens.Count == 0)
                 {
-                    if (implicitValue != null) return implicitValue;
-                    if (target == typeof(bool)) return true;
+                    if (target.ImplicitValue is not null) return target.ImplicitValue;
+                    if (target.OptionType == typeof(bool)) return true;
                     else throw new InvalidOperationException($"Cannot convert empty token to '{target}' type.");
                 }
 
-                if (target.IsArray)
+                if (target.OptionType.IsArray)
                 {
-                    Type elementType = target.GetElementType()!;
+                    Type elementType = target.OptionType.GetElementType()!;
                     Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
                     for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(GetValue([tokens[i]], elementType), i);
@@ -219,31 +212,27 @@ namespace AsitLib.CommandLine
 
                 string token = tokens[0];
 
-                if (target.IsEnum)
+                if (target.OptionType.IsEnum)
                 {
-                    if (int.TryParse(token, out int result)) return Enum.ToObject(target, result);
+                    if (int.TryParse(token, out int result)) return Enum.ToObject(target.OptionType, result);
 
-                    Dictionary<string, string> names = target
+                    Dictionary<string, string> names = target.OptionType
                         .GetFields(BindingFlags.Public | BindingFlags.Static)
                         .Select(f => new KeyValuePair<string, string>(GetSignature(f), f.Name))
                         .ToDictionary();
 
                     foreach (KeyValuePair<string, string> kvp in names)
-                        if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target, kvp.Value);
+                        if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(target.OptionType, kvp.Value);
 
                     throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
                 }
 
-                return System.Convert.ChangeType(token, target);
+                return System.Convert.ChangeType(token, target.OptionType);
             }
 
-            object? toret = ConvertPrivate();
+            object? toret = GetValuePrivate();
 
-            foreach (ValidationAttribute attribute in validationAttributes)
-            {
-                ValidationResult? result = attribute.GetValidationResult(toret, new ValidationContext(toret!) { DisplayName = "INPUT" });
-                if (result != ValidationResult.Success) throw new CommandException($"Argument value '{toret}' is invalid: {result!.ErrorMessage}");
-            }
+            target.ThrowExceptionIfInvalidValue(toret);
 
             return toret;
         }

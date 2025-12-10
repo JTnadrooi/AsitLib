@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace AsitLib.CommandLine
 {
@@ -61,7 +59,8 @@ namespace AsitLib.CommandLine
         [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
         public new object? Target => base.Target;
 
-        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup) : base(ids, attribute.Description, methodInfo, sourceGroup, attribute.IsGenericFlag)
+        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup)
+            : base(ids, attribute.Description, methodInfo, sourceGroup, attribute.IsGenericFlag)
         {
             IsMain = sourceGroup.NameOfMainMethod == methodInfo.Name;
         }
@@ -156,7 +155,7 @@ namespace AsitLib.CommandLine
             if (options.Length != 0)
             {
                 string optionsString = GetOptions().Select(p =>
-                    $"{p.Type.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
+                    $"{p.OptionType.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
                     .ToJoinedString();
 
                 sb.Append(optionsString);
