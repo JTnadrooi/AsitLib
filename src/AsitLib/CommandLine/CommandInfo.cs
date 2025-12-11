@@ -35,34 +35,40 @@ namespace AsitLib.CommandLine
             if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
 
+        public static MethodCommandInfo FromMethod(MethodInfo methodInfo, object? target = null, bool autoProvider = true)
+            => FromMethodImpl(methodInfo, autoProvider ? target as CommandProvider : null, target);
+        public static MethodCommandInfo FromMethod(MethodInfo methodInfo, CommandProvider provider)
+            => FromMethodImpl(methodInfo, provider, provider);
+        public static MethodCommandInfo FromMethod(MethodInfo methodInfo, CommandProvider provider, object? target)
+            => FromMethodImpl(methodInfo, provider, target);
+
+        private static MethodCommandInfo FromMethodImpl(MethodInfo methodInfo, CommandProvider? provider, object? target)
+        {
+            CommandAttribute? attribute = methodInfo.GetCustomAttribute<CommandAttribute>();
+
+            if (attribute is null) throw new InvalidOperationException("Source method does not have a CommandAttribute derived attribute.");
+
+            string cmdId;
+            switch (provider)
+            {
+                case CommandGroup g:
+                    if (g.NameOfMainMethod == methodInfo.Name) cmdId = g.Name;
+                    else cmdId = $"{provider.Name} {(attribute.Id ?? ParseHelpers.GetSignature(methodInfo))}";
+                    break;
+                default:
+                    cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
+                    break;
+            }
+
+            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag, provider);
+        }
+
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
         public override object? Invoke(object?[] parameters)
         {
             object? result = MethodInfo.Invoke(Target, parameters); // so always runs.
 
             return IsVoid ? DBNull.Value : result;
-        }
-    }
-
-    public class CommandGroupCommandInfo : MethodCommandInfo
-    {
-        /// <summary>
-        /// Gets a value indicating if this command is the main command. Main commands inherit their <see cref="CommandInfo.Id"/> from the source <see cref="CommandGroup.Name"/>.
-        /// </summary>
-        public bool IsMain { get; }
-
-        public CommandGroup SourceGroup => (CommandGroup)base.Provider!;
-
-        [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
-        public new object? Provider => base.Provider;
-
-        [Obsolete($"Use the {nameof(SourceGroup)} property instead.")]
-        public new object? Target => base.Target;
-
-        public CommandGroupCommandInfo(string[] ids, CommandAttribute attribute, MethodInfo methodInfo, CommandGroup sourceGroup)
-            : base(ids, attribute.Description, methodInfo, sourceGroup, attribute.IsGenericFlag)
-        {
-            IsMain = sourceGroup.NameOfMainMethod == methodInfo.Name;
         }
     }
 

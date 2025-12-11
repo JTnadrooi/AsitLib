@@ -14,27 +14,25 @@ namespace AsitLib.CommandLine
     {
         public string Name { get; }
 
-        protected ICommandInfoFactory? InfoFactory { get; }
+        protected ICommandInfoFactory InfoFactory { get; }
 
-        public CommandProvider(string name, ICommandInfoFactory? infoFactory)
+        public CommandProvider(string name, ICommandInfoFactory? infoFactory = null)
         {
             ParseHelpers.ThrowIfInvalidName(name, false, "CommandProvider Name");
 
             Name = name;
-            InfoFactory = infoFactory;
+            InfoFactory = infoFactory ?? CommandInfoFactory.Default;
         }
 
         public virtual CommandInfo[] GetCommands()
         {
-            if (InfoFactory is null) throw new InvalidOperationException("Cannot get commands if InfoFactory is null.");
-
             MethodInfo[] commandMethods = GetType().GetMethods();
             List<CommandInfo> commands = new List<CommandInfo>();
 
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
                 {
-                    CommandInfo? info = InfoFactory.Convert(attribute, this, methodInfo);
+                    CommandInfo? info = InfoFactory.Convert(this, methodInfo, attribute);
                     if (info is not null) commands.Add(info);
                 }
 

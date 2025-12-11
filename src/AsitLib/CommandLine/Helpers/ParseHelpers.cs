@@ -51,7 +51,7 @@ namespace AsitLib.CommandLine
             return a is null ? GetSignature(memberInfo.Name) : a.Name;
         }
 
-        public static void ThrowIfInvalidName(string name, bool allowSpace, string? valueName = "Input")
+        internal static void ThrowIfInvalidName(string name, bool allowSpace, string? valueName = "Input")
         {
             if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"{valueName} '{name}' contains a space.");
             if (name == string.Empty) throw new InvalidOperationException($"{valueName} is an empty string.");

@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
 {
     public interface ICommandInfoFactory
     {
-        public CommandInfo? Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo);
+        public CommandInfo? Convert(CommandProvider provider, MethodInfo methodInfo, CommandAttribute attribute);
     }
 
     public static class CommandInfoFactory
@@ -18,20 +18,9 @@ namespace AsitLib.CommandLine
         {
             public DefaultInfoFactory() { }
 
-            public CommandInfo? Convert(CommandAttribute attribute, CommandProvider provider, MethodInfo methodInfo)
+            public CommandInfo? Convert(CommandProvider provider, MethodInfo methodInfo, CommandAttribute attribute)
             {
-                string cmdId;
-                switch (provider)
-                {
-                    case CommandGroup g:
-                        if (g.NameOfMainMethod == methodInfo.Name) cmdId = g.Name;
-                        else cmdId = $"{provider.Name} {(attribute.Id ?? ParseHelpers.GetSignature(methodInfo))}";
-                        return new CommandGroupCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute, methodInfo, g);
-                    default:
-                        cmdId = attribute.Id ?? ParseHelpers.GetSignature(methodInfo);
-                        return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, provider, attribute.IsGenericFlag);
-                }
-
+                return MethodCommandInfo.FromMethod(methodInfo, provider);
             }
         }
 
