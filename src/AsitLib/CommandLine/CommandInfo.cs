@@ -111,10 +111,15 @@ namespace AsitLib.CommandLine
             string? group = null;
             string mainId = ids[0];
             List<string> additionalIds = new List<string>();
+            HashSet<string> seen = new HashSet<string>();
+
+            if (mainId.Length == 1) throw new InvalidOperationException("Main command id is too short.");
 
             foreach (string id in ids)
             {
                 ParseHelpers.ThrowIfInvalidName(id, true, "Command Id");
+
+                if (!seen.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 
                 switch (id.Count(c => c == ' '))
                 {

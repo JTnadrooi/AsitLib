@@ -141,6 +141,14 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void Contruct_DuplicateId_ThrowsEx()
+        {
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                new DummyCommandInfo(["test", "test"])
+            );
+        }
+
+        [TestMethod]
         [DataRow("testg  print")]
         [DataRow("!print")]
         [DataRow("=print")]
@@ -156,6 +164,8 @@ namespace AsitLib.Tests
         [DataRow("-print")]
         [DataRow("testg -print")]
         [DataRow("testg1 testg2 -print")]
+        [DataRow("a")]
+        [DataRow("   ")]
         public void Contruct_InvalidCommandInfo_ThrowsEx(string name)
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
