@@ -53,6 +53,7 @@ namespace AsitLib.CommandLine
 
         internal static void ThrowIfInvalidName(string name, bool allowSpace, string? valueName = "Input")
         {
+            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"{valueName} '{name}' is null or empty/whitespace.");
             if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"{valueName} '{name}' contains a space.");
             if (name == string.Empty) throw new InvalidOperationException($"{valueName} is an empty string.");
 
