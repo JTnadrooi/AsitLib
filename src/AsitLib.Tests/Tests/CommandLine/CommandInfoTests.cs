@@ -166,11 +166,25 @@ namespace AsitLib.Tests
         [DataRow("testg1 testg2 -print")]
         [DataRow("a")]
         [DataRow("   ")]
-        public void Contruct_InvalidCommandInfo_ThrowsEx(string name)
+        public void Contruct_InvalidIds_ThrowsEx(string name)
         {
             Assert.ThrowsException<InvalidOperationException>(() =>
                 new DummyCommandInfo(name)
             );
+        }
+
+        [TestMethod]
+        [DataRow((string[])["testg", "print"])]
+        [DataRow((string[])["testg"])]
+        public void GetShorthand_NotFound_ReturnsNull(string[] ids)
+        {
+            Assert.IsNull(new DummyCommandInfo(ids).GetShortHand());
+        }
+
+        [TestMethod]
+        public void GetShorthand_Invalid_ReturnsNull()
+        {
+            Assert.AreEqual("t", new DummyCommandInfo(["test", "t"]).GetShortHand());
         }
     }
 }
