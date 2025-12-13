@@ -177,23 +177,18 @@ namespace AsitLib.CommandLine
             return sb.ToString();
         }
 
-        public string? GetShortHand() // FIX
-                                      //=> Ids.Skip(1).Where(id => id.TrimStart('-').Length == 1).IfThen(s => s.Count() != 0, () => throw new InvalidOperationException()).Single();
+        public string? GetShortHand()
         {
             if (Ids.Count == 1) return null;
 
             for (int i = 1; i < Ids.Count; i++)
-            {
                 if (Ids[i].Length == 1) // skips flagged.
-                {
                     return Ids[i];
-                }
-            }
 
             return null;
         }
 
-        public bool IsMainCommandEligible() => GetOptions().Count(o => o.PassingOptions.HasFlag(OptionPassingOptions.Positional)) == 0;
+        public bool IsMainCommandEligible() => !GetOptions().Any(o => o.PassingOptions.HasFlag(OptionPassingOptions.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
