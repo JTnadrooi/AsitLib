@@ -12,7 +12,7 @@ namespace AsitLib.CommandLine
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false) : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None) : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag, passingPolicies: passingPolicies)
         {
             Delegate = @delegate;
         }
@@ -24,10 +24,10 @@ namespace AsitLib.CommandLine
         public object? Target { get; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false)
-            : this(ids, description, methodInfo, provider, isGenericFlag: isGenericFlag, provider: provider) { }
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false, CommandProvider? provider = null)
-            : base(ids, description, isGenericFlag: isGenericFlag, provider: provider)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+            : this(ids, description, methodInfo, provider, isGenericFlag: isGenericFlag, provider: provider, passingPolicies: passingPolicies) { }
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+            : base(ids, description, isGenericFlag: isGenericFlag, provider: provider, passingPolicies: passingPolicies)
         {
             MethodInfo = methodInfo;
             Target = target;
@@ -60,7 +60,7 @@ namespace AsitLib.CommandLine
                     break;
             }
 
-            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag, provider);
+            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag, provider, attribute.PassingPolicies);
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
@@ -89,6 +89,7 @@ namespace AsitLib.CommandLine
         public bool HasGroup => Group is not null;
 
         public CommandProvider? Provider { get; }
+        public OptionPassingPolicies PassingPolicies { get; }
 
         public bool HasProvider => Provider is not null;
         /// <summary>
@@ -104,7 +105,7 @@ namespace AsitLib.CommandLine
 
         public bool IsEnabled { get; set; }
 
-        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, CommandProvider? provider = null)
+        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
         {
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
@@ -142,6 +143,7 @@ namespace AsitLib.CommandLine
             Group = group;
             Provider = provider;
             IsEnabled = true;
+            PassingPolicies = passingPolicies;
         }
 
         public abstract object? Invoke(object?[] parameters);
@@ -188,7 +190,7 @@ namespace AsitLib.CommandLine
             return null;
         }
 
-        public bool IsMainCommandEligible() => !GetOptions().Any(o => o.PassingOptions.HasFlag(OptionPassingOptions.Positional));
+        public bool IsMainCommandEligible(CommandEngine? engine = null, CommandInfo? command = null) => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, command).HasFlag(OptionPassingPolicies.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }

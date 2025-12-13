@@ -53,13 +53,11 @@ namespace AsitLib.CommandLine
             }
         }
 
-        [DisallowNull]
         public string? Shorthand { get; init; }
 
-        [DisallowNull]
         public string? AntiParameterName { get; init; }
 
-        public OptionPassingOptions PassingOptions { get; init; }
+        public OptionPassingPolicies PassingPolicies { get; init; }
 
         internal OptionInfo(ParameterInfo parameter)
         {
@@ -74,12 +72,10 @@ namespace AsitLib.CommandLine
             OptionType = parameter.ParameterType;
             Name = optionAttribute.Name ?? ParseHelpers.GetSignature(parameter);
 
-#pragma warning disable CS8601
             Shorthand = optionAttribute.Shorthand;
             AntiParameterName = optionAttribute.AntiParameterName;
-#pragma warning restore CS8601
 
-            PassingOptions = optionAttribute.PassingOptions;
+            PassingPolicies = optionAttribute.PassingPolicies;
             ValidationAttributes = attributes.Where(a => a is ValidationAttribute).Cast<ValidationAttribute>().ToArray();
 
             if (!HasDefaultValue)
@@ -95,7 +91,7 @@ namespace AsitLib.CommandLine
         {
             OptionType = optionType;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
-            PassingOptions = OptionPassingOptions.All;
+            PassingPolicies = OptionPassingPolicies.All;
         }
 
         public OptionInfo(string name, Type optionType)
@@ -103,7 +99,7 @@ namespace AsitLib.CommandLine
             Name = name;
             OptionType = optionType;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
-            PassingOptions = OptionPassingOptions.All;
+            PassingPolicies = OptionPassingPolicies.All;
         }
 
         public void ThrowExceptionIfInvalidValue(object? value)
@@ -122,6 +118,15 @@ namespace AsitLib.CommandLine
 
         public object? GetValue(string token) => ParseHelpers.GetValue(token, this);
         public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, this);
+
+        public OptionPassingPolicies GetInheritedPassingPoliciesFromContext(CommandContext? context = null)
+            => GetInheritedPassingPolicies(context?.Engine, context?.Command);
+        public OptionPassingPolicies GetInheritedPassingPolicies(CommandEngine? engine = null, CommandInfo? command = null)
+        {
+            OptionPassingPolicies? ToNullIfNone(OptionPassingPolicies? passingPolicies) => (passingPolicies == OptionPassingPolicies.None || passingPolicies is null) ? null : passingPolicies;
+
+            return ToNullIfNone(engine?.PassingPolicies) ?? ToNullIfNone(command?.PassingPolicies) ?? PassingPolicies;
+        }
     }
 
     public static class ParameterInfoExtensions

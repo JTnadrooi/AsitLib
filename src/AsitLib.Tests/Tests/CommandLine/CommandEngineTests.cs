@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace AsitLib.Tests.Tests.CommandLine
 {
-
-
     [TestClass]
     public class CommandEngineTests
     {

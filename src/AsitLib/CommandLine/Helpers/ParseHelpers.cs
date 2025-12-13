@@ -140,8 +140,8 @@ namespace AsitLib.CommandLine
 
                 foreach (Argument arg in argsInfo.Arguments)
                     if ((arg.Target.OptionIndex == i) // positional.
-                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.PassingOptions.HasFlag(OptionPassingOptions.Named)) // longform.
-                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.PassingOptions.HasFlag(OptionPassingOptions.Named))) // shorthand.
+                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.GetInheritedPassingPoliciesFromContext(context).HasFlag(OptionPassingPolicies.Named)) // longform.
+                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.PassingPolicies.HasFlag(OptionPassingPolicies.Named))) // shorthand.
                     {
                         if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
                         matchingArgument = arg;

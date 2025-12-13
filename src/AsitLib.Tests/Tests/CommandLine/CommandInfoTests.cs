@@ -9,10 +9,10 @@ namespace AsitLib.Tests
     {
         public OptionInfo[] Options { get; }
 
-        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null)
-            : this([id], description, isGenericFlag, options, provider) { }
-        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null)
-            : base(ids, description ?? "No desc.", isGenericFlag, provider)
+        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+            : this([id], description, isGenericFlag, options, provider, passingPolicies) { }
+        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+            : base(ids, description ?? "No desc.", isGenericFlag, provider, passingPolicies)
         {
             Options = options ?? Array.Empty<OptionInfo>();
         }
@@ -110,19 +110,19 @@ namespace AsitLib.Tests
         [TestMethod]
         public void IsMainCommandEligible_CommandWithoutOptions_ReturnsTrue()
         {
-            CommandInfo info = new DummyCommandInfo("testg", options: []);
+            CommandInfo info = new DummyCommandInfo("testc", options: []);
             Assert.IsTrue(info.IsMainCommandEligible());
         }
 
         [TestMethod]
         public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
         {
-            CommandInfo info = new DummyCommandInfo("testg", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: [
                 new OptionInfo("testop", typeof(string)) {
-                    PassingOptions = OptionPassingOptions.Named,
+                    PassingPolicies = OptionPassingPolicies.Named,
                 },
                 new OptionInfo("testop2", typeof(string)) {
-                    PassingOptions = OptionPassingOptions.Named,
+                    PassingPolicies = OptionPassingPolicies.Named,
                 },
             ]);
 
@@ -130,9 +130,35 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void GetInheritedPassingPolicies_CommandWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
+        {
+            CommandInfo info = new DummyCommandInfo("testc", options: [
+                new OptionInfo("testop", typeof(string)) {
+                    PassingPolicies = OptionPassingPolicies.Named,
+                },
+            ], passingPolicies: OptionPassingPolicies.Positional);
+
+            Assert.IsTrue(info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional));
+        }
+
+        [TestMethod]
+        public void GetInheritedPassingPolicies_EngineWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
+        {
+            CommandEngine engine = new CommandEngine(OptionPassingPolicies.Positional);
+
+            CommandInfo info = new DummyCommandInfo("testc", options: [
+                new OptionInfo("testop", typeof(string)) {
+                    PassingPolicies = OptionPassingPolicies.Named,
+                },
+            ]);
+
+            Assert.IsTrue(info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional));
+        }
+
+        [TestMethod]
         public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
         {
-            CommandInfo info = new DummyCommandInfo("testg", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: [
                 new OptionInfo("testop", typeof(string)),
                 new OptionInfo("testop2", typeof(string)),
             ]);
@@ -182,7 +208,7 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void GetShorthand_Invalid_ReturnsNull()
+        public void GetShorthand()
         {
             Assert.AreEqual("t", new DummyCommandInfo(["test", "t"]).GetShortHand());
         }

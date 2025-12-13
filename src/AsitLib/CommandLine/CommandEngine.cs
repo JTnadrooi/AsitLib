@@ -13,6 +13,15 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    [Flags]
+    public enum OptionPassingPolicies
+    {
+        None = 0,
+        Positional = 1,
+        Named = 2,
+        All = Positional | Named
+    }
+
     public sealed class CommandEngine
     {
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
@@ -21,6 +30,8 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
         public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
         public IReadOnlyCollection<string> Groups { get; }
+
+        public OptionPassingPolicies PassingPolicies { get; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -35,7 +46,7 @@ namespace AsitLib.CommandLine
 
         public CommandInfo this[string id] => Commands[id];
 
-        public CommandEngine()
+        public CommandEngine(OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
         {
             _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
@@ -50,6 +61,8 @@ namespace AsitLib.CommandLine
             GlobalOptions = _globalOptions.AsReadOnly();
             Hooks = _hooks.AsReadOnly();
             Groups = _groupMap.Keys;
+
+            PassingPolicies = passingPolicies;
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -83,12 +96,12 @@ namespace AsitLib.CommandLine
 
             foreach (string id in info.Ids)
             {
-                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible()) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
+                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this, info)) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }
 
             if (info.HasGroup)
             {
-                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible())
+                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this, info))
                     throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
 
