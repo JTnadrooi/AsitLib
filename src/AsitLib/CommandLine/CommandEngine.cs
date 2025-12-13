@@ -96,12 +96,12 @@ namespace AsitLib.CommandLine
 
             foreach (string id in info.Ids)
             {
-                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this, info)) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
+                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this)) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }
 
             if (info.HasGroup)
             {
-                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this, mainCommandInfo))
+                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this))
                     throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
 

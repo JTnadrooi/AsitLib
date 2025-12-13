@@ -194,7 +194,7 @@ namespace AsitLib.CommandLine
             return null;
         }
 
-        public bool IsMainCommandEligible(CommandEngine? engine = null, CommandInfo? command = null) => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, command).HasFlag(OptionPassingPolicies.Positional));
+        public bool IsMainCommandEligible(CommandEngine? engine = null) => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, this).HasFlag(OptionPassingPolicies.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
