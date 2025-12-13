@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -51,11 +52,11 @@ namespace AsitLib.CommandLine
             return a is null ? GetSignature(memberInfo.Name) : a.Name;
         }
 
-        internal static void ThrowIfInvalidName(string name, bool allowSpace, string? valueName = "Input")
+        internal static void ThrowIfInvalidName(string name, bool allowSpace, [CallerArgumentExpression("name")] string? valueName = "Input")
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"{valueName} '{name}' is null or empty/whitespace.");
-            if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"{valueName} '{name}' contains a space.");
-            if (name == string.Empty) throw new InvalidOperationException($"{valueName} is an empty string.");
+            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"'{valueName}' '{name}' is null or empty/whitespace.");
+            if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{name}' contains a space.");
+            if (name == string.Empty) throw new InvalidOperationException($"'{valueName}' is an empty string.");
 
             foreach (string part in name.Split(' '))
             {

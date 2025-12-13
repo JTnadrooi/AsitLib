@@ -18,7 +18,7 @@ namespace AsitLib.CommandLine
 
         public CommandProvider(string name, ICommandInfoFactory? infoFactory = null)
         {
-            ParseHelpers.ThrowIfInvalidName(name, false, "CommandProvider Name");
+            ParseHelpers.ThrowIfInvalidName(name, false);
 
             Name = name;
             InfoFactory = infoFactory ?? CommandInfoFactory.Default;
