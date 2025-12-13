@@ -101,7 +101,7 @@ namespace AsitLib.CommandLine
 
             if (info.HasGroup)
             {
-                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this, info))
+                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this, mainCommandInfo))
                     throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
 
@@ -110,9 +110,9 @@ namespace AsitLib.CommandLine
 
             _uniqueCommands.Add(info.Id, info);
 
-            if (info.HasProvider)
+            if (info.Provider is not null)
             {
-                CommandProvider provider = info.Provider!;
+                CommandProvider provider = info.Provider;
 
                 if (_providers.ContainsKey(provider.Name) && _providers[provider.Name].GetType() != provider.GetType())
                     throw new InvalidOperationException("Command is provided by a provider with a name equal to a different-type already registered provider.");
@@ -144,9 +144,9 @@ namespace AsitLib.CommandLine
                 _commands.Remove(aliasId);
             }
 
-            if (info.HasProvider)
+            if (info.Provider is not null)
             {
-                CommandProvider provider = info.Provider!;
+                CommandProvider provider = info.Provider;
 
                 _srcMap[provider.Name].Remove(info.Id);
 

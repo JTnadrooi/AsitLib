@@ -32,7 +32,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         {
             OneCommandCommandProvider = new DummyCommandProvider("test", commands: []);
 
-            OneCommandCommandProvider.Commands.Add(new DummyCommandInfo("test-command", provider: OneCommandCommandProvider));
+            OneCommandCommandProvider.Commands.Add(new DummyCommandInfo("test-command") { Provider = OneCommandCommandProvider });
 
         }
 

@@ -12,7 +12,8 @@ namespace AsitLib.CommandLine
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None) : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag, passingPolicies: passingPolicies)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false)
+            : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag)
         {
             Delegate = @delegate;
         }
@@ -24,16 +25,17 @@ namespace AsitLib.CommandLine
         public object? Target { get; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
-            : this(ids, description, methodInfo, provider, isGenericFlag: isGenericFlag, provider: provider, passingPolicies: passingPolicies) { }
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
-            : base(ids, description, isGenericFlag: isGenericFlag, provider: provider, passingPolicies: passingPolicies)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false)
+            : base(ids, description, isGenericFlag)
         {
             MethodInfo = methodInfo;
             Target = target;
 
             if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
+
+        public static MethodCommandInfo FromProvider(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false)
+            => new MethodCommandInfo(ids, description, methodInfo, provider, isGenericFlag);
 
         public static MethodCommandInfo FromMethod(MethodInfo methodInfo, object? target = null, bool autoProvider = true)
             => FromMethodImpl(methodInfo, autoProvider ? target as CommandProvider : null, target);
@@ -60,7 +62,11 @@ namespace AsitLib.CommandLine
                     break;
             }
 
-            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag, provider, attribute.PassingPolicies);
+            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag)
+            {
+                Provider = provider,
+                PassingPolicies = attribute.PassingPolicies,
+            };
         }
 
         public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
@@ -88,10 +94,10 @@ namespace AsitLib.CommandLine
 
         public bool HasGroup => Group is not null;
 
-        public CommandProvider? Provider { get; }
-        public OptionPassingPolicies PassingPolicies { get; }
+        public CommandProvider? Provider { get; init; }
 
-        public bool HasProvider => Provider is not null;
+        public OptionPassingPolicies PassingPolicies { get; init; }
+
         /// <summary>
         /// <inheritdoc cref="CommandAttribute.Description" path="/summary"/>
         /// </summary>
@@ -105,7 +111,7 @@ namespace AsitLib.CommandLine
 
         public bool IsEnabled { get; set; }
 
-        public CommandInfo(string[] ids, string description, bool isGenericFlag = false, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+        public CommandInfo(string[] ids, string description, bool isGenericFlag = false)
         {
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
@@ -141,9 +147,7 @@ namespace AsitLib.CommandLine
             Description = description;
             IsGenericFlag = isGenericFlag;
             Group = group;
-            Provider = provider;
             IsEnabled = true;
-            PassingPolicies = passingPolicies;
         }
 
         public abstract object? Invoke(object?[] parameters);

@@ -9,10 +9,10 @@ namespace AsitLib.Tests
     {
         public OptionInfo[] Options { get; }
 
-        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
-            : this([id], description, isGenericFlag, options, provider, passingPolicies) { }
-        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null, CommandProvider? provider = null, OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
-            : base(ids, description ?? "No desc.", isGenericFlag, provider, passingPolicies)
+        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
+            : this([id], description, isGenericFlag, options) { }
+        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
+            : base(ids, description ?? "No desc.", isGenericFlag)
         {
             Options = options ?? Array.Empty<OptionInfo>();
         }
@@ -136,7 +136,10 @@ namespace AsitLib.Tests
                 new OptionInfo("testop", typeof(string)) {
                     PassingPolicies = OptionPassingPolicies.Named,
                 },
-            ], passingPolicies: OptionPassingPolicies.Positional);
+            ])
+            {
+                PassingPolicies = OptionPassingPolicies.Positional
+            };
 
             Assert.IsTrue(info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional));
         }
