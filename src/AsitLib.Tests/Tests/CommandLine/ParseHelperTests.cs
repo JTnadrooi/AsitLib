@@ -137,10 +137,9 @@ namespace AsitLib.Tests
         [TestMethod]
         [DataRow("--help")]
         [DataRow("-h")]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GetGenericFlagSignature_AlreadyFlag_ThrowsEx(string input)
         {
-            ParseHelpers.GetGenericFlagSignature(input);
+            Assert.Throws<InvalidOperationException>(() => ParseHelpers.GetGenericFlagSignature(input));
         }
     }
 }

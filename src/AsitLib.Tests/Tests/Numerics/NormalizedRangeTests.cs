@@ -16,10 +16,9 @@ namespace AsitLib.Numerics.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void NormalizedRange_Constructor_InvalidRange()
         {
-            NormalizedRange range = new NormalizedRange(5, 1);
+            Assert.Throws<InvalidOperationException>(() => new NormalizedRange(5, 1));
         }
 
         [TestMethod]

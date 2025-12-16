@@ -73,12 +73,11 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GetFirstIndexWhere_ShouldThrowException_WhenNoMatch()
         {
             int[] source = { 1, 2, 3, 4, 5 };
 
-            source.GetFirstIndexWhere(x => x == 6);
+            Assert.Throws<InvalidOperationException>(() => source.GetFirstIndexWhere(x => x == 6));
         }
 
         [TestMethod]

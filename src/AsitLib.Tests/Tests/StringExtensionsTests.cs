@@ -19,10 +19,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void FirstLine_ShouldReturnNull_WhenStringIsEmpty()
         {
-            string.Empty.FirstLine();
+            Assert.Throws<InvalidOperationException>(() => string.Empty.FirstLine());
         }
 
         [TestMethod]

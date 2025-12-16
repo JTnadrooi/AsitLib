@@ -15,24 +15,21 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Invert_InvalidValueNaN_ThrowsEx()
         {
-            MathAL.Invert(float.NaN, 0f);
+            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.NaN, 0f));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Invert_InvalidValueInf_ThrowsEx()
         {
-            MathAL.Invert(float.PositiveInfinity, 0f);
+            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.PositiveInfinity, 0f));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Invert_InvalidValueNegInf_ThrowsEx()
         {
-            MathAL.Invert(float.NegativeInfinity, 0f);
+            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.NegativeInfinity, 0f));
         }
 
         [TestMethod]
@@ -64,17 +61,15 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Average_InvalidValueNaN_ThrowsEx()
         {
-            MathAL.Average(10f, 20f, float.NaN);
+            Assert.Throws<InvalidOperationException>(() => MathAL.Average(10f, 20f, float.NaN));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Average_InvalidValueInf_ThrowsEx()
         {
-            MathAL.Average(10f, float.PositiveInfinity, 20f);
+            Assert.Throws<InvalidOperationException>(() => MathAL.Average(10f, float.PositiveInfinity, 20f));
         }
 
         [TestMethod]
@@ -130,11 +125,10 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void ToBigInteger_InvalidType_ThrowsEx()
         {
             string value = "test";
-            MathHelperAL.ToBigInteger(value);
+            Assert.Throws<InvalidOperationException>(() => MathHelperAL.ToBigInteger(value));
         }
 
         [TestMethod]

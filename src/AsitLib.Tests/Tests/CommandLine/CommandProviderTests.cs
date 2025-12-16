@@ -35,7 +35,7 @@ namespace AsitLib.Tests
         [DataRow("      ")]
         public void Contruct_WithInvalidName_ThrowsEx(string name)
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
                 new DummyCommandProvider(name)
             );
         }

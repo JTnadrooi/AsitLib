@@ -176,17 +176,15 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_DuplicateArguments_ThrowsError()
         {
-            AssertExecute("print.", "print ahoy --input bonjour");
+            Assert.Throws<CommandException>(() => AssertExecute("print.", "print ahoy --input bonjour"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_DuplicateAntiArguments_ThrowsError()
         {
-            AssertExecute("Tv.", "tv-enable --color false --disable-color");
+            Assert.Throws<CommandException>(() => AssertExecute("Tv.", "tv-enable --color false --disable-color"));
         }
 
         [TestMethod]
@@ -208,24 +206,21 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_InvalidParameter_ThrowsCommandException()
         {
-            Engine.Execute("print hi --doesnt-exist ahoy");
+            Assert.Throws<CommandException>(() => Engine.Execute("print hi --doesnt-exist ahoy"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_MissingArgument_ThrowsCommandException()
         {
-            Engine.Execute("print");
+            Assert.Throws<CommandException>(() => Engine.Execute("print"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_ToManyArguments_ThrowsCommandException()
         {
-            Engine.Execute("print hi true doest-exist");
+            Assert.Throws<CommandException>(() => Engine.Execute("print hi true doest-exist"));
         }
 
         [TestMethod]
@@ -249,10 +244,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_DuplicateLongShortOptions_ThrowsCommandException()
         {
-            Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi");
+            Assert.Throws<CommandException>(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi"));
         }
 
         [TestMethod]
@@ -282,10 +276,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(CommandException))]
         public void Execute_WithDataAnnotatedInvalidCommand_ThrowsError()
         {
-            Engine.Execute("validation 11");
+            Assert.Throws<CommandException>(() => Engine.Execute("validation 11"));
         }
 
         [TestMethod]

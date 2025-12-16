@@ -55,14 +55,12 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void GroupedCommand_WithInvalidAliases_ThrowsEx()
         {
-            CommandInfo info = new DummyCommandInfo(["debug print", "testg writel"]);
+            Assert.Throws<InvalidOperationException>(() => new DummyCommandInfo(["debug print", "testg writel"]));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo("testg", options: [
@@ -71,11 +69,11 @@ namespace AsitLib.Tests
             Engine.AddCommand(info);
 
             CommandInfo info2 = new DummyCommandInfo("testg print");
-            Engine.AddCommand(info2);
+
+            Assert.Throws<InvalidOperationException>(() => Engine.AddCommand(info2));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo("testg print");
@@ -84,7 +82,7 @@ namespace AsitLib.Tests
             CommandInfo info2 = new DummyCommandInfo("testg", options: [
                 new OptionInfo("a", typeof(string)),
                 ]);
-            Engine.AddCommand(info2);
+            Assert.Throws<InvalidOperationException>(() => Engine.AddCommand(info2));
         }
 
         [TestMethod]
@@ -172,7 +170,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Contruct_DuplicateId_ThrowsEx()
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
                 new DummyCommandInfo(["test", "test"])
             );
         }
@@ -197,7 +195,7 @@ namespace AsitLib.Tests
         [DataRow("   ")]
         public void Contruct_InvalidIds_ThrowsEx(string name)
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
                 new DummyCommandInfo(name)
             );
         }

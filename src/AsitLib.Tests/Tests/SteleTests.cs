@@ -40,10 +40,7 @@ namespace AsitLib.Tests
             writer.Write((ushort)height);
             mockStream.Position = 0;
 
-            Assert.ThrowsException<InvalidDataException>(() =>
-            {
-                SteleData.ReadMetadata(new BinaryReader(mockStream), out int actualVersion, out int actualWidth, out int actualHeight);
-            });
+            Assert.Throws<InvalidDataException>(() => SteleData.ReadMetadata(new BinaryReader(mockStream), out int actualVersion, out int actualWidth, out int actualHeight));
         }
 
         [TestMethod]
@@ -118,10 +115,7 @@ namespace AsitLib.Tests
             SteleData<byte>.Encode(memoryStream, new byte[width * height], width, height, map);
             memoryStream.Position = 0;
 
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                SteleData<byte>.Decode(memoryStream, data, map);
-            });
+            Assert.Throws<ArgumentException>(() => SteleData<byte>.Decode(memoryStream, data, map));
         }
     }
 
@@ -133,10 +127,7 @@ namespace AsitLib.Tests
         [DataRow((byte[])[1, 2, 2])]
         public void CreateFromUnique_InvalidData(byte[] values)
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                SteleMap<byte> map = SteleMap<byte>.CreateFromUnique(values);
-            });
+            Assert.Throws<ArgumentException>(() => SteleMap<byte>.CreateFromUnique(values));
         }
 
         [TestMethod]
