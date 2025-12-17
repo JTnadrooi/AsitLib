@@ -263,7 +263,7 @@ namespace AsitLib.CommandLine
 
             ArgumentsInfo toret = new ArgumentsInfo(args[0], outArgs.ToArray(), callsGenericFlag);
 
-            if (_groupMap.ContainsKey(commandId) && outArgs.Count > 0)
+            if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => !a.Target.UsesExplicitName) > 0)
             {
                 toret = Parse(ArrayHelpers.Combine(args[0] + " " + args[1], args[2..]));
             }

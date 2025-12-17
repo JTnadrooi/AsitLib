@@ -1,4 +1,5 @@
 ﻿using AsitLib.CommandLine;
+using FluentAssertions;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;

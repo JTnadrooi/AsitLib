@@ -1,4 +1,5 @@
 ﻿using AsitLib.CommandLine;
+using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -50,6 +51,99 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             Assert.AreEqual(Engine.Providers.Single().Value.Name, OneCommandCommandProvider.Name, $"Only provider added is not the {nameof(OneCommandCommandProvider)}.");
             Assert.IsTrue(Engine.Commands.ContainsKey(OneCommandCommandProvider.GetCommands()[0].Id), $"Command is not added.");
+        }
+
+        [TestMethod]
+        public void Parse_NoArguments()
+        {
+            ArgumentsInfo parsed = Engine.Parse(["cmd"]);
+
+            parsed.Arguments.Should().BeEmpty();
+            parsed.CommandId.Should().Be("cmd");
+        }
+
+        [TestMethod]
+        public void Parse_PositionalArguments()
+        {
+            ArgumentsInfo parsed = Engine.Parse(["cmd", "val1", "val2"]);
+
+            parsed.Arguments.Should().HaveCount(2);
+
+            parsed.Arguments[0].Tokens[0].Should().Be("val1");
+
+            parsed.Arguments.Should().AllSatisfy(a => a.Tokens.Should().HaveCount(1));
+
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.UsesExplicitName.Should().BeFalse());
+
+            parsed.CommandId.Should().Be("cmd");
+        }
+
+        [TestMethod]
+        public void Parse_NamedArguments()
+        {
+            ArgumentsInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1_2", "--arg2", "val2"]);
+
+            parsed.Arguments.Should().HaveCount(2);
+
+            parsed.Arguments[0].Tokens.Should().HaveCount(2);
+
+            parsed.Arguments[0].Tokens[0].Should().Be("val1");
+
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.UsesExplicitName.Should().BeTrue());
+
+            parsed.CommandId.Should().Be("cmd");
+        }
+
+        [TestMethod]
+        public void Parse_PositionalAndNamedArguments()
+        {
+            ArgumentsInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
+
+            parsed.Arguments.Should().HaveCount(2);
+
+            parsed.Arguments[0].Tokens.Should().HaveCount(1);
+
+            parsed.Arguments[0].Tokens[0].Should().Be("val1");
+            parsed.Arguments[1].Tokens[0].Should().Be("val2");
+
+            parsed.Arguments[0].Target.OptionIndex.Should().Be(0);
+            parsed.Arguments[1].Target.OptionIndex.Should().BeNull();
+
+            parsed.Arguments[1].Target.UsesExplicitName.Should().BeTrue();
+
+            parsed.CommandId.Should().Be("cmd");
+        }
+
+        [TestMethod]
+        public void Parse_GroupedCommand()
+        {
+            CommandInfo info2 = new DummyCommandInfo("cmdg");
+            Engine.AddCommand(info2);
+
+            CommandInfo info = new DummyCommandInfo("cmdg cmd");
+            Engine.AddCommand(info);
+
+            ArgumentsInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
+
+            parsed.CommandId.Should().Be("cmdg cmd");
+
+            parsed.Arguments.Should().HaveCount(1);
+        }
+
+        [TestMethod]
+        public void Parse_GroupCommandWithNamedOptionCall()
+        {
+            CommandInfo info2 = new DummyCommandInfo("cmdg");
+            Engine.AddCommand(info2);
+
+            CommandInfo info = new DummyCommandInfo("cmdg cmd");
+            Engine.AddCommand(info);
+
+            ArgumentsInfo parsed = Engine.Parse(["cmdg", "--arg1", "val1"]);
+
+            parsed.CommandId.Should().Be("cmdg");
+
+            parsed.Arguments.Should().HaveCount(1);
         }
     }
 }
