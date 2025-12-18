@@ -1,8 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AsitLib;
-using System;
-
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     [TestClass]
     public class DefaultDictionaryTests

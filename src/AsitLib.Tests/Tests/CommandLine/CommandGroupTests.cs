@@ -1,8 +1,3 @@
-﻿using AsitLib.CommandLine;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-
 namespace AsitLib.Tests
 {
     public class TestCommandGroup : CommandGroup

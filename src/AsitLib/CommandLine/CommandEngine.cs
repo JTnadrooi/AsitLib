@@ -1,15 +1,6 @@
 ﻿using AsitLib.Diagnostics;
-using System;
-using System.Collections;
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {

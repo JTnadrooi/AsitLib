@@ -1,5 +1,4 @@
-﻿using AsitLib.CommandLine;
-using AsitLib.Diagnostics;
+﻿using AsitLib.Diagnostics;
 using AsitLib.Stele;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -7,10 +6,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 
-namespace AsitLib.ConsoleTests
+namespace AsitLib.ConsoleTests // Mostly usused as everything is done though unit tests, but leaving this class just in case.
 {
     class Program
     {

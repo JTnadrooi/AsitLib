@@ -1,9 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AsitLib;
-using System;
-using System.Linq;
-
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     [TestClass]
     public class StringExtensionsTests

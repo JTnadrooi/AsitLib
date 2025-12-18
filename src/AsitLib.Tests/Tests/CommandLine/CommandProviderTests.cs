@@ -1,9 +1,4 @@
-﻿using AsitLib.CommandLine;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     public class DummyCommandProvider : CommandProvider
     {

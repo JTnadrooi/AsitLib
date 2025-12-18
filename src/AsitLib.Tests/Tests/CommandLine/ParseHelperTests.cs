@@ -1,6 +1,4 @@
-﻿using AsitLib.CommandLine;
-
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     [TestClass]
     public class ParseHelperTests

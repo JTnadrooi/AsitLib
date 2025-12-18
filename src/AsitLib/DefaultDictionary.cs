@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AsitLib
+﻿namespace AsitLib
 {
     /// <summary>
     /// Represents a dictionary that provides a default value when a key is not found.

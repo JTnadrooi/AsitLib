@@ -1,13 +1,4 @@
-﻿using AsitLib.Chance;
-using AsitLib.CommandLine;
-using AsitLib.Stele;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     [TestClass]
     public class SteleTests

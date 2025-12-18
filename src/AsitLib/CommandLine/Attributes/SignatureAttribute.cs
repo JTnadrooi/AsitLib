@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AsitLib.CommandLine
+﻿namespace AsitLib.CommandLine
 {
     [AttributeUsage(AttributeTargets.All & ~(AttributeTargets.Parameter | AttributeTargets.Constructor | AttributeTargets.ReturnValue))]
     public class SignatureAttribute : Attribute

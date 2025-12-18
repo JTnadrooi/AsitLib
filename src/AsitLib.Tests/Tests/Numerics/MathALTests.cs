@@ -1,6 +1,4 @@
-﻿using AsitLib.Numerics;
-using System;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace AsitLib.Tests
 {

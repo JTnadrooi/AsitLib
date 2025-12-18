@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace AsitLib.Numerics.Tests
+﻿namespace AsitLib.Numerics.Tests
 {
     [TestClass]
     public class NormalizedRangeTests
