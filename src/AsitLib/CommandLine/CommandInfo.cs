@@ -13,8 +13,9 @@ namespace AsitLib.CommandLine
         public Delegate Delegate { get; }
 
         public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false)
-            : base(ids, description, @delegate.Method, @delegate.Target, isGenericFlag: isGenericFlag)
+            : base(ids, description, @delegate.Method, isGenericFlag: isGenericFlag)
         {
+            Target = @delegate.Target;
             Delegate = @delegate;
         }
     }
@@ -22,20 +23,22 @@ namespace AsitLib.CommandLine
     public class MethodCommandInfo : CommandInfo
     {
         public MethodInfo MethodInfo { get; }
-        public object? Target { get; }
+        public object? Target { get; init; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, object? target = null, bool isGenericFlag = false)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, bool isGenericFlag = false)
             : base(ids, description, isGenericFlag)
         {
             MethodInfo = methodInfo;
-            Target = target;
 
             if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
 
         public static MethodCommandInfo FromProvider(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false)
-            => new MethodCommandInfo(ids, description, methodInfo, provider, isGenericFlag);
+            => new MethodCommandInfo(ids, description, methodInfo, isGenericFlag)
+            {
+                Target = provider,
+            };
 
         public static MethodCommandInfo FromMethod(MethodInfo methodInfo, object? target = null, bool autoProvider = true)
             => FromMethodImpl(methodInfo, autoProvider ? target as CommandProvider : null, target);
@@ -62,10 +65,11 @@ namespace AsitLib.CommandLine
                     break;
             }
 
-            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, target, attribute.IsGenericFlag)
+            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, attribute.IsGenericFlag)
             {
                 Provider = provider,
                 PassingPolicies = attribute.PassingPolicies,
+                Target = target,
             };
         }
 
