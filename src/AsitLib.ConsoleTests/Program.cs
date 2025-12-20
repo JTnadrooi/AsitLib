@@ -27,7 +27,7 @@ namespace AsitLib.ConsoleTests // Mostly usused as everything is done though uni
 
         public static void LogShowCase()
         {
-            Logger logger = new Logger(header: "test");
+            RichLogger logger = new RichLogger(header: "test");
 
             logger.Log(">[s]initializing system.");
             logger.Log("by nadrooi.");
