@@ -27,7 +27,7 @@ namespace AsitLib.Diagnostics
         public string GetHeaderIndentation() => "^";
     }
 
-    public sealed class Logger
+    public sealed class RichLogger
     {
         public static ILoggingStyle Default { get; } = new DefaultLoggingStyle();
 
@@ -45,7 +45,7 @@ namespace AsitLib.Diagnostics
         public int DisplaysCapasity { get; }
         public bool Freeze { get; set; }
 
-        public Logger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
+        public RichLogger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             _style = style ?? Default;
             Out = TextWriter.Synchronized(output ?? Console.Out);
