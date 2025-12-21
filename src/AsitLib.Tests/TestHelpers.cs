@@ -3,7 +3,7 @@
     [TestClass]
     public static class TestHelpers
     {
-        public const string TEST_DIRECTORY = "AsitLibTests__TESTS\\";
+        public const string TEST_DIRECTORY = "AsitLibTests__TESTS\\"; // unused
 
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)

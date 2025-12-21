@@ -8,153 +8,135 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Invert_ValidValue()
         {
-            float result = MathAL.Invert(5f, 0f);
-            Assert.AreEqual(-5f, result);
+            MathAL.Invert(5f, 0f).Should().Be(-5f);
         }
 
         [TestMethod]
         public void Invert_InvalidValueNaN_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.NaN, 0f));
+            Invoking(() => MathAL.Invert(float.NaN, 0f)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void Invert_InvalidValueInf_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.PositiveInfinity, 0f));
+            Invoking(() => MathAL.Invert(float.PositiveInfinity, 0f)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void Invert_InvalidValueNegInf_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => MathAL.Invert(float.NegativeInfinity, 0f));
+            Invoking(() => MathAL.Invert(float.NegativeInfinity, 0f)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void Normalize_Degrees_ValidValue()
         {
-            float result = MathAL.Normalize(370f);
-            Assert.AreEqual(10f, result);
+            MathAL.Normalize(370f).Should().Be(10f);
         }
 
         [TestMethod]
         public void Normalize_Radians_ValidValue()
         {
-            float result = MathAL.Normalize((float)Math.PI * 2 + 0.5f, true);
-            Assert.AreEqual(0.5f, result, 0.0001f);
+            MathAL.Normalize((float)Math.PI * 2 + 0.5f, true).Should().BeApproximately(0.5f, 0.0001f);
         }
 
         [TestMethod]
         public void Difference_ValidValues()
         {
-            float result = MathAL.Difference(10f, 5f);
-            Assert.AreEqual(5f, result);
+            MathAL.Difference(10f, 5f).Should().Be(5f);
         }
 
         [TestMethod]
         public void Average_ValidValues()
         {
-            float result = MathAL.Average(10f, 20f, 30f);
-            Assert.AreEqual(20f, result);
+            MathAL.Average(10f, 20f, 30f).Should().Be(20f);
         }
 
         [TestMethod]
         public void Average_InvalidValueNaN_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => MathAL.Average(10f, 20f, float.NaN));
+            Invoking(() => MathAL.Average(10f, 20f, float.NaN)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void Average_InvalidValueInf_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => MathAL.Average(10f, float.PositiveInfinity, 20f));
+            Invoking(() => MathAL.Average(10f, float.PositiveInfinity, 20f)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void IsNumberic_TypeValid()
         {
-            bool result = MathHelperAL.IsNumberic(typeof(int));
-            Assert.IsTrue(result);
+            MathHelperAL.IsNumberic(typeof(int)).Should().BeTrue();
         }
 
         [TestMethod]
         public void IsNumberic_TypeInvalid()
         {
-            bool result = MathHelperAL.IsNumberic(typeof(string));
-            Assert.IsFalse(result);
+            MathHelperAL.IsNumberic(typeof(string)).Should().BeFalse();
         }
 
         [TestMethod]
         public void IsNumberic_ObjectValid()
         {
-            bool result = MathHelperAL.IsNumberic(10);
-            Assert.IsTrue(result);
+            MathHelperAL.IsNumberic(10).Should().BeTrue();
         }
 
         [TestMethod]
         public void IsNumberic_ObjectInvalid()
         {
-            bool result = MathHelperAL.IsNumberic("test");
-            Assert.IsFalse(result);
+            MathHelperAL.IsNumberic("test").Should().BeFalse();
         }
 
         [TestMethod]
         public void ToBigInteger_Int128()
         {
             Int128 value = 12345678901234567890;
-            BigInteger result = MathHelperAL.ToBigInteger(value);
-            Assert.AreEqual((BigInteger)value, result);
+            MathHelperAL.ToBigInteger(value).Should().Be((BigInteger)value);
         }
 
         [TestMethod]
         public void ToBigInteger_UInt128()
         {
             UInt128 value = 12345678901234567890U;
-            BigInteger result = MathHelperAL.ToBigInteger(value);
-            Assert.AreEqual((BigInteger)value, result);
+            MathHelperAL.ToBigInteger(value).Should().Be((BigInteger)value);
         }
 
         [TestMethod]
         public void ToBigInteger_Int()
         {
-            int value = 123;
-            BigInteger result = MathHelperAL.ToBigInteger(value);
-            Assert.AreEqual(new BigInteger(123), result);
+            MathHelperAL.ToBigInteger(123).Should().Be(new BigInteger(123));
         }
 
         [TestMethod]
         public void ToBigInteger_InvalidType_ThrowsEx()
         {
-            string value = "test";
-            Assert.Throws<InvalidOperationException>(() => MathHelperAL.ToBigInteger(value));
+            Invoking(() => MathHelperAL.ToBigInteger("test")).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void IsNear_True()
         {
-            bool result = MathHelperAL.IsNear(5f, 5.05f, 0.1f);
-            Assert.IsTrue(result);
+            MathHelperAL.IsNear(5f, 5.05f, 0.1f).Should().BeTrue();
         }
 
         [TestMethod]
         public void IsNear_False()
         {
-            bool result = MathHelperAL.IsNear(5f, 6f, 0.1f);
-            Assert.IsFalse(result);
+            MathHelperAL.IsNear(5f, 6f, 0.1f).Should().BeFalse();
         }
 
         [TestMethod]
         public void AddPostfix_5000()
         {
-            string result = MathHelperAL.AddPostfix(5000);
-            Assert.AreEqual("5k", result);
+            MathHelperAL.AddPostfix(5000).Should().Be("5k");
         }
 
         [TestMethod]
         public void AddPostfix_500000000()
         {
-            string result = MathHelperAL.AddPostfix(500_000_000);
-            Assert.AreEqual("500M", result);
+            MathHelperAL.AddPostfix(500_000_000).Should().Be("500M");
         }
     }
 }

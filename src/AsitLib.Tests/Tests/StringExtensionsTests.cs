@@ -8,15 +8,13 @@
         {
             string input = "First line\nSecond line\nThird line";
 
-            string result = input.FirstLine();
-
-            Assert.AreEqual("First line", result);
+            input.FirstLine().Should().Be("First line");
         }
 
         [TestMethod]
         public void FirstLine_ShouldReturnNull_WhenStringIsEmpty()
         {
-            Assert.Throws<InvalidOperationException>(() => string.Empty.FirstLine());
+            Invoking(() => string.Empty.FirstLine()).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -25,7 +23,7 @@
             string input = "Hello [start]Content[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.FirstFirst);
 
-            Assert.AreEqual("Content", result);
+            result.Should().Be("Content");
         }
 
         [TestMethod]
@@ -34,7 +32,7 @@
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.FirstLast);
 
-            Assert.AreEqual("Content1[end] More [start]Content2", result);
+            result.Should().Be("Content1[end] More [start]Content2");
         }
 
         [TestMethod]
@@ -43,7 +41,7 @@
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.LastLast);
 
-            Assert.AreEqual("Content2", result);
+            result.Should().Be("Content2");
         }
 
         [TestMethod]
@@ -52,7 +50,7 @@
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string[] result = input.Betweens("[start]", "[end]");
 
-            CollectionAssert.AreEqual(new string[] { "Content1", "Content2" }, result);
+            result.Should().Equal(["Content1", "Content2"]);
         }
 
         [TestMethod]
@@ -61,7 +59,7 @@
             string input = "Hello [start]Content[end] World!";
             string result = input.ReplaceFirst("[start]", "[begin]");
 
-            Assert.AreEqual("Hello [begin]Content[end] World!", result);
+            result.Should().Be("Hello [begin]Content[end] World!");
         }
 
         [TestMethod]
@@ -70,7 +68,7 @@
             string input = "Hello Content World!";
             string result = input.ReplaceFirst("[start]", "[begin]");
 
-            Assert.AreEqual(input, result);
+            result.Should().Be(input);
         }
 
         [TestMethod]
@@ -80,7 +78,7 @@
 
             int result = input.SafeIntParse();
 
-            Assert.AreEqual(123, result);
+            result.Should().Be(123);
         }
 
         [TestMethod]
@@ -88,9 +86,7 @@
         {
             string input = "abc";
 
-            int result = input.SafeIntParse();
-
-            Assert.AreEqual(-1, result);
+            input.SafeIntParse().Should().Be(-1);
         }
 
         [TestMethod]
@@ -98,9 +94,7 @@
         {
             string input = "123";
 
-            int? result = input.SafeNullIntParse();
-
-            Assert.AreEqual(123, result);
+            input.SafeNullIntParse().Should().Be(123);
         }
 
         [TestMethod]
@@ -108,9 +102,7 @@
         {
             string input = "abc";
 
-            int? result = input.SafeNullIntParse();
-
-            Assert.IsNull(result);
+            input.SafeNullIntParse().Should().BeNull();
         }
 
         [TestMethod]
@@ -118,9 +110,7 @@
         {
             string input = "true";
 
-            bool? result = input.SafeNullBoolParse();
-
-            Assert.AreEqual(true, result);
+            input.SafeNullBoolParse().Should().BeTrue();
         }
 
         [TestMethod]
@@ -128,9 +118,7 @@
         {
             string input = "false";
 
-            bool? result = input.SafeNullBoolParse();
-
-            Assert.AreEqual(false, result);
+            input.SafeNullBoolParse().Should().BeFalse();
         }
 
         [TestMethod]
@@ -138,9 +126,7 @@
         {
             string input = "invalid";
 
-            bool? result = input.SafeNullBoolParse();
-
-            Assert.IsNull(result);
+            input.SafeNullBoolParse().Should().BeNull();
         }
     }
 }

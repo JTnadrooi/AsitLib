@@ -133,7 +133,7 @@ namespace AsitLib.Tests
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
         public static void AssertExecute(string expected, string[] args)
         {
-            Assert.AreEqual(expected, Engine.Execute(args).ToOutputString());
+            Engine.Execute(args).ToOutputString().Should().Be(expected);
         }
 
         public static void AssertCheckOutput()
@@ -172,15 +172,15 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_DuplicateArguments_ThrowsError()
+        public void Execute_DuplicateArguments_ThrowsEx()
         {
-            Assert.Throws<CommandException>(() => AssertExecute("print.", "print ahoy --input bonjour"));
+            Invoking(() => AssertExecute("print.", "print ahoy --input bonjour")).Should().Throw<CommandException>();
         }
 
         [TestMethod]
-        public void Execute_DuplicateAntiArguments_ThrowsError()
+        public void Execute_DuplicateAntiArguments_ThrowsEx()
         {
-            Assert.Throws<CommandException>(() => AssertExecute("Tv.", "tv-enable --color false --disable-color"));
+            Invoking(() => AssertExecute("Tv.", "tv-enable --color false --disable-color")).Should().Throw<CommandException>();
         }
 
         [TestMethod]
@@ -204,19 +204,19 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_InvalidParameter_ThrowsCommandException()
         {
-            Assert.Throws<CommandException>(() => Engine.Execute("print hi --doesnt-exist ahoy"));
+            Invoking(() => Engine.Execute("print hi --doesnt-exist ahoy")).Should().Throw<CommandException>();
         }
 
         [TestMethod]
         public void Execute_MissingArgument_ThrowsCommandException()
         {
-            Assert.Throws<CommandException>(() => Engine.Execute("print"));
+            Invoking(() => Engine.Execute("print"));
         }
 
         [TestMethod]
         public void Execute_ToManyArguments_ThrowsCommandException()
         {
-            Assert.Throws<CommandException>(() => Engine.Execute("print hi true doest-exist"));
+            Invoking(() => Engine.Execute("print hi true doest-exist")).Should().Throw<CommandException>();
         }
 
         [TestMethod]
@@ -242,7 +242,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_DuplicateLongShortOptions_ThrowsCommandException()
         {
-            Assert.Throws<CommandException>(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi"));
+            Invoking(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi")).Should().Throw<CommandException>();
         }
 
         [TestMethod]
@@ -272,9 +272,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_WithDataAnnotatedInvalidCommand_ThrowsError()
+        public void Execute_WithDataAnnotatedInvalidCommand_ThrowsEx()
         {
-            Assert.Throws<CommandException>(() => Engine.Execute("validation 11"));
+            Invoking(() => Engine.Execute("validation 11")).Should().Throw<CommandException>();
         }
 
         [TestMethod]

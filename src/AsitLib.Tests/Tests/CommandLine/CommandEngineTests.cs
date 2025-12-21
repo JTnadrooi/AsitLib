@@ -1,7 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace AsitLib.Tests.Tests.CommandLine
 {
@@ -37,7 +34,8 @@ namespace AsitLib.Tests.Tests.CommandLine
         public void GetProviderCommands_FromTestProvider()
         {
             Engine.AddProvider(new TestCommandProvider());
-            Assert.AreEqual(Engine.GetProviderCommands("test").First().Provider!.Name, "test");
+
+            Engine.GetProviderCommands("test").Should().AllSatisfy(c => c.Provider!.Name.Should().Be("test"));
         }
 
         [TestMethod]
@@ -45,8 +43,10 @@ namespace AsitLib.Tests.Tests.CommandLine
         {
             Engine.AddProvider(OneCommandCommandProvider);
 
-            Assert.AreEqual(Engine.Providers.Single().Value.Name, OneCommandCommandProvider.Name, $"Only provider added is not the {nameof(OneCommandCommandProvider)}.");
-            Assert.IsTrue(Engine.Commands.ContainsKey(OneCommandCommandProvider.GetCommands()[0].Id), $"Command is not added.");
+            Engine.Providers.Should().HaveCount(1);
+
+            Engine.Providers.Single().Value.Name.Should().Be(OneCommandCommandProvider.Name);
+            Engine.Commands.Should().ContainKey(OneCommandCommandProvider.GetCommands()[0].Id);
         }
 
         [TestMethod]

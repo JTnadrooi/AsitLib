@@ -30,9 +30,7 @@
         [DataRow("      ")]
         public void Contruct_WithInvalidName_ThrowsEx(string name)
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                new DummyCommandProvider(name)
-            );
+            Invoking(() => new DummyCommandProvider(name)).Should().Throw<InvalidOperationException>();
         }
     }
 }

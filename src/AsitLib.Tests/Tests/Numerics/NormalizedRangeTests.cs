@@ -7,66 +7,68 @@
         public void NormalizedRange_Constructor_ValidRange()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
-            Assert.AreEqual(1, range.Start);
-            Assert.AreEqual(5, range.End);
-            Assert.AreEqual(4, range.Lenght);
+            range.Start.Should().Be(1);
+            range.End.Should().Be(5);
+            range.Lenght.Should().Be(4);
         }
 
         [TestMethod]
         public void NormalizedRange_Constructor_InvalidRange()
         {
-            Assert.Throws<InvalidOperationException>(() => new NormalizedRange(5, 1));
+            Invoking(() => new NormalizedRange(5, 1)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
-        public void NormalizedRange_Equals_True()
+        public void NormalizedRange_Equals_SameValues_ReturnsTrue()
         {
             NormalizedRange range1 = new NormalizedRange(1, 5);
             NormalizedRange range2 = new NormalizedRange(1, 5);
-            Assert.IsTrue(range1.Equals(range2));
+
+            range1.Should().Be(range2);
         }
 
         [TestMethod]
-        public void NormalizedRange_Equals_False()
+        public void NormalizedRange_Equals_DifferentValues_ReturnsFalse()
         {
             NormalizedRange range1 = new NormalizedRange(1, 5);
             NormalizedRange range2 = new NormalizedRange(2, 6);
-            Assert.IsFalse(range1.Equals(range2));
+
+            range1.Should().NotBe(range2);
         }
 
         [TestMethod]
         public void NormalizedRange_IsEmpty_True()
         {
             NormalizedRange range = new NormalizedRange(1, 1);
-            Assert.IsTrue(range.IsEmpty);
+            range.IsEmpty.Should().BeTrue();
         }
 
         [TestMethod]
         public void NormalizedRange_IsEmpty_False()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
-            Assert.IsFalse(range.IsEmpty);
+            range.IsEmpty.Should().BeFalse();
         }
 
         [TestMethod]
         public void NormalizedRange_Contains_True()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
-            Assert.IsTrue(range.Contains(3));
+            range.Contains(3).Should().BeTrue();
         }
 
         [TestMethod]
         public void NormalizedRange_Contains_False()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
-            Assert.IsFalse(range.Contains(6));
+            range.Contains(6).Should().BeFalse();
         }
 
         [TestMethod]
         public void NormalizedRange_AsRange()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
-            Assert.AreEqual("1..5", range.ToString());
+            range.ToString().Should().Be("1..5");
         }
 
         [TestMethod]
@@ -74,15 +76,15 @@
         {
             NormalizedRange range = new NormalizedRange(1, 5);
             Range convertedRange = range;
-            Assert.AreEqual("1..5", convertedRange.ToString());
+            convertedRange.ToString().Should().Be("1..5");
         }
 
         [TestMethod]
         public void NormalizedRange_GetFromValues()
         {
             NormalizedRange range = NormalizedRange.GetFromValues(5, 1);
-            Assert.AreEqual(1, range.Start);
-            Assert.AreEqual(5, range.End);
+            range.Start.Should().Be(1);
+            range.End.Should().Be(5);
         }
 
         [TestMethod]
@@ -91,8 +93,8 @@
             Range range = new Range(1, 5);
             int[] values = { 1, 2, 3, 4, 5 };
             NormalizedRange normalizedRange = NormalizedRange.CreateFromFactory(range, values);
-            Assert.AreEqual(1, normalizedRange.Start);
-            Assert.AreEqual(5, normalizedRange.End);
+            normalizedRange.Start.Should().Be(1);
+            normalizedRange.End.Should().Be(5);
         }
     }
 }

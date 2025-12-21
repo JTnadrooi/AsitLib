@@ -1,4 +1,4 @@
-namespace AsitLib.Tests
+﻿namespace AsitLib.Tests
 {
     public class TestCommandGroup : CommandGroup
     {
@@ -41,16 +41,25 @@ namespace AsitLib.Tests
         public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.Split(args));
         public static void AssertExecute(string expected, string[] args)
         {
-            Assert.AreEqual(expected, Engine.Execute(args).ToOutputString());
+            Engine.Execute(args).ToOutputString().Should().Be(expected);
         }
+
         public static void AssertCheckOutput()
         {
             Assert.Inconclusive("Check output.");
         }
+
+        [TestMethod]
+        public void Execute_SubCommandWithPositionalArgument()
+        {
+            AssertExecute("bonjour", "testg print bonjour");
+        }
+
+
         [TestMethod]
         public void Execute_SubCommand_HasCorrectId()
         {
-            AssertExecute("bonjour", "testg print bonjour");
+            Engine.Commands.Should().ContainKey("testg print");
         }
     }
 }

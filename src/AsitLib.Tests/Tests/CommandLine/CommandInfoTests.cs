@@ -5,7 +5,7 @@
         public OptionInfo[] Options { get; }
 
         public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
-            : this([id], description, isGenericFlag, options) { }
+            : this(new[] { id }, description, isGenericFlag, options) { }
         public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
             : base(ids, description ?? "No desc.", isGenericFlag)
         {
@@ -39,33 +39,33 @@
         public void Add_GroupedCommand_AddsGroup()
         {
             Engine.AddCommand(new DummyCommandInfo("testg print"));
-            Assert.IsTrue(Engine.Groups.Contains("testg"), "Group didn't register.");
+            Engine.Groups.Contains("testg").Should().BeTrue();
         }
 
         [TestMethod]
         public void GroupedCommand_WithAliases_HasGroup()
         {
-            CommandInfo info = new DummyCommandInfo(["testg print", "testg writel"]);
-            Assert.AreEqual(info.Group, "testg");
+            CommandInfo info = new DummyCommandInfo(new[] { "testg print", "testg writel" });
+            info.Group.Should().Be("testg");
         }
 
         [TestMethod]
         public void GroupedCommand_WithInvalidAliases_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() => new DummyCommandInfo(["debug print", "testg writel"]));
+            Invoking(() => new DummyCommandInfo(new[] { "debug print", "testg writel" })).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
         public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
         {
-            CommandInfo info = new DummyCommandInfo("testg", options: [
+            CommandInfo info = new DummyCommandInfo("testg", options: new[] {
                 new OptionInfo("a", typeof(string)),
-                ]);
+                });
             Engine.AddCommand(info);
 
             CommandInfo info2 = new DummyCommandInfo("testg print");
 
-            Assert.Throws<InvalidOperationException>(() => Engine.AddCommand(info2));
+            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -74,10 +74,10 @@
             CommandInfo info = new DummyCommandInfo("testg print");
             Engine.AddCommand(info);
 
-            CommandInfo info2 = new DummyCommandInfo("testg", options: [
+            CommandInfo info2 = new DummyCommandInfo("testg", options: new[] {
                 new OptionInfo("a", typeof(string)),
-                ]);
-            Assert.Throws<InvalidOperationException>(() => Engine.AddCommand(info2));
+                });
+            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -103,38 +103,38 @@
         [TestMethod]
         public void IsMainCommandEligible_CommandWithoutOptions_ReturnsTrue()
         {
-            CommandInfo info = new DummyCommandInfo("testc", options: []);
-            Assert.IsTrue(info.IsMainCommandEligible());
+            CommandInfo info = new DummyCommandInfo("testc", options: Array.Empty<OptionInfo>());
+            info.IsMainCommandEligible().Should().BeTrue();
         }
 
         [TestMethod]
         public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
         {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
                 new OptionInfo("testop", typeof(string)) {
                     PassingPolicies = OptionPassingPolicies.Named,
                 },
                 new OptionInfo("testop2", typeof(string)) {
                     PassingPolicies = OptionPassingPolicies.Named,
                 },
-            ]);
+            });
 
-            Assert.IsTrue(info.IsMainCommandEligible());
+            info.IsMainCommandEligible().Should().BeTrue();
         }
 
         [TestMethod]
         public void GetInheritedPassingPolicies_CommandWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
         {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
                 new OptionInfo("testop", typeof(string)) {
                     PassingPolicies = OptionPassingPolicies.Named,
                 },
-            ])
+            })
             {
                 PassingPolicies = OptionPassingPolicies.Positional
             };
 
-            Assert.IsTrue(info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional));
+            info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional).Should().BeTrue();
         }
 
         [TestMethod]
@@ -142,32 +142,30 @@
         {
             CommandEngine engine = new CommandEngine(OptionPassingPolicies.Positional);
 
-            CommandInfo info = new DummyCommandInfo("testc", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
                 new OptionInfo("testop", typeof(string)) {
                     PassingPolicies = OptionPassingPolicies.Named,
                 },
-            ]);
+            });
 
-            Assert.IsTrue(info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional));
+            info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
         }
 
         [TestMethod]
         public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
         {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
+            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
                 new OptionInfo("testop", typeof(string)),
                 new OptionInfo("testop2", typeof(string)),
-            ]);
+            });
 
-            Assert.IsFalse(info.IsMainCommandEligible());
+            info.IsMainCommandEligible().Should().BeFalse();
         }
 
         [TestMethod]
         public void Contruct_DuplicateId_ThrowsEx()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                new DummyCommandInfo(["test", "test"])
-            );
+            Invoking(() => new DummyCommandInfo(new[] { "test", "test" })).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -190,9 +188,7 @@
         [DataRow("   ")]
         public void Contruct_InvalidIds_ThrowsEx(string name)
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                new DummyCommandInfo(name)
-            );
+            Invoking(() => new DummyCommandInfo(name)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -200,13 +196,13 @@
         [DataRow((string[])["testg"])]
         public void GetShorthand_NotFound_ReturnsNull(string[] ids)
         {
-            Assert.IsNull(new DummyCommandInfo(ids).GetShortHand());
+            new DummyCommandInfo(ids).GetShortHand().Should().BeNull();
         }
 
         [TestMethod]
         public void GetShorthand()
         {
-            Assert.AreEqual("t", new DummyCommandInfo(["test", "t"]).GetShortHand());
+            new DummyCommandInfo(new[] { "test", "t" }).GetShortHand().Should().Be("t");
         }
     }
 }

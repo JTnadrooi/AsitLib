@@ -4,85 +4,76 @@
     public class EnumerableExtensionsTests
     {
         [TestMethod]
-        public void EndsWith_ShouldReturnTrue_WhenArrayEndsWithValue()
+        public void EndsWith_WhenSourceEndsWithSequence_ReturnsTrue()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
-            int[] value = { 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
+            int[] value = [4, 5];
 
-            bool result = source.EndsWith(value);
-
-            Assert.IsTrue(result);
+            source.EndsWith(value).Should().BeTrue();
         }
 
         [TestMethod]
-        public void EndsWith_ShouldReturnFalse_WhenArrayDoesNotEndWithValue()
+        public void EndsWith_WhenSourceDoesNotEndWithSequence_ReturnsFalse()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
-            int[] value = { 3, 4 };
+            int[] source = [1, 2, 3, 4, 5];
+            int[] value = [3, 4];
 
-            bool result = source.EndsWith(value);
-
-            Assert.IsFalse(result);
+            source.EndsWith(value).Should().BeFalse();
         }
 
         [TestMethod]
-        public void GetShallowCopy_ShouldReturnIdenticalArray()
+        public void GetShallowCopy_ReturnsArrayWithSameElements()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
 
-            int[] result = source.GetShallowCopy();
-
-            CollectionAssert.AreEqual(source, result);
+            source.GetShallowCopy().Should().Equal(source);
         }
 
         [TestMethod]
-        public void SwitchIndexes_ShouldSwitchElements()
+        public void SwitchIndexes_SwapsElementsAtSpecifiedIndexes()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
 
             source.SwitchIndexes(1, 3);
 
-            Assert.AreEqual(4, source[1]);
-            Assert.AreEqual(2, source[3]);
+            source[1].Should().Be(4);
+            source[3].Should().Be(2);
         }
 
         [TestMethod]
-        public void SqueezeIndexes_ShouldRemoveNullsAndKeepNonNullValues()
+        public void SqueezeIndexes_MovesNullsToEndPreservingOrder()
         {
-            int?[] source = { 1, null, 2, null, 3 };
+            int?[] source = [1, null, 2, null, 3];
 
             int?[] result = source.SqueezeIndexes();
 
-            CollectionAssert.AreEqual(new int?[] { 1, 2, 3, null, null }, result);
+            result.Should().Equal([1, 2, 3, null, null]);
         }
 
-
         [TestMethod]
-        public void GetFirstIndexWhere_ShouldReturnCorrectIndex()
+        public void GetFirstIndexWhere_WhenMatchExists_ReturnsIndex()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
 
             int result = source.GetFirstIndexWhere(x => x == 3);
 
-            Assert.AreEqual(2, result);
+            result.Should().Be(2);
         }
 
         [TestMethod]
-        public void GetFirstIndexWhere_ShouldThrowException_WhenNoMatch()
+        public void GetFirstIndexWhere_WhenNoMatchExists_ThrowsEx()
         {
-            int[] source = { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
 
-            Assert.Throws<InvalidOperationException>(() => source.GetFirstIndexWhere(x => x == 6));
+            Invoking(() => source.GetFirstIndexWhere(x => x == 6)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
-        public void ToJoinedString_ShouldReturnJoinedString()
+        public void ToJoinedString_JoinsValuesIncludingNulls()
         {
-            int?[] source = { 1, null, 3, 4 };
+            int?[] source = [1, null, 3, 4];
 
-            string result = source.ToJoinedString(',');
-
-            Assert.AreEqual("1,null,3,4", result);
+            source.ToJoinedString(',').Should().Be("1,null,3,4");
         }
     }
 }
