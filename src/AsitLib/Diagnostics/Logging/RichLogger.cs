@@ -4,37 +4,8 @@ using System.IO;
 
 namespace AsitLib.Diagnostics
 {
-    public interface ILoggingStyle
+    public sealed class RichLogger : IThreadSafeRichLogger
     {
-        public string GetIndentation(int level, bool hasPrefix = false);
-        public string GetHeaderIndentation();
-    }
-
-    public sealed class DefaultLoggingStyle : ILoggingStyle
-    {
-        public string GetIndentation(int level, bool hasPrefix = false)
-        {
-            if (level <= 0) return hasPrefix ? "^" : "^---";
-
-            StringBuilder builder = new StringBuilder(level * 4 + (hasPrefix ? 1 : 4))
-                .Append(' ', level * 4)
-                .Append('^');
-            if (!hasPrefix) builder.Append("---");
-
-            return builder.ToString();
-        }
-
-        public string GetHeaderIndentation() => "^";
-    }
-
-    public static class LoggingStyle
-    {
-        public static ILoggingStyle Default { get; } = new DefaultLoggingStyle();
-    }
-
-    public sealed class RichLogger
-    {
-        private readonly ILoggingStyle _style;
         private readonly Stopwatch?[] _timers;
         private readonly int _maxDepth;
         private static readonly object _consoleLock = new object();
@@ -43,18 +14,14 @@ namespace AsitLib.Diagnostics
 
         public bool Silent { get; set; }
         public TextWriter Out { get; }
-        public bool IsConsole { get; }
-        public bool AutoFlush { get; }
-        public int DisplaysCapasity { get; }
         public bool Freeze { get; set; }
+        public bool IsConsole => Out == Console.Out;
+        private ILoggingStyle Style { get; }
 
         public RichLogger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
-            _style = style ?? LoggingStyle.Default;
+            Style = style ?? LoggingStyle.Default;
             Out = TextWriter.Synchronized(output ?? Console.Out);
-            IsConsole = output is null;
-            AutoFlush = !IsConsole;
-            DisplaysCapasity = displaysCapasity;
             Silent = silent;
 
             _maxDepth = maxDepth;
@@ -67,7 +34,7 @@ namespace AsitLib.Diagnostics
         {
             if (Silent || Freeze) return;
 
-            Out.WriteLine(_style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
+            Out.WriteLine(Style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
         }
 
         public void Log(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
@@ -86,8 +53,8 @@ namespace AsitLib.Diagnostics
 
                 if (!Silent)
                 {
-                    Out.WriteLine(_style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
-                    if (AutoFlush) Out.Flush();
+                    Out.WriteLine(Style.GetIndentation(_depth, prefix.HasValue) + normalizedMsg);
+                    Out.Flush();
                 }
 
                 _depth = Math.Max(_depth + delta, 0);
@@ -196,7 +163,7 @@ namespace AsitLib.Diagnostics
         {
             if (displays.Length == 0) return baseMsg + " [_EMPTY_ARRAY_]";
 
-            StringBuilder sb = DisplaysCapasity == -1 ? new StringBuilder() : new StringBuilder(baseMsg.Length + DisplaysCapasity).Append(baseMsg).Append(" [");
+            StringBuilder sb = new StringBuilder(baseMsg).Append(" [");
 
             for (int i = 0; i < displays.Length; i++)
             {
