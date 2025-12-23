@@ -15,10 +15,9 @@ namespace AsitLib.Diagnostics
         public bool Silent { get; set; }
         public TextWriter Out { get; }
         public bool Freeze { get; set; }
-        public bool IsConsole => Out == Console.Out;
-        private ILoggingStyle Style { get; }
+        public ILoggingStyle Style { get; set; }
 
-        public RichLogger(ILoggingStyle? style = null, TextWriter? output = null, string? header = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
+        public RichLogger(ILoggingStyle? style = null, TextWriter? output = null, int maxDepth = 20, int displaysCapasity = 64, bool silent = false)
         {
             Style = style ?? LoggingStyle.Default;
             Out = TextWriter.Synchronized(output ?? Console.Out);
@@ -26,18 +25,12 @@ namespace AsitLib.Diagnostics
 
             _maxDepth = maxDepth;
             _timers = new Stopwatch?[maxDepth];
-
-            if (!string.IsNullOrEmpty(header)) Header(header);
         }
 
-        public void Header(string msg)
-        {
-            if (Silent || Freeze) return;
+        public void Log(string? msg, ReadOnlySpan<object?> displays = default)
+            => LogInternal(msg, displays);
 
-            Out.WriteLine(Style.GetHeaderIndentation() + "[" + (msg?.ToUpperInvariant() ?? string.Empty) + "]");
-        }
-
-        public void Log(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
+        private void LogInternal(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
             if (Freeze) return;
 
@@ -62,7 +55,7 @@ namespace AsitLib.Diagnostics
                 if (prefix == 's') BeginTiming();
             }
 
-            if (IsConsole && color.HasValue)
+            if (this.IsConsole() && color.HasValue)
             {
                 lock (_consoleLock)
                 {
@@ -75,7 +68,10 @@ namespace AsitLib.Diagnostics
             else InternalLog(displays);
         }
 
-        public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
+        public void LogThreadSafe(string? msg, ReadOnlySpan<object?> displays = default)
+            => LogThreadSafeInternal(msg, displays);
+
+        private void LogThreadSafeInternal(string? msg, ReadOnlySpan<object?> displays = default, ConsoleColor? color = null)
         {
             if (Freeze) return;
 
@@ -90,7 +86,7 @@ namespace AsitLib.Diagnostics
                 }
             }
 
-            Log(msg, displays, color);
+            LogInternal(msg, displays, color);
         }
 
         private string BuildStatusMsg(string? msg, string status)
@@ -107,10 +103,10 @@ namespace AsitLib.Diagnostics
         }
 
         public void Fail(string? msg = null)
-            => Log(BuildStatusMsg(msg, "failed."), color: ConsoleColor.Red);
+            => LogInternal(BuildStatusMsg(msg, "failed."), color: ConsoleColor.Red);
 
         public void Success(string? msg = null)
-            => Log(BuildStatusMsg(msg, "success."));
+            => LogInternal(BuildStatusMsg(msg, "success."));
 
         public void SuccessIf(bool succes, string? msg = null)
         {
@@ -119,14 +115,14 @@ namespace AsitLib.Diagnostics
         }
 
         public void Warn(string msg, ReadOnlySpan<object?> displays = default)
-            => Log("warning: " + msg, displays, color: ConsoleColor.Yellow);
+            => LogInternal("warning: " + msg, displays, color: ConsoleColor.Yellow);
         public void WarnThreadSafe(string msg, ReadOnlySpan<object?> displays = default)
-            => LogThreadSafe("warning: " + msg, displays, color: ConsoleColor.Yellow);
+            => LogThreadSafeInternal("warning: " + msg, displays, color: ConsoleColor.Yellow);
 
         public void Error(string msg, ReadOnlySpan<object?> displays = default)
-            => Log("error: " + msg, displays, color: ConsoleColor.Red);
+            => LogInternal("error: " + msg, displays, color: ConsoleColor.Red);
         public void ErrorThreadSafe(string msg, ReadOnlySpan<object?> displays = default)
-            => LogThreadSafe("error: " + msg, displays, color: ConsoleColor.Red);
+            => LogThreadSafeInternal("error: " + msg, displays, color: ConsoleColor.Red);
 
         private void BeginTiming() => _timers[_depth] = Stopwatch.StartNew();
 

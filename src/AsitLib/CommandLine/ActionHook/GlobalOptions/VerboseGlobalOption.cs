@@ -6,9 +6,9 @@ namespace AsitLib.CommandLine
     {
         private bool _initialVerboseState;
 
-        private RichLogger _logger;
+        private ILogger _logger;
 
-        public VerboseGlobalOption(RichLogger logger) : base("verbose", "Enables verbose logging.", "v")
+        public VerboseGlobalOption(ILogger logger) : base("verbose", "Enables verbose logging.", "v")
         {
             _logger = logger;
         }
