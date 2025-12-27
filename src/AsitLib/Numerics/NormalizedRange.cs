@@ -101,11 +101,13 @@ namespace AsitLib.Numerics
         public static NormalizedRange GetFromValues(int value1, int value2)
             => new NormalizedRange(System.Math.Min(value1, value2), System.Math.Max(value1, value2));
 
-        public static NormalizedRange CreateFromFactory<T>(Range source, IEnumerable<T> values)
+        public static NormalizedRange CreateFrom<T>(Range source, IEnumerable<T> values)
         {
             if (source.IsNormalized()) return new NormalizedRange(source);
             else return new NormalizedRange(source, values.Count());
         }
+
+        public static NormalizedRange Empty { get; } = new NormalizedRange(0, 0);
     }
 
     /// <summary>

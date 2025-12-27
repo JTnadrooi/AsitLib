@@ -88,13 +88,19 @@
         }
 
         [TestMethod]
-        public void NormalizedRange_CreateFromFactory()
+        public void NormalizedRange_CreateFrom()
         {
             Range range = new Range(1, 5);
             int[] values = { 1, 2, 3, 4, 5 };
-            NormalizedRange normalizedRange = NormalizedRange.CreateFromFactory(range, values);
+            NormalizedRange normalizedRange = NormalizedRange.CreateFrom(range, values);
             normalizedRange.Start.Should().Be(1);
             normalizedRange.End.Should().Be(5);
+        }
+
+        [TestMethod]
+        public void NormalizedRange_Empty_HasNoLenght()
+        {
+            NormalizedRange.Empty.Lenght.Should().Be(0);
         }
     }
 }

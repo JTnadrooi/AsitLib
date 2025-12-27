@@ -158,7 +158,7 @@ namespace AsitLib
 
         public static IEnumerable<T> ElementsAt<T>(this IEnumerable<T> values, Range range)
         {
-            NormalizedRange normalizedRange = NormalizedRange.CreateFromFactory(range, values);
+            NormalizedRange normalizedRange = NormalizedRange.CreateFrom(range, values);
             return values.Skip(normalizedRange.Start).Take(normalizedRange.End - normalizedRange.Start);
         }
 
