@@ -76,6 +76,69 @@ namespace AsitLib.Numerics
         /// <returns>A <see cref="bool"/> indicating of the <see cref="int"/> falls within the range of this <see cref="NormalizedRange"/>.</returns>
         public readonly bool Contains(int i) => i >= Start && i < End;
 
+        /// <summary>
+        /// Creates a new <see cref="NormalizedRange"/> by shifting the current range by a <paramref name="i"/> amount of positions.
+        /// </summary>
+        /// <param name="i">The number of positions to shift the range.</param>
+        /// <returns>A new <see cref="NormalizedRange"/> that represents the shifted range.</returns>
+        public readonly NormalizedRange Shift(int i) => new NormalizedRange(Start + i, End + i);
+
+        /// <summary>
+        /// Combines two <see cref="NormalizedRange"/> objects into a single larger range, which covers the span of both ranges.
+        /// </summary>
+        /// <param name="other">The other <see cref="NormalizedRange"/> to union with.</param>
+        /// <returns>A new <see cref="NormalizedRange"/> that represents the union of the two ranges.</returns>
+        public NormalizedRange Union(NormalizedRange other)
+        {
+            int start = Math.Min(this.Start, other.Start);
+            int end = Math.Max(this.End, other.End);
+            return new NormalizedRange(start, end);
+        }
+
+        /// <summary>
+        /// Calculates the distance between two <see cref="NormalizedRange"/> objects. The distance is the gap between the end of one range and the start of the other.
+        /// </summary>
+        /// <param name="other">The other <see cref="NormalizedRange"/> to measure the distance to.</param>
+        /// <returns>The distance between the two ranges. If the ranges overlap or touch, the distance will be zero or negative.</returns>
+        public int DistanceTo(NormalizedRange other)
+        {
+            return Math.Max(0, other.Start - this.End);
+        }
+
+        /// <summary>
+        /// Clamps a given value within the bounds of this <see cref="NormalizedRange"/>. If the value is below the start, it returns the start value.
+        /// <see cref="Contains(int)"/> will always return true for the returned value.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <returns>The clamped value within the range.</returns>
+        public int Clamp(int value)
+        {
+            return Math.Max(Start, Math.Min(End - 1, value));
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="NormalizedRange"/> completely contains another <see cref="NormalizedRange"/>. If both ranges are the same, this also returns <see langword="true"/>.
+        /// </summary>
+        /// <param name="other">The other <see cref="NormalizedRange"/> to check for containment.</param>
+        /// <returns><see langword="true"/> if this range contains the other range; otherwise, <see langword="false"/>.</returns>
+        public bool ContainsRange(NormalizedRange other)
+        {
+            return other.Start >= this.Start && other.End <= this.End;
+        }
+
+        /// <summary>
+        /// Gets the intersection of this <see cref="NormalizedRange"/> and another <see cref="NormalizedRange"/>.
+        /// The intersection represents the overlapping portion of both ranges. If there is no overlap, <see cref="NormalizedRange.Empty"/> is returned.
+        /// </summary>
+        /// <param name="other">The other <see cref="NormalizedRange"/> to intersect with.</param>
+        /// <returns>A new <see cref="NormalizedRange"/> representing the intersection of the two ranges, or <see cref="NormalizedRange.Empty"/> if no intersection exists.</returns>
+        public NormalizedRange Intersect(NormalizedRange other)
+        {
+            int start = Math.Max(this.Start, other.Start);
+            int end = Math.Min(this.End, other.End);
+            return start < end ? new NormalizedRange(start, end) : Empty;
+        }
+
         public void Deconstruct(out int start, out int end)
         {
             start = Start;
