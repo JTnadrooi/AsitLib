@@ -161,7 +161,7 @@ namespace AsitLib.Numerics
         /// <param name="value1">The first value.</param>
         /// <param name="value2">The second value.</param>
         /// <returns>A <see cref="NormalizedRange"/> ranging the difference between the two values.</returns>
-        public static NormalizedRange GetFromValues(int value1, int value2)
+        public static NormalizedRange FromValues(int value1, int value2)
             => new NormalizedRange(System.Math.Min(value1, value2), System.Math.Max(value1, value2));
 
         public static NormalizedRange CreateFrom<T>(Range source, IEnumerable<T> values)

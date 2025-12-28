@@ -88,9 +88,9 @@
         }
 
         [TestMethod]
-        public void GetFromValues_AssignsValidStart()
+        public void FromValues_AssignsValidStart()
         {
-            NormalizedRange range = NormalizedRange.GetFromValues(5, 1);
+            NormalizedRange range = NormalizedRange.FromValues(5, 1);
             range.Start.Should().Be(1);
             range.End.Should().Be(5);
         }
