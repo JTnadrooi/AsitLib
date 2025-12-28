@@ -149,11 +149,11 @@ namespace AsitLib.Numerics
         /// Gets this <see cref="NormalizedRange"/> as a normal <see cref="Range"/>.
         /// </summary>
         /// <returns>This <see cref="NormalizedRange"/> as a normal <see cref="Range"/>.</returns>
-        public Range AsRange() => new Range(Start, End);
+        public Range ToRange() => new Range(Start, End);
 
-        public override string ToString() => AsRange().ToString();
+        public override string ToString() => ToRange().ToString();
 
-        public static implicit operator Range(NormalizedRange normalizedRange) => normalizedRange.AsRange();
+        public static implicit operator Range(NormalizedRange normalizedRange) => normalizedRange.ToRange();
 
         /// <summary>
         /// Gets a <see cref="NormalizedRange"/> from two values. <paramref name="value1"/> does not have to be the <see cref="NormalizedRange.Start"/> and <paramref name="value2"/> does not have to be the <see cref="NormalizedRange.End"/>.
