@@ -12,6 +12,8 @@ namespace AsitLib.Numerics
         /// </summary>
         public bool IsEmpty => Start == End;
 
+        public bool IsNegative => Start < 0;
+
         /// <summary>
         /// Gets the inclusive start of this <see cref="NormalizedRange"/>.
         /// </summary>
@@ -25,7 +27,7 @@ namespace AsitLib.Numerics
         /// <summary>
         /// Gets the lenght of the sequence this <see cref="NormalizedRange"/> covers.
         /// </summary>
-        public readonly int Lenght { get; }
+        public readonly int Lenght => End - Start;
 
         /// <summary>
         /// Create a new <see cref="NormalizedRange"/> with set values.
@@ -34,10 +36,9 @@ namespace AsitLib.Numerics
         /// <param name="end"></param>
         public NormalizedRange(int start, int end)
         {
-            if (start > end) throw new InvalidOperationException($"Start is a higher number than End; '{start}' > '{end}'");
+            if (start > end) throw new InvalidOperationException($"Range cannot start past the end; '{start}' > '{end}'");
             Start = start;
             End = end;
-            Lenght = End - Start;
         }
 
         /// <summary>
