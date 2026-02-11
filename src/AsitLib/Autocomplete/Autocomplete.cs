@@ -214,7 +214,7 @@ namespace AsitLib.Autocompleting
         }
     }
 
-    public readonly struct Completion
+    public readonly struct Completion : IEquatable<Completion>
     {
         public string Text { get; }
         public int Value { get; }
@@ -224,8 +224,37 @@ namespace AsitLib.Autocompleting
         {
             Text = text;
             Value = value;
-
             CodePoints = text.EnumerateRunes().Select(r => r.Value).ToArray();
+        }
+
+        public bool Equals(Completion other)
+        {
+            return Value == other.Value && Text == other.Text;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Completion other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Text, Value);
+        }
+
+        public override string ToString()
+        {
+            return $"{{Completion: '{Text}', Value: '{Value}'}}";
+        }
+
+        public static bool operator ==(Completion left, Completion right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Completion left, Completion right)
+        {
+            return !left.Equals(right);
         }
     }
 }
