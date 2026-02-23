@@ -22,7 +22,7 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
         public IReadOnlyCollection<string> Groups { get; }
 
-        public OptionPassingPolicies PassingPolicies { get; }
+        public OptionPassingPolicies PassingPolicies { get; set; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -37,7 +37,7 @@ namespace AsitLib.CommandLine
 
         public CommandInfo this[string id] => Commands[id];
 
-        public CommandEngine(OptionPassingPolicies passingPolicies = OptionPassingPolicies.None)
+        public CommandEngine()
         {
             _providers = new Dictionary<string, CommandProvider>();
             _commands = new Dictionary<string, CommandInfo>();
@@ -53,7 +53,7 @@ namespace AsitLib.CommandLine
             Hooks = _hooks.AsReadOnly();
             Groups = _groupMap.Keys;
 
-            PassingPolicies = passingPolicies;
+            PassingPolicies = OptionPassingPolicies.None;
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -273,8 +273,8 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public CommandResultInfo Execute(string args) => Execute(ParseHelpers.Split(args));
-        public CommandResultInfo Execute(string[] args)
+        public CommandResult Execute(string args) => Execute(ParseHelpers.Split(args));
+        public CommandResult Execute(string[] args)
         {
             ArgumentsInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
@@ -306,7 +306,7 @@ namespace AsitLib.CommandLine
                         hook.PostCommand(context);
                     }
 
-                return new CommandResultInfo(this, returned);
+                return new CommandResult(this, returned);
             }
             else if (argsInfo.CallsGenericFlag)
             {

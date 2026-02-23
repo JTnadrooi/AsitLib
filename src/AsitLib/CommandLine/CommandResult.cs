@@ -2,7 +2,7 @@
 
 namespace AsitLib.CommandLine
 {
-    public sealed class CommandResultInfo
+    public sealed class CommandResult
     {
         private object? _rawValue; // can be DBNull.Value.
 
@@ -19,7 +19,9 @@ namespace AsitLib.CommandLine
 
         public bool IsVoid => _rawValue is DBNull;
 
-        internal CommandResultInfo(CommandEngine engine, object? rawValue)
+        public object? RawValue => _rawValue; // can be dbnull.
+
+        internal CommandResult(CommandEngine engine, object? rawValue)
         {
             _rawValue = rawValue;
             Engine = engine;
