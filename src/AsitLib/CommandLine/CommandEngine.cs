@@ -26,6 +26,7 @@ namespace AsitLib.CommandLine
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
+        public ICommandInfoFactory? DefaultInfoFactory { get; set; }
 
         private readonly Dictionary<string, List<string>> _srcMap;
         private readonly Dictionary<string, List<string>> _groupMap;
@@ -54,6 +55,7 @@ namespace AsitLib.CommandLine
             Groups = _groupMap.Keys;
 
             PassingPolicies = OptionPassingPolicies.None;
+            DefaultInfoFactory = null;
 
             NewLine = "\n";
             KeyValueSeperator = "=";
@@ -161,7 +163,7 @@ namespace AsitLib.CommandLine
 
         public CommandEngine AddProvider(CommandProvider provider)
         {
-            CommandInfo[] commands = provider.GetCommands();
+            CommandInfo[] commands = provider.GetCommands(DefaultInfoFactory);
 
             if (commands.Length == 0) throw new InvalidOperationException("Cannot add empty command provider, GetCommands() returned an empty array.");
 

@@ -9,17 +9,17 @@ namespace AsitLib.CommandLine
     {
         public string Name { get; }
 
-        protected ICommandInfoFactory InfoFactory { get; }
+        protected ICommandInfoFactory? InfoFactory { get; }
 
         public CommandProvider(string name, ICommandInfoFactory? infoFactory = null)
         {
             ParseHelpers.ThrowIfInvalidName(name, false);
 
             Name = name;
-            InfoFactory = infoFactory ?? CommandInfoFactory.Default;
+            InfoFactory = infoFactory;
         }
 
-        public virtual CommandInfo[] GetCommands()
+        public virtual CommandInfo[] GetCommands(ICommandInfoFactory? defaultInfoFactory = null)
         {
             MethodInfo[] commandMethods = GetType().GetMethods();
             List<CommandInfo> commands = new List<CommandInfo>();
@@ -27,7 +27,7 @@ namespace AsitLib.CommandLine
             foreach (MethodInfo methodInfo in commandMethods)
                 if (methodInfo.GetCustomAttribute<CommandAttribute>() is CommandAttribute attribute)
                 {
-                    CommandInfo? info = InfoFactory.Convert(this, methodInfo, attribute);
+                    CommandInfo? info = (InfoFactory ?? defaultInfoFactory ?? CommandInfoFactory.Default).Convert(this, methodInfo, attribute);
                     if (info is not null) commands.Add(info);
                 }
 
