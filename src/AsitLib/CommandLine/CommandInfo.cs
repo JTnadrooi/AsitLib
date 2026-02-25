@@ -84,7 +84,7 @@ namespace AsitLib.CommandLine
     public abstract class CommandInfo : IValidatable
     {
         /// <summary>
-        /// Gets a <see cref="HashSet{T}"/> containing all command ids. Includes <see cref="Id"/>.
+        /// Gets a <see cref="HashSet{T}"/> containing all strings this command belongs to. This includes generic flags, aliasses, etc.
         /// </summary>
         public ReadOnlyCollection<string> Ids { get; }
         public bool HasAliases => Ids.Count > 1;
