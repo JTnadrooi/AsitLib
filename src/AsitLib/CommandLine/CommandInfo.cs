@@ -183,17 +183,6 @@ namespace AsitLib.CommandLine
             return sb.ToString();
         }
 
-        public string? GetShortHand()
-        {
-            if (Ids.Count == 1) return null;
-
-            for (int i = 1; i < Ids.Count; i++)
-                if (Ids[i].Length == 1) // skips flagged.
-                    return Ids[i];
-
-            return null;
-        }
-
         public bool IsMainCommandEligible(CommandEngine? engine = null) => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, this).HasFlag(OptionPassingPolicies.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";

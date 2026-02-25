@@ -190,19 +190,5 @@
         {
             Invoking(() => new DummyCommandInfo(name)).Should().Throw<InvalidOperationException>();
         }
-
-        [TestMethod]
-        [DataRow((string[])["testg", "print"])]
-        [DataRow((string[])["testg"])]
-        public void GetShorthand_NotFound_ReturnsNull(string[] ids)
-        {
-            new DummyCommandInfo(ids).GetShortHand().Should().BeNull();
-        }
-
-        [TestMethod]
-        public void GetShorthand()
-        {
-            new DummyCommandInfo(new[] { "test", "t" }).GetShortHand().Should().Be("t");
-        }
     }
 }
