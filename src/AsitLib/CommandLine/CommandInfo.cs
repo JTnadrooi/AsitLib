@@ -86,10 +86,24 @@ namespace AsitLib.CommandLine
         /// <summary>
         /// Gets a <see cref="HashSet{T}"/> containing all strings this command belongs to. This includes generic flags, aliasses, etc.
         /// </summary>
-        public ReadOnlyCollection<string> Ids { get; }
+        public IReadOnlyList<string> Ids { get; }
+
+        public IReadOnlyList<string> RawIds { get; }
+
+        /// <summary>
+        /// Gets if the command represented by this instance has aliases. Generic flag ids count as aliases.
+        /// <code>Ids.Count > 1</code>
+        /// </summary>
         public bool HasAliases => Ids.Count > 1;
+
+        /// <summary>
+        /// Gets the main id. (The first one.)
+        /// </summary>
         public string Id => Ids[0];
 
+        /// <summary>
+        /// Gets the group this command belongs to.
+        /// </summary>
         public string? Group { get; }
 
         public bool HasGroup => Group is not null;
@@ -113,14 +127,15 @@ namespace AsitLib.CommandLine
 
         public CommandInfo(string[] ids, string description, bool isGenericFlag = false)
         {
+            ArgumentNullException.ThrowIfNull(ids);
+            ArgumentNullException.ThrowIfNull(description);
+
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
             string? group = null;
             string mainId = ids[0];
             List<string> additionalIds = new List<string>();
             HashSet<string> seen = new HashSet<string>();
-
-            if (mainId.Length == 1) throw new InvalidOperationException("Main command id is too short.");
 
             foreach (string id in ids)
             {
@@ -143,7 +158,8 @@ namespace AsitLib.CommandLine
                 if (isGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
             }
 
-            Ids = ids.Concat(additionalIds).ToArray().AsReadOnly();
+            RawIds = ids.ToArray();
+            Ids = ArrayHelpers.Combine((string[])RawIds, additionalIds.ToArray());
             Description = description;
             IsGenericFlag = isGenericFlag;
             Group = group;

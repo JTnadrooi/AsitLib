@@ -184,11 +184,19 @@
         [DataRow("-print")]
         [DataRow("testg -print")]
         [DataRow("testg1 testg2 -print")]
-        [DataRow("a")]
         [DataRow("   ")]
         public void Contruct_InvalidIds_ThrowsEx(string name)
         {
             Invoking(() => new DummyCommandInfo(name)).Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void RawIds_IsSameAsInputIds()
+        {
+            string[] inputIds = ["a", "b", "c"];
+
+            CommandInfo info = new DummyCommandInfo(inputIds);
+            info.RawIds.Should().Equal(inputIds);
         }
     }
 }
