@@ -140,7 +140,7 @@
         [TestMethod]
         public void GetInheritedPassingPolicies_EngineWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
         {
-            CommandEngine engine = new CommandEngine(OptionPassingPolicies.Positional);
+            CommandEngine engine = new CommandEngine() { PassingPolicies = OptionPassingPolicies.Positional };
 
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
                 new OptionInfo("testop", typeof(string)) {

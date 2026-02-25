@@ -8,8 +8,7 @@
         {
             Commands = commands ?? new List<CommandInfo>();
         }
-
-        public override CommandInfo[] GetCommands()
+        public override CommandInfo[] GetCommands(ICommandInfoFactory? defaultInfoFactory = null)
         {
             return Commands.ToArray();
         }
