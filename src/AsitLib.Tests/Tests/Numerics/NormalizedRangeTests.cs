@@ -9,7 +9,7 @@
             NormalizedRange range = new NormalizedRange(1, 5);
             range.Start.Should().Be(1);
             range.End.Should().Be(5);
-            range.Lenght.Should().Be(4);
+            range.Length.Should().Be(4);
         }
 
         [TestMethod]
@@ -106,9 +106,9 @@
         }
 
         [TestMethod]
-        public void Empty_HasNoLenght()
+        public void Empty_HasNoLength()
         {
-            NormalizedRange.Empty.Lenght.Should().Be(0);
+            NormalizedRange.Empty.Length.Should().Be(0);
         }
 
         [TestMethod]

@@ -27,7 +27,7 @@ namespace AsitLib.Numerics
         /// <summary>
         /// Gets the lenght of the sequence this <see cref="NormalizedRange"/> covers.
         /// </summary>
-        public readonly int Lenght => End - Start;
+        public readonly int Length => End - Start;
 
         /// <summary>
         /// Create a new <see cref="NormalizedRange"/> with set values.
