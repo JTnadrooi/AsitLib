@@ -19,33 +19,33 @@ namespace AsitLib.Tests
     public class OptionInfoTests
     {
         [TestMethod]
-        public void GetValue_EnumValueInt_GetsEnumEntryWithValue()
+        public void Conform_EnumValueInt_GetsEnumEntryWithValue()
         {
-            OptionInfo.FromType(typeof(TestEnum)).GetValue("2").Should().Be(TestEnum.Value2);
+            OptionInfo.FromType(typeof(TestEnum)).Conform("2").Should().Be(TestEnum.Value2);
         }
 
         [TestMethod]
-        public void GetValue_EnumValueString_GetsEnumEntryWithValue()
+        public void Conform_EnumValueString_GetsEnumEntryWithValue()
         {
-            OptionInfo.FromType(typeof(TestEnum)).GetValue("value-2").Should().Be(TestEnum.Value2);
+            OptionInfo.FromType(typeof(TestEnum)).Conform("value-2").Should().Be(TestEnum.Value2);
         }
 
         [TestMethod]
-        public void GetValue_CustomSignatureEnumValueString_GetsCustomNameEnumEntryWithValue()
+        public void Conform_CustomSignatureEnumValueString_GetsCustomNameEnumEntryWithValue()
         {
-            OptionInfo.FromType(typeof(TestEnum)).GetValue("three").Should().Be(TestEnum.Value3);
+            OptionInfo.FromType(typeof(TestEnum)).Conform("three").Should().Be(TestEnum.Value3);
         }
 
         [TestMethod]
-        public void GetValue_MultipleIntTokens_ParsesToIntArray()
+        public void Conform_MultipleIntTokens_ParsesToIntArray()
         {
-            ((int[])OptionInfo.FromType(typeof(int[])).GetValue(new[] { "4", "2" })!).Should().Equal(new int[] { 4, 2 });
+            ((int[])OptionInfo.FromType(typeof(int[])).Conform(new[] { "4", "2" })!).Should().Equal(new int[] { 4, 2 });
         }
 
         [TestMethod]
-        public void GetValue_MultipleStringTokens_ParsesToStringArray()
+        public void Conform_MultipleStringTokens_ParsesToStringArray()
         {
-            ((string[])OptionInfo.FromType(typeof(string[])).GetValue(new[] { "e", "a" })!).Should().Equal(new string[] { "e", "a" });
+            ((string[])OptionInfo.FromType(typeof(string[])).Conform(new[] { "e", "a" })!).Should().Equal(new string[] { "e", "a" });
         }
     }
 }

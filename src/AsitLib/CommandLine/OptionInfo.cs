@@ -102,10 +102,21 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public object? GetValue(string token) => GetValue([token]);
-        public object? GetValue(IReadOnlyList<string> tokens)
+        /// <summary>
+        /// Converts a token to the option's type.
+        /// </summary>
+        /// <param name="token">The token to convert.</param>
+        /// <returns>The converted value, or <see cref="ImplicitValue"/> if <paramref name="token"/> is empty.</returns>
+        public object? Conform(string token) => Conform([token]);
+
+        /// <summary>
+        /// Converts a token list to the option's type.
+        /// </summary>
+        /// <param name="tokens">The tokens to convert.</param>
+        /// <returns>The converted value, or <see cref="ImplicitValue"/> if <paramref name="tokens"/> is empty.</returns>
+        public object? Conform(IReadOnlyList<string> tokens)
         {
-            object? GetValueImpl()
+            object? ConformImpl()
             {
                 if (tokens.Count == 0)
                 {
@@ -119,7 +130,7 @@ namespace AsitLib.CommandLine
                     Type elementType = OptionType.GetElementType()!;
                     Array toretArray = Array.CreateInstance(elementType, tokens.Count);
 
-                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(FromType(elementType).GetValue([tokens[i]]), i);
+                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(FromType(elementType).Conform([tokens[i]]), i);
 
                     return toretArray;
                 }
@@ -146,7 +157,7 @@ namespace AsitLib.CommandLine
                 return System.Convert.ChangeType(token, OptionType);
             }
 
-            object? toret = GetValueImpl();
+            object? toret = ConformImpl();
 
             ThrowExceptionIfInvalidValue(toret);
 

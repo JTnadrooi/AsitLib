@@ -136,7 +136,7 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.GetValue(IReadOnlyList{string})"/>.
+        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(IReadOnlyList{string})"/>.
         /// </summary>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
         /// <param name="context">The command context, used for option inheritance policies.</param>
@@ -188,7 +188,7 @@ namespace AsitLib.CommandLine
                     else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = option.GetValue(matchingArgument.Tokens);
+                result[i] = option.Conform(matchingArgument.Tokens);
                 validArguments.Add(matchingArgument);
 
             Continue:;
