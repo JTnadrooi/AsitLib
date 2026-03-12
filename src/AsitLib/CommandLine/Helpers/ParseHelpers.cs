@@ -203,7 +203,7 @@ namespace AsitLib.CommandLine
 
         public static object? GetValue(string token, Type target) => GetValue([token], target);
         public static object? GetValue(string token, OptionInfo target) => GetValue([token], target);
-        public static object? GetValue(IReadOnlyList<string> tokens, Type target) => GetValue(tokens, new OptionInfo("__noname__", target));
+        public static object? GetValue(IReadOnlyList<string> tokens, Type target) => GetValue(tokens, OptionInfo.FromType(target));
         public static object? GetValue(IReadOnlyList<string> tokens, OptionInfo target)
         {
             object? GetValuePrivate()

@@ -6,6 +6,8 @@ namespace AsitLib.CommandLine
 {
     public sealed class OptionInfo
     {
+        public const string NameForUnnamedOptions = "__noname__";
+
         private object? _defaultValue;
 
         public object? DefaultValue
@@ -29,8 +31,7 @@ namespace AsitLib.CommandLine
 
         public Type OptionType { get; }
 
-        [DisallowNull]
-        public string? Name { get; }
+        public string Name { get; }
 
         private object? _implicitValue;
 
@@ -51,7 +52,7 @@ namespace AsitLib.CommandLine
 
         public OptionPassingPolicies PassingPolicies { get; init; }
 
-        internal OptionInfo(ParameterInfo parameter)
+        public OptionInfo(ParameterInfo parameter)
         {
             Attribute[] attributes = parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray();
 
@@ -79,33 +80,26 @@ namespace AsitLib.CommandLine
                     _defaultValue = false;
         }
 
-        public OptionInfo(Type optionType)
-        {
-            OptionType = optionType;
-            ValidationAttributes = Array.Empty<ValidationAttribute>();
-            PassingPolicies = OptionPassingPolicies.All;
-        }
-
-        public OptionInfo(string name, Type optionType)
+        private OptionInfo(Type type, string name = NameForUnnamedOptions) // FromType()
         {
             Name = name;
-            OptionType = optionType;
+            OptionType = type;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
             PassingPolicies = OptionPassingPolicies.All;
         }
 
-        public void ThrowExceptionIfInvalidValue(object? value)
+        internal void ThrowExceptionIfNoName()
+        {
+            if (Name is null) throw new InvalidOperationException("This operation is not valid on an unnamed OptionInfo.");
+        }
+
+        internal void ThrowExceptionIfInvalidValue(object? value)
         {
             foreach (ValidationAttribute attribute in ValidationAttributes)
             {
                 ValidationResult? result = attribute.GetValidationResult(value, new ValidationContext(value!) { DisplayName = Name is null ? "INPUT" : $"{Name}_INPUT" });
                 if (result != ValidationResult.Success) throw new CommandException($"Argument value '{value}' is invalid: {result!.ErrorMessage}");
             }
-        }
-
-        public void ThrowExceptionIfNoName()
-        {
-            if (Name is null) throw new InvalidOperationException("This operation is not valid on an unnamed OptionInfo.");
         }
 
         public object? GetValue(string token) => ParseHelpers.GetValue(token, this);
@@ -119,10 +113,14 @@ namespace AsitLib.CommandLine
 
             return ToNullIfNone(engine?.PassingPolicies) ?? ToNullIfNone(command?.PassingPolicies) ?? PassingPolicies;
         }
-    }
 
-    public static class ParameterInfoExtensions
-    {
-        public static OptionInfo ToOptionInfo(this ParameterInfo parameter) => new OptionInfo(parameter);
+        /// <summary>
+        /// Creates a new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="name">The value of the <see cref="OptionInfo.Name"/> property.</param>
+        /// <returns>A new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.</returns>
+        public static OptionInfo FromType(Type type, string name = NameForUnnamedOptions)
+            => new OptionInfo(type, name);
     }
 }

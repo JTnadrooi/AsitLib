@@ -69,7 +69,7 @@ namespace AsitLib.CommandLine
             };
         }
 
-        public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => p.ToOptionInfo()).ToArray();
+        public override OptionInfo[] GetOptions() => MethodInfo.GetParameters().Select(p => new OptionInfo(p)).ToArray();
         public override object? Invoke(object?[] parameters)
         {
             object? result = MethodInfo.Invoke(Target, parameters); // so always runs.
