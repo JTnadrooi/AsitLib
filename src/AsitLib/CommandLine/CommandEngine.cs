@@ -295,10 +295,12 @@ namespace AsitLib.CommandLine
                 object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? DBNull.Value : commandInfo.Invoke(conformed);
                 context.PreCommand = false;
 
-                object?[] contextResults = context.RunAll();
+                object? contextResult = context.RunAll();
 
-                if (contextResults.Length == 1) returned = contextResults[0];
-                else if (contextResults.Length > 1) throw new CommandException("Multiple context-action/function returns is invalid.");
+                if (contextResult is not DBNull)
+                {
+                    returned = contextResult;
+                }
 
                 if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
                     foreach (ActionHook hook in toRunHooks)

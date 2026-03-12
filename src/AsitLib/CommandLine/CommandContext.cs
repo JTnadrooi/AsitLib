@@ -21,7 +21,7 @@
             PreCommand = preCommand;
         }
 
-        internal object?[] RunAll()
+        internal object? RunAll()
         {
             List<object?> results = new List<object?>();
 
@@ -34,7 +34,9 @@
                 results.Add(actionResult);
             }
 
-            return results.ToArray();
+            if (results.Count == 0) return DBNull.Value;
+            else if (results.Count == 1) return results[0];
+            else throw new CommandException("Multiple context-action/function returns is invalid.");
         }
 
         internal void ThrowIfNotPreCommand()
