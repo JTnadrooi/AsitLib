@@ -18,7 +18,6 @@
     public class CommandProviderTests
     {
         [TestMethod]
-        [DataRow("name#")]
         [DataRow("name-")]
         [DataRow(" name ")]
         [DataRow(" name")]

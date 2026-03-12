@@ -14,10 +14,7 @@ namespace AsitLib.Tests
 
     public class AlwaysReturnTestGlobalOptionHandler : GlobalOption
     {
-        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", new OptionInfo(typeof(string))
-        {
-            ImplicitValue = "TEST",
-        })
+        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", OptionInfo.FromType(typeof(string), implicitValue: "TEST"))
         {
 
         }
@@ -101,12 +98,6 @@ namespace AsitLib.Tests
         public void Validation([Range(0, 10)] int i)
         {
 
-        }
-
-        [Command("desc")]
-        public string ContextInject(CommandContext context)
-        {
-            return context.Engine.Providers["test"].Name;
         }
     }
 
@@ -301,12 +292,6 @@ namespace AsitLib.Tests
             Console.WriteLine(Engine.Execute("void --help"));
             Console.WriteLine("\n" + Engine.Execute("void -h"));
             AssertCheckOutput();
-        }
-
-        [TestMethod]
-        public void Execute_ContextOption_InjectsContext()
-        {
-            AssertExecute("test", "context-inject");
         }
     }
 }

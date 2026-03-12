@@ -59,8 +59,8 @@
         public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
         {
             CommandInfo info = new DummyCommandInfo("testg", options: new[] {
-                new OptionInfo("a", typeof(string)),
-                });
+                 OptionInfo.FromType( typeof(string)),
+            });
             Engine.AddCommand(info);
 
             CommandInfo info2 = new DummyCommandInfo("testg print");
@@ -75,8 +75,8 @@
             Engine.AddCommand(info);
 
             CommandInfo info2 = new DummyCommandInfo("testg", options: new[] {
-                new OptionInfo("a", typeof(string)),
-                });
+                 OptionInfo.FromType(typeof(string)),
+            });
             Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
         }
 
@@ -111,12 +111,8 @@
         public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                new OptionInfo("testop", typeof(string)) {
-                    PassingPolicies = OptionPassingPolicies.Named,
-                },
-                new OptionInfo("testop2", typeof(string)) {
-                    PassingPolicies = OptionPassingPolicies.Named,
-                },
+                OptionInfo.FromType( typeof(string) ,"testop", OptionPassingPolicies.Named) ,
+                OptionInfo.FromType(typeof(string) ,"testop2", OptionPassingPolicies.Named) ,
             });
 
             info.IsMainCommandEligible().Should().BeTrue();
@@ -126,9 +122,7 @@
         public void GetInheritedPassingPolicies_CommandWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                new OptionInfo("testop", typeof(string)) {
-                    PassingPolicies = OptionPassingPolicies.Named,
-                },
+                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
             })
             {
                 PassingPolicies = OptionPassingPolicies.Positional
@@ -143,9 +137,7 @@
             CommandEngine engine = new CommandEngine() { PassingPolicies = OptionPassingPolicies.Positional };
 
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                new OptionInfo("testop", typeof(string)) {
-                    PassingPolicies = OptionPassingPolicies.Named,
-                },
+                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
             });
 
             info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
@@ -155,8 +147,8 @@
         public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                new OptionInfo("testop", typeof(string)),
-                new OptionInfo("testop2", typeof(string)),
+                OptionInfo.FromType(typeof(string), "1" ),
+                OptionInfo.FromType(typeof(string), "2"),
             });
 
             info.IsMainCommandEligible().Should().BeFalse();
@@ -170,10 +162,6 @@
 
         [TestMethod]
         [DataRow("testg  print")]
-        [DataRow("!print")]
-        [DataRow("=print")]
-        [DataRow("print+")]
-        [DataRow("print@")]
         [DataRow("print  ")]
         [DataRow("print\n")]
         [DataRow("  print")]

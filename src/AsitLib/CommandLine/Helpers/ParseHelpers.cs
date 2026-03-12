@@ -16,7 +16,7 @@ namespace AsitLib.CommandLine
         //];
 
         internal static IReadOnlyList<char> s_invalidChars = [
-            '"', '\'', ',', '!',
+            '"', '\'', ',',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 

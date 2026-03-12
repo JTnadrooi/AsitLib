@@ -120,7 +120,25 @@ namespace AsitLib.CommandLine
         /// <param name="type"></param>
         /// <param name="name">The value of the <see cref="OptionInfo.Name"/> property.</param>
         /// <returns>A new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.</returns>
-        public static OptionInfo FromType(Type type, string name = NameForUnnamedOptions)
-            => new OptionInfo(type, name);
+        public static OptionInfo FromType(
+            Type type,
+            string name = NameForUnnamedOptions,
+            OptionPassingPolicies passingPolicies = OptionPassingPolicies.All,
+            object? implicitValue = null,
+            string? shorthand = null,
+            string? antiParameterName = null,
+            ValidationAttribute[]? validationAttributes = null)
+        {
+            if (implicitValue == DBNull.Value) throw new Exception($"{nameof(DBNull.Value)} is not valid as implicit value.");
+
+            return new OptionInfo(type, name)
+            {
+                PassingPolicies = passingPolicies,
+                _implicitValue = implicitValue,
+                Shorthand = shorthand,
+                AntiParameterName = antiParameterName,
+                ValidationAttributes = validationAttributes ?? Array.Empty<ValidationAttribute>()
+            };
+        }
     }
 }
