@@ -102,8 +102,57 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public object? GetValue(string token) => ParseHelpers.GetValue(token, this);
-        public object? GetValue(IReadOnlyList<string> tokens) => ParseHelpers.GetValue(tokens, this);
+        public object? GetValue(string token) => GetValue([token]);
+        public object? GetValue(IReadOnlyList<string> tokens)
+        {
+            object? GetValueImpl()
+            {
+                if (tokens.Count == 0)
+                {
+                    if (ImplicitValue is not null) return ImplicitValue;
+                    if (OptionType == typeof(bool)) return true;
+                    else throw new InvalidOperationException($"Cannot convert empty token to '{this}' type.");
+                }
+
+                if (OptionType.IsArray)
+                {
+                    Type elementType = OptionType.GetElementType()!;
+                    Array toretArray = Array.CreateInstance(elementType, tokens.Count);
+
+                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(FromType(elementType).GetValue([tokens[i]]), i);
+
+                    return toretArray;
+                }
+
+                if (tokens.Count > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
+
+                string token = tokens[0];
+
+                if (OptionType.IsEnum)
+                {
+                    if (int.TryParse(token, out int result)) return Enum.ToObject(OptionType, result);
+
+                    Dictionary<string, string> names = OptionType
+                        .GetFields(BindingFlags.Public | BindingFlags.Static)
+                        .Select(f => new KeyValuePair<string, string>(ParseHelpers.GetSignature(f), f.Name))
+                        .ToDictionary();
+
+                    foreach (KeyValuePair<string, string> kvp in names)
+                        if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(OptionType, kvp.Value);
+
+                    throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
+                }
+
+                return System.Convert.ChangeType(token, OptionType);
+            }
+
+            object? toret = GetValueImpl();
+
+            ThrowExceptionIfInvalidValue(toret);
+
+            return toret;
+        }
+
 
         public OptionPassingPolicies GetInheritedPassingPoliciesFromContext(CommandContext? context = null)
             => GetInheritedPassingPolicies(context?.Engine, context?.Command);

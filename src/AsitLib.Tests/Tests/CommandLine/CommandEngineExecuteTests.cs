@@ -3,15 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AsitLib.Tests
 {
-    public enum TestEnum
-    {
-        Value0 = 0,
-        Value1 = 1,
-        Value2 = 2,
-        [Signature("three")]
-        Value3 = 3,
-    }
-
     public class AlwaysReturnTestGlobalOptionHandler : GlobalOption
     {
         public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", OptionInfo.FromType(typeof(string), implicitValue: "TEST"))

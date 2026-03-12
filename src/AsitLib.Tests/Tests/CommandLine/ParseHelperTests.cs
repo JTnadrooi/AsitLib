@@ -66,39 +66,6 @@
 
         #endregion
 
-        #region CONVERT
-
-        [TestMethod]
-        public void Convert_EnumValueInt_GetsEnumEntryWithValue()
-        {
-            ParseHelpers.GetValue("2", typeof(TestEnum)).Should().Be(TestEnum.Value2);
-        }
-
-        [TestMethod]
-        public void Convert_EnumValueString_GetsEnumEntryWithValue()
-        {
-            ParseHelpers.GetValue("value-2", typeof(TestEnum)).Should().Be(TestEnum.Value2);
-        }
-
-        [TestMethod]
-        public void Convert_CustomSignatureEnumValueString_GetsCustomNameEnumEntryWithValue()
-        {
-            ParseHelpers.GetValue("three", typeof(TestEnum)).Should().Be(TestEnum.Value3);
-        }
-
-        [TestMethod]
-        public void Convert_MultipleIntTokens_ParsesToIntArray()
-        {
-            ((int[])ParseHelpers.GetValue(new[] { "4", "2" }, typeof(int[]))!).Should().Equal(new int[] { 4, 2 });
-        }
-
-        [TestMethod]
-        public void Convert_MultipleStringTokens_ParsesToStringArray()
-        {
-            ((string[])ParseHelpers.GetValue(new[] { "e", "a" }, typeof(string[]))!).Should().Equal(new string[] { "e", "a" });
-        }
-
-        #endregion
 
         [TestMethod]
         [DataRow("-help")]

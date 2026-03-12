@@ -77,7 +77,7 @@
             foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(globalOption))
                 {
-                    value = (T?)ParseHelpers.GetValue(argument.Tokens, globalOption.Option);
+                    value = (T?)globalOption.Option.GetValue(argument.Tokens);
                     return true;
                 }
             value = default;
