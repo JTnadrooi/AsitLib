@@ -1,4 +1,6 @@
-﻿namespace AsitLib.CommandLine
+﻿using System.Collections.Immutable;
+
+namespace AsitLib.CommandLine
 {
     public readonly struct ArgumentTarget
     {
@@ -51,24 +53,23 @@
     public sealed class Argument
     {
         public ArgumentTarget Target { get; }
-        public IReadOnlyList<string> Tokens { get; }
+        public ImmutableArray<string> Tokens { get; }
 
         public Argument(ArgumentTarget target, IReadOnlyList<string> tokens)
         {
             Target = target;
-            Tokens = tokens;
+            Tokens = tokens.ToImmutableArray();
         }
 
-        public bool TryGetSingle(out string? token) => (token = Tokens.SingleOrDefault()) is null;
-
-        public override string ToString() => $"{{Target: '{Target}', Tokens: [{Tokens.ToJoinedString(", ")}]}}";
+        public override string ToString() =>
+            $"{{Target: '{Target}', Tokens: [{string.Join(", ", Tokens)}]}}";
     }
 
     public sealed class CallInfo
     {
         public string CommandId { get; }
         public string SanitizedCommandId { get; }
-        public IReadOnlyList<Argument> Arguments { get; }
+        public ImmutableArray<Argument> Arguments { get; }
         public bool CallsGenericFlag { get; }
 
         public CallInfo(string commandId, IReadOnlyList<Argument> arguments, bool callsGenericFlag)
@@ -78,7 +79,7 @@
 
             CommandId = commandId;
             SanitizedCommandId = CommandId.TrimStart('-');
-            Arguments = arguments;
+            Arguments = arguments.ToImmutableArray();
             CallsGenericFlag = callsGenericFlag;
         }
 

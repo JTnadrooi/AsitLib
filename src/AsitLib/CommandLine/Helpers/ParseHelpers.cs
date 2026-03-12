@@ -118,18 +118,21 @@ namespace AsitLib.CommandLine
         /// <param name="call">The call information containing arguments to evaluate. This parameter is updated to remove arguments that target global options.</param>
         /// <param name="globalOptions">The array of global option handlers to check against the call arguments.</param>
         /// <returns>An array of unique <see cref="GlobalOption"/> instances that are targeted by the named arguments in the call.</returns>
-        public static GlobalOption[] ExtractGlobalOptions(ref CallInfo call, GlobalOption[] globalOptions)
+        public static GlobalOption[] ExtractGlobalOptions(ref CallInfo call, ReadOnlySpan<GlobalOption> globalOptions)
         {
             HashSet<GlobalOption> result = new HashSet<GlobalOption>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
             foreach (Argument arg in call.Arguments.Where(a => a.Target.UsesExplicitName))
-                foreach (GlobalOption flagHandler in globalOptions)
-                    if (arg.Target.TargetsFlag(flagHandler))
-                        if (!validArguments.Add(arg) || !result.Add(flagHandler))
+                for (int i = 0; i < globalOptions.Length; i++)
+                {
+                    GlobalOption globalOption = globalOptions[i];
+                    if (arg.Target.TargetsFlag(globalOption))
+                        if (!validArguments.Add(arg) || !result.Add(globalOption))
                         {
                             throw new InvalidOperationException("Duplicate argument to flag mapping.");
                         }
+                }
 
             call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToList(), call.CallsGenericFlag);
             return result.ToArray();
@@ -141,7 +144,7 @@ namespace AsitLib.CommandLine
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
         /// <param name="context">The command context, used for option inheritance policies.</param>
         /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
-        public static object?[] Conform(ref CallInfo call, OptionInfo[] options, CommandContext? context = null)
+        public static object?[] Conform(ref CallInfo call, ReadOnlySpan<OptionInfo> options, CommandContext? context = null)
         {
             object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -171,7 +174,7 @@ namespace AsitLib.CommandLine
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
                             if (option.OptionType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
                             if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
-                            if (arg.Tokens.Count != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
+                            if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
 
                             result[i] = false;
                             validArguments.Add(arg);
@@ -188,7 +191,7 @@ namespace AsitLib.CommandLine
                     else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
 
-                result[i] = option.Conform(matchingArgument.Tokens);
+                result[i] = option.Conform(matchingArgument.Tokens.AsSpan());
                 validArguments.Add(matchingArgument);
 
             Continue:;

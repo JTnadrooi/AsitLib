@@ -278,18 +278,18 @@ namespace AsitLib.CommandLine
         public CommandResult Execute(string args) => Execute(ParseHelpers.SplitWithRespectForQuotes(args));
         public CommandResult Execute(string[] args)
         {
-            CallInfo argsInfo = Parse(args);
-            if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
+            CallInfo call = Parse(args);
+            if (Commands.TryGetValue(call.CommandId, out CommandInfo? commandInfo))
             {
                 if (!commandInfo.IsEnabled) throw new InvalidOperationException("Cannot call disabled command.");
 
-                CommandContext context = new CommandContext(this, argsInfo, true, commandInfo);
-                object?[] conformed = ParseHelpers.Conform(ref argsInfo, commandInfo.GetOptions(), context);
-                GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref argsInfo, _globalOptions.Values.ToArray());
+                CommandContext context = new CommandContext(this, call, true, commandInfo);
+                object?[] conformed = ParseHelpers.Conform(ref call, commandInfo.GetOptions(), context);
+                GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref call, _globalOptions.Values.ToArray());
                 List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
                 toRunHooks.AddRange(_hooks.Values);
 
-                if (argsInfo.Arguments.Count > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{argsInfo.Arguments.ToJoinedString(", ")}].");
+                if (call.Arguments.Length > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{call.Arguments.ToJoinedString(", ")}].");
 
                 foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 
@@ -310,12 +310,12 @@ namespace AsitLib.CommandLine
 
                 return new CommandResult(this, returned);
             }
-            else if (argsInfo.CallsGenericFlag)
+            else if (call.CallsGenericFlag)
             {
-                if (Commands.ContainsKey(argsInfo.CommandId.TrimStart('-'))) throw new InvalidOperationException($"Command with id '{argsInfo.SanitizedCommandId}' cannot be used as generic flag.");
-                throw new InvalidOperationException($"Generic flag with ID '{argsInfo.CommandId}' not found.");
+                if (Commands.ContainsKey(call.CommandId.TrimStart('-'))) throw new InvalidOperationException($"Command with id '{call.SanitizedCommandId}' cannot be used as generic flag.");
+                throw new InvalidOperationException($"Generic flag with ID '{call.CommandId}' not found.");
             }
-            else throw new InvalidOperationException($"Command with ID '{argsInfo.CommandId}' not found.");
+            else throw new InvalidOperationException($"Command with ID '{call.CommandId}' not found.");
         }
 
         /// <summary>

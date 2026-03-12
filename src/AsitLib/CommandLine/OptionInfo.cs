@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -114,54 +115,48 @@ namespace AsitLib.CommandLine
         /// </summary>
         /// <param name="tokens">The tokens to convert.</param>
         /// <returns>The converted value, or <see cref="ImplicitValue"/> if <paramref name="tokens"/> is empty.</returns>
-        public object? Conform(IReadOnlyList<string> tokens)
+        public object? Conform(ReadOnlySpan<string> tokens)
         {
-            object? ConformImpl()
+            object? result;
+
+            string token = tokens[0];
+
+            if (tokens.Length == 0)
             {
-                if (tokens.Count == 0)
-                {
-                    if (ImplicitValue is not null) return ImplicitValue;
-                    if (OptionType == typeof(bool)) return true;
-                    else throw new InvalidOperationException($"Cannot convert empty token to '{this}' type.");
-                }
-
-                if (OptionType.IsArray)
-                {
-                    Type elementType = OptionType.GetElementType()!;
-                    Array toretArray = Array.CreateInstance(elementType, tokens.Count);
-
-                    for (int i = 0; i < tokens.Count; i++) toretArray.SetValue(FromType(elementType).Conform([tokens[i]]), i);
-
-                    return toretArray;
-                }
-
-                if (tokens.Count > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
-
-                string token = tokens[0];
-
-                if (OptionType.IsEnum)
-                {
-                    if (int.TryParse(token, out int result)) return Enum.ToObject(OptionType, result);
-
-                    Dictionary<string, string> names = OptionType
-                        .GetFields(BindingFlags.Public | BindingFlags.Static)
-                        .Select(f => new KeyValuePair<string, string>(ParseHelpers.GetSignature(f), f.Name))
-                        .ToDictionary();
-
-                    foreach (KeyValuePair<string, string> kvp in names)
-                        if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) return Enum.Parse(OptionType, kvp.Value);
-
-                    throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
-                }
-
-                return System.Convert.ChangeType(token, OptionType);
+                if (ImplicitValue is not null) result = ImplicitValue;
+                if (OptionType == typeof(bool)) result = true;
+                else throw new InvalidOperationException($"Cannot convert empty token to '{this}' type.");
             }
+            else if (OptionType.IsArray)
+            {
+                Type elementType = OptionType.GetElementType()!;
+                Array resultArray = Array.CreateInstance(elementType, tokens.Length);
 
-            object? toret = ConformImpl();
+                for (int i = 0; i < tokens.Length; i++) resultArray.SetValue(FromType(elementType).Conform([tokens[i]]), i);
 
-            ThrowExceptionIfInvalidValue(toret);
+                result = resultArray;
+            }
+            else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
+            else if (OptionType.IsEnum)
+            {
+                if (int.TryParse(token, out int intResult)) result = Enum.ToObject(OptionType, intResult);
 
-            return toret;
+                Dictionary<string, string> names = OptionType
+                    .GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Select(f => new KeyValuePair<string, string>(ParseHelpers.GetSignature(f), f.Name))
+                    .ToDictionary();
+
+                foreach (KeyValuePair<string, string> kvp in names)
+                    if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) result = Enum.Parse(OptionType, kvp.Value);
+
+                throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
+            }
+            else result = System.Convert.ChangeType(token, OptionType);
+
+
+            ThrowExceptionIfInvalidValue(result);
+
+            return result;
         }
 
 

@@ -77,7 +77,7 @@
             foreach (Argument argument in ArgumentsInfo.Arguments)
                 if (argument.Target.TargetsFlag(globalOption))
                 {
-                    value = (T?)globalOption.Option.Conform(argument.Tokens);
+                    value = (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());
                     return true;
                 }
             value = default;
