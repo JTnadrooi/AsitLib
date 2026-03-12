@@ -206,7 +206,7 @@ namespace AsitLib.CommandLine
         public static object? GetValue(IReadOnlyList<string> tokens, Type target) => GetValue(tokens, OptionInfo.FromType(target));
         public static object? GetValue(IReadOnlyList<string> tokens, OptionInfo target)
         {
-            object? GetValuePrivate()
+            object? GetValueImpl()
             {
                 if (tokens.Count == 0)
                 {
@@ -247,7 +247,7 @@ namespace AsitLib.CommandLine
                 return System.Convert.ChangeType(token, target.OptionType);
             }
 
-            object? toret = GetValuePrivate();
+            object? toret = GetValueImpl();
 
             target.ThrowExceptionIfInvalidValue(toret);
 
