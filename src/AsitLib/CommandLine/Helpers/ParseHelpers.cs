@@ -134,7 +134,7 @@ namespace AsitLib.CommandLine
                         }
                 }
 
-            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToList(), call.CallsGenericFlag);
+            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToArray());
             return result.ToArray();
         }
 
@@ -197,7 +197,7 @@ namespace AsitLib.CommandLine
             Continue:;
             }
 
-            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToList(), call.CallsGenericFlag);
+            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToArray());
 
             return result;
         }

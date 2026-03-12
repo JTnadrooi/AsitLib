@@ -72,8 +72,10 @@ namespace AsitLib.CommandLine
         public ImmutableArray<Argument> Arguments { get; }
         public bool CallsGenericFlag { get; }
 
-        public CallInfo(string commandId, IReadOnlyList<Argument> arguments, bool callsGenericFlag)
+        public CallInfo(string commandId, IReadOnlyList<Argument> arguments)
         {
+            bool callsGenericFlag = commandId.StartsWith("-");
+
             if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Arguments call command as generic flag, but argument count is not 0.");
             if (callsGenericFlag && !ParseHelpers.IsValidGenericFlagCall(commandId)) throw new CommandException("Invalid generic flag call.");
 

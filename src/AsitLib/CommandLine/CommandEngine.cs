@@ -218,7 +218,6 @@ namespace AsitLib.CommandLine
             bool noMoreParams = false;
             string token = string.Empty;
             string commandId = args[0];
-            bool callsGenericFlag = commandId.StartsWith('-');
 
             void PushArgument()
             {
@@ -254,7 +253,7 @@ namespace AsitLib.CommandLine
 
             if (currentName is not null) PushArgument();
 
-            CallInfo toret = new CallInfo(args[0], outArgs.ToArray(), callsGenericFlag);
+            CallInfo toret = new CallInfo(args[0], outArgs);
 
             if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => !a.Target.UsesExplicitName) > 0)
             {
