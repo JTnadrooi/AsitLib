@@ -119,13 +119,11 @@ namespace AsitLib.CommandLine
         {
             object? result;
 
-            string token = tokens[0];
-
             if (tokens.Length == 0)
             {
                 if (ImplicitValue is not null) result = ImplicitValue;
-                if (OptionType == typeof(bool)) result = true;
-                else throw new InvalidOperationException($"Cannot convert empty token to '{this}' type.");
+                else if (OptionType == typeof(bool)) result = true;
+                else throw new InvalidOperationException($"Cannot convert empty token to '{this.OptionType}' type.");
             }
             else if (OptionType.IsArray)
             {
@@ -139,20 +137,30 @@ namespace AsitLib.CommandLine
             else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
             else if (OptionType.IsEnum)
             {
-                if (int.TryParse(token, out int intResult)) result = Enum.ToObject(OptionType, intResult);
+                if (int.TryParse(tokens[0], out int intResult)) result = Enum.ToObject(OptionType, intResult);
+                else
+                {
+                    bool foundEnumEntry = false;
+                    result = null; // this either changes or an error is thrown.
 
-                Dictionary<string, string> names = OptionType
-                    .GetFields(BindingFlags.Public | BindingFlags.Static)
-                    .Select(f => new KeyValuePair<string, string>(ParseHelpers.GetSignature(f), f.Name))
-                    .ToDictionary();
+                    Dictionary<string, string> names = OptionType
+                        .GetFields(BindingFlags.Public | BindingFlags.Static)
+                        .Select(f => new KeyValuePair<string, string>(ParseHelpers.GetSignature(f), f.Name))
+                        .ToDictionary();
 
-                foreach (KeyValuePair<string, string> kvp in names)
-                    if (string.Equals(kvp.Key, token, StringComparison.OrdinalIgnoreCase)) result = Enum.Parse(OptionType, kvp.Value);
+                    foreach (KeyValuePair<string, string> kvp in names)
+                        if (string.Equals(kvp.Key, tokens[0], StringComparison.OrdinalIgnoreCase))
+                        {
+                            result = Enum.Parse(OptionType, kvp.Value);
+                            foundEnumEntry = true;
+                        }
 
-                throw new ArgumentException($"Invalid enum value '{token}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(token));
+                    if (!foundEnumEntry)
+                        throw new ArgumentException($"Invalid enum value '{tokens[0]}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(tokens));
+                }
+
             }
-            else result = System.Convert.ChangeType(token, OptionType);
-
+            else result = System.Convert.ChangeType(tokens[0], OptionType);
 
             ThrowExceptionIfInvalidValue(result);
 
