@@ -15,22 +15,26 @@ namespace AsitLib.CommandLine
         //    '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         //];
 
-        public static IReadOnlyList<char> s_invalidChars = [
+        internal static IReadOnlyList<char> s_invalidChars = [
             '"', '\'', ',', '!',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
-        public static IReadOnlyList<char> s_invalidStartChars = [
+        internal static IReadOnlyList<char> s_invalidStartChars = [
             '-', ' ',
         ];
 
-        public static bool IsValidGenericFlagCall(string signature) // maybe make signature struct
+        /// <summary>
+        /// Determines whether the specified <paramref name="signature"/> is valid as a generic flag.
+        /// </summary>
+        /// <returns><see langword="true"/> if the signature is valid as a generic flag; otherwise, <see langword="false"/>.</returns>
+        public static bool IsValidGenericFlagCall(string signature)
         {
             string sanitized = signature.TrimStart('-');
             return (sanitized.Length == 1 && signature.Length - sanitized.Length == 1) || (sanitized.Length > 1 && signature.Length - sanitized.Length == 2);
         }
 
-        public static string GetGenericFlagSignature(string signature) // maybe make signature struct
+        public static string GetGenericFlagSignature(string signature)
         {
             if (IsValidGenericFlagCall(signature)) throw new InvalidOperationException("'signature' is already a valid generic flag signature.");
 
@@ -40,7 +44,7 @@ namespace AsitLib.CommandLine
 
         public static string GetSignature(ParameterInfo parameterInfo)
         {
-            if (parameterInfo.Name == null) throw new InvalidOperationException("Cannot get signature from return parameter.");
+            if (parameterInfo.Name is null) throw new InvalidOperationException("Cannot get signature from return parameter.");
 
             SignatureAttribute? a = parameterInfo.GetCustomAttribute<SignatureAttribute>();
             return a is null ? GetSignature(parameterInfo.Name) : a.Name;
@@ -51,6 +55,8 @@ namespace AsitLib.CommandLine
             SignatureAttribute? a = memberInfo.GetCustomAttribute<SignatureAttribute>();
             return a is null ? GetSignature(memberInfo.Name) : a.Name;
         }
+
+        public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
         internal static void ThrowIfInvalidName(string name, bool allowSpace, [CallerArgumentExpression("name")] string? valueName = "Input")
         {
@@ -67,9 +73,8 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
-        public static string[] Split(string str)
+        public static string[] SplitWithRespectForQuotes(string str)
         {
             List<string> result = new List<string>();
             StringBuilder sb = new StringBuilder();
@@ -107,24 +112,36 @@ namespace AsitLib.CommandLine
             return result.ToArray();
         }
 
-        public static GlobalOption[] ExtractFlags(ref ArgumentsInfo argsInfo, GlobalOption[] flagHandlers)
+        /// <summary>
+        /// Extracts the <see cref="GlobalOption"/> instances that listen to the specified <paramref name="call"/>.
+        /// </summary>
+        /// <param name="call">The call information containing arguments to evaluate. This parameter is updated to remove arguments that target global options.</param>
+        /// <param name="globalOptions">The array of global option handlers to check against the call arguments.</param>
+        /// <returns>An array of unique <see cref="GlobalOption"/> instances that are targeted by the named arguments in the call.</returns>
+        public static GlobalOption[] ExtractGlobalOptions(ref CallInfo call, GlobalOption[] globalOptions)
         {
-            HashSet<GlobalOption> toret = new HashSet<GlobalOption>();
+            HashSet<GlobalOption> result = new HashSet<GlobalOption>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
-            foreach (Argument arg in argsInfo.Arguments.Where(a => a.Target.UsesExplicitName))
-                foreach (GlobalOption flagHandler in flagHandlers)
+            foreach (Argument arg in call.Arguments.Where(a => a.Target.UsesExplicitName))
+                foreach (GlobalOption flagHandler in globalOptions)
                     if (arg.Target.TargetsFlag(flagHandler))
-                        if (!validArguments.Add(arg) || !toret.Add(flagHandler))
+                        if (!validArguments.Add(arg) || !result.Add(flagHandler))
                         {
-                            throw new Exception();
+                            throw new InvalidOperationException("Duplicate argument to flag mapping.");
                         }
 
-            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList(), argsInfo.CallsGenericFlag);
-            return toret.ToArray();
+            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToList(), call.CallsGenericFlag);
+            return result.ToArray();
         }
 
-        public static object?[] Conform(ref ArgumentsInfo argsInfo, OptionInfo[] options, CommandContext? context = null)
+        /// <summary>
+        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.GetValue(IReadOnlyList{string})"/>.
+        /// </summary>
+        /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
+        /// <param name="context">The command context, used for option inheritance policies.</param>
+        /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
+        public static object?[] Conform(ref CallInfo call, OptionInfo[] options, CommandContext? context = null)
         {
             object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -138,7 +155,7 @@ namespace AsitLib.CommandLine
 
                 option.ThrowExceptionIfNoName();
 
-                foreach (Argument arg in argsInfo.Arguments)
+                foreach (Argument arg in call.Arguments)
                     if ((arg.Target.OptionIndex == i) // positional.
                         || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.GetInheritedPassingPoliciesFromContext(context).HasFlag(OptionPassingPolicies.Named)) // longform.
                         || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.PassingPolicies.HasFlag(OptionPassingPolicies.Named))) // shorthand.
@@ -148,7 +165,7 @@ namespace AsitLib.CommandLine
                     }
 
                 if (option.AntiParameterName is not null)
-                    foreach (Argument arg in argsInfo.Arguments)
+                    foreach (Argument arg in call.Arguments)
                         if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (option.AntiParameterName ?? $"no-{option.Name}"))
                         {
                             if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
@@ -163,28 +180,26 @@ namespace AsitLib.CommandLine
 
                 if (matchingArgument is null) // no matching argument found.
                 {
-                    if (option.OptionType == typeof(CommandContext))
-                    {
-                        result[i] = context ?? throw new CommandException("Cannot inject engine when engine is not passed to Conform function.");
-                        goto Continue;
-                    }
-                    else if (option.HasDefaultValue) // but has default value, so set default value.
+                    if (option.HasDefaultValue) // but has default value, so set default value.
                     {
                         result[i] = option.DefaultValue;
                         goto Continue;
                     }
                     else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
                 }
+
                 result[i] = option.GetValue(matchingArgument.Tokens);
                 validArguments.Add(matchingArgument);
 
             Continue:;
             }
 
-            argsInfo = new ArgumentsInfo(argsInfo.CommandId, argsInfo.Arguments.Except(validArguments).ToList(), argsInfo.CallsGenericFlag);
+            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToList(), call.CallsGenericFlag);
 
             return result;
         }
+
+        #region CASTING
 
         public static object? GetValue(string token, Type target) => GetValue([token], target);
         public static object? GetValue(string token, OptionInfo target) => GetValue([token], target);
@@ -238,5 +253,7 @@ namespace AsitLib.CommandLine
 
             return toret;
         }
+
+        #endregion
     }
 }

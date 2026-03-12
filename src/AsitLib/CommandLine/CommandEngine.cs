@@ -207,7 +207,7 @@ namespace AsitLib.CommandLine
 
         #endregion
 
-        public ArgumentsInfo Parse(string[] args)
+        public CallInfo Parse(string[] args)
         {
             if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
 
@@ -254,7 +254,7 @@ namespace AsitLib.CommandLine
 
             if (currentName is not null) PushArgument();
 
-            ArgumentsInfo toret = new ArgumentsInfo(args[0], outArgs.ToArray(), callsGenericFlag);
+            CallInfo toret = new CallInfo(args[0], outArgs.ToArray(), callsGenericFlag);
 
             if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => !a.Target.UsesExplicitName) > 0)
             {
@@ -275,17 +275,17 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public CommandResult Execute(string args) => Execute(ParseHelpers.Split(args));
+        public CommandResult Execute(string args) => Execute(ParseHelpers.SplitWithRespectForQuotes(args));
         public CommandResult Execute(string[] args)
         {
-            ArgumentsInfo argsInfo = Parse(args);
+            CallInfo argsInfo = Parse(args);
             if (Commands.TryGetValue(argsInfo.CommandId, out CommandInfo? commandInfo))
             {
                 if (!commandInfo.IsEnabled) throw new InvalidOperationException("Cannot call disabled command.");
 
                 CommandContext context = new CommandContext(this, argsInfo, true, commandInfo);
                 object?[] conformed = ParseHelpers.Conform(ref argsInfo, commandInfo.GetOptions(), context);
-                GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractFlags(ref argsInfo, _globalOptions.Values.ToArray());
+                GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref argsInfo, _globalOptions.Values.ToArray());
                 List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
                 toRunHooks.AddRange(_hooks.Values);
 

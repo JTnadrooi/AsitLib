@@ -2,7 +2,7 @@
 {
     public sealed class CommandContext
     {
-        public ArgumentsInfo ArgumentsInfo { get; }
+        public CallInfo ArgumentsInfo { get; }
         public CommandEngine Engine { get; }
         public CommandInfo Command { get; }
         public ExecutingContextFlags Flags { get; set; }
@@ -10,7 +10,7 @@
 
         private List<Func<object?>> _funcs;
 
-        internal CommandContext(CommandEngine engine, ArgumentsInfo argumentsInfo, bool preCommand, CommandInfo command)
+        internal CommandContext(CommandEngine engine, CallInfo argumentsInfo, bool preCommand, CommandInfo command)
         {
             ArgumentsInfo = argumentsInfo;
             Engine = engine;

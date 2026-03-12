@@ -52,7 +52,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_NoArguments()
         {
-            ArgumentsInfo parsed = Engine.Parse(["cmd"]);
+            CallInfo parsed = Engine.Parse(["cmd"]);
 
             parsed.Arguments.Should().BeEmpty();
             parsed.CommandId.Should().Be("cmd");
@@ -61,7 +61,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_PositionalArguments()
         {
-            ArgumentsInfo parsed = Engine.Parse(["cmd", "val1", "val2"]);
+            CallInfo parsed = Engine.Parse(["cmd", "val1", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
 
@@ -77,7 +77,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_NamedArguments()
         {
-            ArgumentsInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1_2", "--arg2", "val2"]);
+            CallInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1_2", "--arg2", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
 
@@ -93,7 +93,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_PositionalAndNamedArguments()
         {
-            ArgumentsInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
+            CallInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
 
@@ -119,7 +119,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             CommandInfo info = new DummyCommandInfo("cmdg cmd");
             Engine.AddCommand(info);
 
-            ArgumentsInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
+            CallInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
 
             parsed.CommandId.Should().Be("cmdg cmd");
 
@@ -135,7 +135,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             CommandInfo info = new DummyCommandInfo("cmdg cmd");
             Engine.AddCommand(info);
 
-            ArgumentsInfo parsed = Engine.Parse(["cmdg", "--arg1", "val1"]);
+            CallInfo parsed = Engine.Parse(["cmdg", "--arg1", "val1"]);
 
             parsed.CommandId.Should().Be("cmdg");
 

@@ -30,38 +30,38 @@
         [TestMethod]
         public void Split_SimpleWords_SplitsByWhitespace()
         {
-            ParseHelpers.Split("one two three").Should().Equal(new string[] { "one", "two", "three" });
+            ParseHelpers.SplitWithRespectForQuotes("one two three").Should().Equal(new string[] { "one", "two", "three" });
         }
 
         [TestMethod]
         public void Split_QuotedString_TreatsQuotesAsOneToken()
         {
-            ParseHelpers.Split("one \"two three\" four").Should().Equal(new string[] { "one", "two three", "four" });
+            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" four").Should().Equal(new string[] { "one", "two three", "four" });
         }
 
         [TestMethod]
         public void Split_EscapedQuote_HandlesProperly()
         {
-            ParseHelpers.Split("one \\\"two three\\\" four").Should().Equal(new string[] { "one", "\"two", "three\"", "four" });
+            ParseHelpers.SplitWithRespectForQuotes("one \\\"two three\\\" four").Should().Equal(new string[] { "one", "\"two", "three\"", "four" });
         }
 
         [TestMethod]
         public void Split_ExtraSpaces_IgnoresThemOutsideQuotes()
         {
-            ParseHelpers.Split("  one   two  ").Should().Equal(new string[] { "one", "two" });
-            ParseHelpers.Split("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "   " });
+            ParseHelpers.SplitWithRespectForQuotes("  one   two  ").Should().Equal(new string[] { "one", "two" });
+            ParseHelpers.SplitWithRespectForQuotes("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "   " });
         }
 
         [TestMethod]
         public void Split_EmptyString_ReturnsEmptyArray()
         {
-            ParseHelpers.Split(string.Empty).Should().Equal(Array.Empty<string>());
+            ParseHelpers.SplitWithRespectForQuotes(string.Empty).Should().Equal(Array.Empty<string>());
         }
 
         [TestMethod]
         public void Split_Single_ReturnsInput()
         {
-            ParseHelpers.Split("hello").Should().Equal(new string[] { "hello" });
+            ParseHelpers.SplitWithRespectForQuotes("hello").Should().Equal(new string[] { "hello" });
         }
 
         #endregion
