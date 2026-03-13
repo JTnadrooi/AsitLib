@@ -28,7 +28,7 @@ namespace AsitLib.CommandLine
         public string KeyValueSeperator { get; set; }
         public ICommandInfoFactory? DefaultInfoFactory { get; set; }
 
-        private readonly Dictionary<string, List<string>> _srcMap;
+        private readonly Dictionary<string, List<string>> _providerMap;
         private readonly Dictionary<string, List<string>> _groupMap;
         private readonly Dictionary<string, GlobalOption> _globalOptions;
         private readonly Dictionary<string, CommandProvider> _providers;
@@ -60,7 +60,7 @@ namespace AsitLib.CommandLine
             NewLine = "\n";
             KeyValueSeperator = "=";
 
-            _srcMap = new Dictionary<string, List<string>>();
+            _providerMap = new Dictionary<string, List<string>>();
 
             AddCommand((string? commandId = null) =>
             {
@@ -85,11 +85,14 @@ namespace AsitLib.CommandLine
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine AddCommand(CommandInfo info)
         {
+            #region CHECKS
+
             info.ThrowIfInvalid();
 
             foreach (string id in info.Ids)
             {
-                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this)) throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
+                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this))
+                    throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
             }
 
             if (info.HasGroup)
@@ -97,6 +100,8 @@ namespace AsitLib.CommandLine
                 if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this))
                     throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
             }
+
+            #endregion
 
             foreach (string id in info.Ids)
                 if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
@@ -111,9 +116,9 @@ namespace AsitLib.CommandLine
                     throw new InvalidOperationException("Command is provided by a provider with a name equal to a different-type already registered provider.");
 
                 _providers.TryAdd(provider.Name, provider);
-                _srcMap.TryAdd(provider.Name, new List<string>());
+                _providerMap.TryAdd(provider.Name, new List<string>());
 
-                _srcMap[provider.Name].Add(info.Id);
+                _providerMap[provider.Name].Add(info.Id);
             }
 
             if (info.HasGroup)
@@ -127,35 +132,35 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RemoveCommand(string id)
         {
-            if (!_uniqueCommands.ContainsKey(id)) throw new KeyNotFoundException($"Command with MAIN ID '{id}' was not found.");
+            if (!_commands.ContainsKey(id)) throw new KeyNotFoundException($"Command with Id '{id}' was not found.");
 
-            CommandInfo info = _uniqueCommands[id];
+            CommandInfo commandToRemove = _commands[id];
 
-            foreach (string aliasId in _uniqueCommands[id].Ids)
+            foreach (string commandId in commandToRemove.Ids)
             {
-                _commands.Remove(aliasId);
+                _commands.Remove(commandId);
             }
 
-            if (info.Provider is not null)
+            if (commandToRemove.Provider is not null)
             {
-                CommandProvider provider = info.Provider;
+                CommandProvider provider = commandToRemove.Provider;
 
-                _srcMap[provider.Name].Remove(info.Id);
+                _providerMap[provider.Name].Remove(commandToRemove.Id);
 
-                if (_srcMap.Count == 0)
+                if (_providerMap[provider.Name].Count == 0)
                 {
-                    _srcMap.Remove(provider.Name);
+                    _providerMap.Remove(provider.Name);
                     _providers.Remove(provider.Name);
                 }
             }
 
-            if (info.HasGroup)
+            if (commandToRemove.HasGroup)
             {
-                _groupMap[info.Group!].Remove(info.Id);
-                if (_groupMap.Count == 0) _groupMap.Remove(info.Group!);
+                _groupMap[commandToRemove.Group!].Remove(commandToRemove.Id);
+                if (_groupMap[commandToRemove.Group!].Count == 0) _groupMap.Remove(commandToRemove.Group!);
             }
 
-            _uniqueCommands.Remove(id);
+            _uniqueCommands.Remove(commandToRemove.Id);
 
             return this;
         }
@@ -174,9 +179,9 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RemoveProvider(string name)
         {
-            foreach (string id in _srcMap[name])
+            foreach (string id in _providerMap[name])
                 RemoveCommand(id);
-            _srcMap.Remove(name);
+            _providerMap.Remove(name);
             return this;
         }
 
@@ -266,7 +271,7 @@ namespace AsitLib.CommandLine
         {
             List<CommandInfo> providerCommands = new List<CommandInfo>();
 
-            foreach (string id in _srcMap[name])
+            foreach (string id in _providerMap[name])
                 if (_uniqueCommands.TryGetValue(id, out CommandInfo? commandInfo))
                     providerCommands.Add((CommandInfo)commandInfo);
 
