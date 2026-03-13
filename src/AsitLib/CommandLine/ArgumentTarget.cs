@@ -1,0 +1,50 @@
+﻿namespace AsitLib.CommandLine
+{
+    public readonly struct ArgumentTarget
+    {
+        public readonly string? OptionToken { get; }
+        public readonly int? OptionIndex { get; }
+        public readonly bool IsShorthand => UsesExplicitName && !OptionToken!.StartsWith("--");
+        public readonly bool IsLongForm => UsesExplicitName && OptionToken!.StartsWith("--");
+        public readonly string? SanitizedOptionToken => OptionToken?.TrimStart('-');
+
+        public bool UsesExplicitName => OptionToken is not null;
+
+        public ArgumentTarget(string optionName)
+        {
+            OptionToken = optionName;
+            OptionIndex = null;
+        }
+
+        public ArgumentTarget(int optionIndex)
+        {
+            if (optionIndex < 0) throw new ArgumentException(nameof(optionIndex));
+
+            OptionToken = null;
+            OptionIndex = optionIndex;
+        }
+
+        public bool TargetsFlag(GlobalOption flagHandler)
+            => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedOptionToken) ||
+                (IsLongForm && flagHandler.LongFormId == SanitizedOptionToken);
+
+        public override string ToString() => UsesExplicitName ? OptionToken! : OptionIndex!.ToString()!;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is ArgumentTarget other) return (OptionToken == other.OptionToken && OptionIndex == other.OptionIndex);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 17;
+                if (OptionToken is not null) hashCode = hashCode * 23 + OptionToken.GetHashCode();
+                if (OptionIndex.HasValue) hashCode = hashCode * 23 + OptionIndex.GetHashCode();
+                return hashCode;
+            }
+        }
+    }
+}
