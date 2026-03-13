@@ -72,17 +72,17 @@ namespace AsitLib.CommandLine
                 sb.Length -= NewLine.Length;
 
                 return sb.ToString();
-            }, "help", "Prints help.", ["?", "h"], isGenericFlag: true);
+            }, "help", "Prints help.", ["?", "h"]);
 
             AddGlobalOption(new HelpGlobalOption());
         }
 
         #region ADD_REMOVE
 
-        //public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null, bool isGenericFlag = false)
+        //public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null)
         //    => AddCommand(MethodCommandInfo);
-        public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null, bool isGenericFlag = false)
-            => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate, isGenericFlag: isGenericFlag));
+        public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
+            => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine AddCommand(CommandInfo info)
         {
             info.ThrowIfInvalid();
@@ -133,7 +133,6 @@ namespace AsitLib.CommandLine
 
             foreach (string aliasId in _uniqueCommands[id].Ids)
             {
-                if (info.IsGenericFlag) _commands.Remove(ParseHelpers.GetGenericFlagSignature(aliasId));
                 _commands.Remove(aliasId);
             }
 

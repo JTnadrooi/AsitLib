@@ -4,10 +4,10 @@
     {
         public OptionInfo[] Options { get; }
 
-        public DummyCommandInfo(string id, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
-            : this(new[] { id }, description, isGenericFlag, options) { }
-        public DummyCommandInfo(string[] ids, string? description = null, bool isGenericFlag = false, OptionInfo[]? options = null)
-            : base(ids, description ?? "No desc.", isGenericFlag)
+        public DummyCommandInfo(string id, string? description = null, OptionInfo[]? options = null)
+            : this(new[] { id }, description, options) { }
+        public DummyCommandInfo(string[] ids, string? description = null, OptionInfo[]? options = null)
+            : base(ids, description ?? "No desc.")
         {
             Options = options ?? Array.Empty<OptionInfo>();
         }
@@ -176,15 +176,6 @@
         public void Contruct_InvalidIds_ThrowsEx(string name)
         {
             Invoking(() => new DummyCommandInfo(name)).Should().Throw<InvalidOperationException>();
-        }
-
-        [TestMethod]
-        public void RawIds_IsSameAsInputIds()
-        {
-            string[] inputIds = ["a", "b", "c"];
-
-            CommandInfo info = new DummyCommandInfo(inputIds);
-            info.RawIds.Should().Equal(inputIds);
         }
     }
 }

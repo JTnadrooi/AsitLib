@@ -20,7 +20,7 @@ namespace AsitLib.CommandLine
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
-        internal static IReadOnlyList<char> s_invalidStartChars = [
+        internal static IReadOnlyList<char> s_invalidNameStartChars = [
             '-', ' ',
         ];
 
@@ -58,21 +58,26 @@ namespace AsitLib.CommandLine
 
         public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
-        internal static void ThrowIfInvalidName(string name, bool allowSpace, [CallerArgumentExpression("name")] string? valueName = "Input")
+        internal static void ThrowIfInvalidName(string name, [CallerArgumentExpression("name")] string? valueName = "Input")
         {
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"'{valueName}' '{name}' is null or empty/whitespace.");
-            if (!allowSpace && name.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{name}' contains a space.");
+            if (name.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{name}' contains a space.");
+            if (name == string.Empty) throw new InvalidOperationException($"'{valueName}' is an empty string.");
+            if (s_invalidNameStartChars.TryGetFirst(c => name.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{name}' starts with invalid character '{startChar}'.");
+        }
+
+        internal static void ThrowIfInvalidId(string name, [CallerArgumentExpression("name")] string? valueName = "Input")
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"'{valueName}' '{name}' is null or empty/whitespace.");
             if (name == string.Empty) throw new InvalidOperationException($"'{valueName}' is an empty string.");
 
             foreach (string part in name.Split(' '))
             {
                 if (part == string.Empty) throw new InvalidOperationException($"{valueName} '{name}' has invalid spaces.");
                 if (s_invalidChars.TryGetFirst(c => part.Contains(c), out char containedChar)) throw new InvalidOperationException($"{valueName} '{name}' contains invalid character '{containedChar}'.");
-                if (s_invalidStartChars.TryGetFirst(c => part.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{name}' starts with invalid character '{startChar}'.");
                 if (part.StartsWith('-') || part.EndsWith('-')) throw new InvalidOperationException($"{valueName} '{name}' cannot start or end with a dash.");
             }
         }
-
 
         public static string[] SplitWithRespectForQuotes(string str)
         {

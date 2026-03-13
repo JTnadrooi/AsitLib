@@ -45,7 +45,7 @@ namespace AsitLib.Tests
             return $"Hi, {yourName}!";
         }
 
-        [Command("desc", IsGenericFlag = true, Aliases = ["o", "basic"])]
+        [Command("desc", Aliases = ["o", "basic"])]
         public void Void()
         {
 
@@ -257,24 +257,6 @@ namespace AsitLib.Tests
         public void Execute_WithDataAnnotatedInvalidCommand_ThrowsEx()
         {
             Invoking(() => Engine.Execute("validation 11")).Should().Throw<CommandException>();
-        }
-
-        [TestMethod]
-        public void Execute_GenericFlag()
-        {
-            Engine.Execute("void");
-            Engine.Execute("--void");
-            Engine.Execute("--basic");
-            Engine.Execute("-o");
-        }
-
-        [TestMethod]
-        public void Execute_InvalidGenericFlag_ThrowsEx()
-        {
-            Engine.Execute("void");
-            Engine.Execute("--void");
-            Engine.Execute("--basic");
-            Engine.Execute("-o");
         }
 
         [TestMethod]

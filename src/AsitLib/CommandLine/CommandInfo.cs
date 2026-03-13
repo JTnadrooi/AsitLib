@@ -8,8 +8,8 @@ namespace AsitLib.CommandLine
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate, bool isGenericFlag = false)
-            : base(ids, description, @delegate.Method, isGenericFlag: isGenericFlag)
+        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate)
+            : base(ids, description, @delegate.Method)
         {
             Target = @delegate.Target;
             Delegate = @delegate;
@@ -22,16 +22,16 @@ namespace AsitLib.CommandLine
         public object? Target { get; init; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo, bool isGenericFlag = false)
-            : base(ids, description, isGenericFlag)
+        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo)
+            : base(ids, description)
         {
             MethodInfo = methodInfo;
 
             if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
 
-        public static MethodCommandInfo FromProvider(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider, bool isGenericFlag = false)
-            => new MethodCommandInfo(ids, description, methodInfo, isGenericFlag)
+        public static MethodCommandInfo FromProvider(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider)
+            => new MethodCommandInfo(ids, description, methodInfo)
             {
                 Target = provider,
             };
@@ -61,7 +61,7 @@ namespace AsitLib.CommandLine
                     break;
             }
 
-            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo, attribute.IsGenericFlag)
+            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo)
             {
                 Provider = provider,
                 PassingPolicies = attribute.PassingPolicies,
@@ -87,8 +87,6 @@ namespace AsitLib.CommandLine
         /// Gets a <see cref="HashSet{T}"/> containing all strings this command belongs to. This includes generic flags, aliasses, etc.
         /// </summary>
         public IReadOnlyList<string> Ids { get; }
-
-        public IReadOnlyList<string> RawIds { get; }
 
         /// <summary>
         /// Gets if the command represented by this instance has aliases. Generic flag ids count as aliases.
@@ -117,15 +115,9 @@ namespace AsitLib.CommandLine
         /// </summary>
         public string Description { get; }
 
-        /// <summary>
-        /// Gets if the command can be used as a generic flag. 
-        /// If <see langword="true"/>, the command can be invoked by prepending any of the <see cref="Ids"/> with a single dash for <see cref="Ids"/> consisting of a single character, or with two dashes for longer <see cref="Ids"/>.
-        /// </summary>
-        public bool IsGenericFlag { get; }
-
         public bool IsEnabled { get; set; }
 
-        public CommandInfo(string[] ids, string description, bool isGenericFlag = false)
+        public CommandInfo(string[] ids, string description)
         {
             ArgumentNullException.ThrowIfNull(ids);
             ArgumentNullException.ThrowIfNull(description);
@@ -134,34 +126,28 @@ namespace AsitLib.CommandLine
 
             string? group = null;
             string mainId = ids[0];
-            List<string> additionalIds = new List<string>();
             HashSet<string> seen = new HashSet<string>();
 
             foreach (string id in ids)
             {
-                ParseHelpers.ThrowIfInvalidName(id, true);
+                ParseHelpers.ThrowIfInvalidId(id);
 
                 if (!seen.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 
                 switch (id.Count(c => c == ' '))
                 {
-                    case 0: break;
                     case 1:
                         string idGroup = id.Split(' ')[0];
                         group ??= idGroup;
                         if (group != idGroup) throw new InvalidOperationException($"Command aliasses for command '{mainId}' use differing groups.");
                         break;
                     case > 1:
-                        if (id.Contains("  ")) throw new InvalidOperationException($"Command cannot have double spaces; '{id}'.");
-                        else throw new InvalidOperationException($"Nested command subgroups are invalid.");
+                        throw new InvalidOperationException($"Nested command subgroups are invalid.");
                 }
-                if (isGenericFlag) additionalIds.Add(ParseHelpers.GetGenericFlagSignature(id));
             }
 
-            RawIds = ids.ToArray();
-            Ids = ArrayHelpers.Combine((string[])RawIds, additionalIds.ToArray());
+            Ids = ids.ToArray();
             Description = description;
-            IsGenericFlag = isGenericFlag;
             Group = group;
             IsEnabled = true;
         }
@@ -173,7 +159,7 @@ namespace AsitLib.CommandLine
         {
             List<InvalidReason> invalidReasons = new List<InvalidReason>();
 
-            if (IsGenericFlag && GetOptions().Count(o => !o.HasDefaultValue) > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
+            //if (HasGenericFlagId && GetOptions().Count(o => !o.HasDefaultValue) > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
 
             return invalidReasons.ToArray();
         }

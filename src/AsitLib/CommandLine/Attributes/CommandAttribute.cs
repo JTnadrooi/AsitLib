@@ -22,8 +22,6 @@
         /// </summary>
         public string[] Aliases { get; init; }
 
-        public bool IsGenericFlag { get; init; }
-
         public OptionPassingPolicies PassingPolicies { get; init; }
 
         /// <summary>
