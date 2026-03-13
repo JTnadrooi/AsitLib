@@ -49,12 +49,7 @@ namespace AsitLib.Tests
         public void Execute_NoValueAntiArgument_ActsAsFalse()
         {
             AssertExecute("Tv.", "tv --no-color");
-        }
-
-        [TestMethod]
-        public void Execute_NoValueCustomAntiArgument_ActsAsFalse()
-        {
-            AssertExecute("Tv.", "tv-enable --disable-color");
+            AssertExecute("Tv.", "tv --disable-color");
         }
 
         [TestMethod]
@@ -66,7 +61,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_DuplicateAntiArguments_ThrowsEx()
         {
-            Invoking(() => AssertExecute("Tv.", "tv-enable --color false --disable-color")).Should().Throw<CommandException>();
+            Invoking(() => AssertExecute("Tv.", "tv --color false --disable-color")).Should().Throw<CommandException>();
         }
 
         [TestMethod]

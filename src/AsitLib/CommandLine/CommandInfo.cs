@@ -61,7 +61,14 @@ namespace AsitLib.CommandLine
                     break;
             }
 
-            return new MethodCommandInfo(ArrayHelpers.Combine(cmdId, attribute.Aliases), attribute.Description, methodInfo)
+            List<string> commandIds = new List<string>([cmdId]);
+            commandIds.AddRange(attribute.Aliases);
+            if (attribute.IsGenericFlag)
+            {
+                commandIds.AddRange(commandIds.Select(id => ParseHelpers.GetGenericFlagSignature(id)).ToArray()); // to array so linq gets executed first.
+            }
+
+            return new MethodCommandInfo(commandIds.ToArray(), attribute.Description, methodInfo)
             {
                 Provider = provider,
                 PassingPolicies = attribute.PassingPolicies,
@@ -130,7 +137,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in ids)
             {
-                ParseHelpers.ThrowIfInvalidId(id);
+                ParseHelpers.ThrowIfInvalidCommandId(id);
 
                 if (!seen.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 
@@ -174,7 +181,7 @@ namespace AsitLib.CommandLine
             if (options.Length != 0)
             {
                 string optionsString = GetOptions().Select(p =>
-                    $"{p.OptionType.Name.ToLower()}:{p.Name!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
+                    $"{p.OptionType.Name.ToLower()}:{p.Id!.ToLower()}{(p.HasDefaultValue ? $"(default_value:{p.DefaultValue?.ToString() ?? StringHelpers.NULL_STRING}) " : " ")}")
                     .ToJoinedString();
 
                 sb.Append(optionsString);
@@ -185,7 +192,8 @@ namespace AsitLib.CommandLine
             return sb.ToString();
         }
 
-        public bool IsMainCommandEligible(CommandEngine? engine = null) => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, this).HasFlag(OptionPassingPolicies.Positional));
+        public bool IsMainCommandEligible(CommandEngine? engine = null)
+            => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, this).HasFlag(OptionPassingPolicies.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }

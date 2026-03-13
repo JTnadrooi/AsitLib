@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -7,7 +6,7 @@ namespace AsitLib.CommandLine
 {
     public sealed class OptionInfo
     {
-        public const string NameForUnnamedOptions = "__noname__";
+        public const string IdForUnnamedOptions = "__noname__";
 
         private object? _defaultValue;
 
@@ -32,7 +31,11 @@ namespace AsitLib.CommandLine
 
         public Type OptionType { get; }
 
-        public string Name { get; }
+        public string Id => Ids[0];
+
+        public string[] Ids { get; }
+
+        public string[] AntiIds { get; }
 
         private object? _implicitValue;
 
@@ -47,10 +50,6 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public string? Shorthand { get; init; }
-
-        public string? AntiParameterName { get; init; }
-
         public OptionPassingPolicies PassingPolicies { get; init; }
 
         public OptionInfo(ParameterInfo parameter)
@@ -64,10 +63,8 @@ namespace AsitLib.CommandLine
             _implicitValue = optionAttribute.ImplicitValue;
 
             OptionType = parameter.ParameterType;
-            Name = optionAttribute.Name ?? ParseHelpers.GetSignature(parameter);
 
-            Shorthand = optionAttribute.Shorthand;
-            AntiParameterName = optionAttribute.AntiParameterName;
+            Ids = (optionAttribute.Id ?? ParseHelpers.GetSignature(parameter)).ToSingleArray().Concat(optionAttribute.Aliases ?? Array.Empty<string>()).ToArray();
 
             PassingPolicies = optionAttribute.PassingPolicies;
             ValidationAttributes = attributes.Where(a => a is ValidationAttribute).Cast<ValidationAttribute>().ToArray();
@@ -79,26 +76,48 @@ namespace AsitLib.CommandLine
                     _defaultValue = Array.CreateInstance(OptionType.GetElementType()!, 0);
                 else if (OptionType == typeof(bool))
                     _defaultValue = false;
+
+            foreach (string id in Ids)
+            {
+                ParseHelpers.ThrowIfInvalidOptionId(id);
+            }
+
+            if (OptionType == typeof(bool))
+            {
+                AntiIds = ParseHelpers.GetAntiIds(Ids);
+            }
+            else AntiIds = Array.Empty<string>();
         }
 
-        private OptionInfo(Type type, string name = NameForUnnamedOptions) // FromType()
+        private OptionInfo(Type type, string[] ids) // FromType()
         {
-            Name = name;
+            Ids = ids;
             OptionType = type;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
             PassingPolicies = OptionPassingPolicies.All;
+
+            foreach (string id in ids)
+            {
+                ParseHelpers.ThrowIfInvalidOptionId(id);
+            }
+
+            if (OptionType == typeof(bool))
+            {
+                AntiIds = ParseHelpers.GetAntiIds(Ids);
+            }
+            else AntiIds = Array.Empty<string>();
         }
 
         internal void ThrowExceptionIfNoName()
         {
-            if (Name is null) throw new InvalidOperationException("This operation is not valid on an unnamed OptionInfo.");
+            if (Id is null) throw new InvalidOperationException("This operation is not valid on an unnamed OptionInfo.");
         }
 
         internal void ThrowExceptionIfInvalidValue(object? value)
         {
             foreach (ValidationAttribute attribute in ValidationAttributes)
             {
-                ValidationResult? result = attribute.GetValidationResult(value, new ValidationContext(value!) { DisplayName = Name is null ? "INPUT" : $"{Name}_INPUT" });
+                ValidationResult? result = attribute.GetValidationResult(value, new ValidationContext(value!) { DisplayName = Id is null ? "INPUT" : $"{Id}_INPUT" });
                 if (result != ValidationResult.Success) throw new CommandException($"Argument value '{value}' is invalid: {result!.ErrorMessage}");
             }
         }
@@ -167,6 +186,17 @@ namespace AsitLib.CommandLine
             return result;
         }
 
+        public object? GetAntiTargetValue()
+        {
+            if (OptionType == typeof(bool))
+            {
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException("Option does not support anti targets.");
+            }
+        }
 
         public OptionPassingPolicies GetInheritedPassingPoliciesFromContext(CommandContext? context = null)
             => GetInheritedPassingPolicies(context?.Engine, context?.Command);
@@ -181,27 +211,37 @@ namespace AsitLib.CommandLine
         /// Creates a new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="name">The value of the <see cref="OptionInfo.Name"/> property.</param>
+        /// <param name="id">The value of the <see cref="OptionInfo.Id"/> property.</param>
         /// <returns>A new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.</returns>
         public static OptionInfo FromType(
             Type type,
-            string name = NameForUnnamedOptions,
+            string? id = null,
             OptionPassingPolicies passingPolicies = OptionPassingPolicies.All,
             object? implicitValue = null,
-            string? shorthand = null,
-            string? antiParameterName = null,
+            ValidationAttribute[]? validationAttributes = null)
+            => FromType(type, id?.ToSingleArray() ?? [IdForUnnamedOptions], passingPolicies, implicitValue, validationAttributes);
+
+        public static OptionInfo FromType(
+            Type type,
+            string[] ids,
+            OptionPassingPolicies passingPolicies = OptionPassingPolicies.All,
+            object? implicitValue = null,
             ValidationAttribute[]? validationAttributes = null)
         {
             if (implicitValue == DBNull.Value) throw new Exception($"{nameof(DBNull.Value)} is not valid as implicit value.");
+            if (ids.Length == 0) throw new ArgumentException("Array cannot be empty.", nameof(ids));
 
-            return new OptionInfo(type, name)
+            return new OptionInfo(type, ids)
             {
                 PassingPolicies = passingPolicies,
                 _implicitValue = implicitValue,
-                Shorthand = shorthand,
-                AntiParameterName = antiParameterName,
                 ValidationAttributes = validationAttributes ?? Array.Empty<ValidationAttribute>()
             };
+        }
+
+        public override string ToString()
+        {
+            return $"{{Ids: [{Ids.ToJoinedString(", ")}], Type: '{OptionType}'}}";
         }
     }
 }

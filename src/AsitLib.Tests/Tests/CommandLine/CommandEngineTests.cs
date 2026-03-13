@@ -69,7 +69,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments.Should().AllSatisfy(a => a.Tokens.Should().HaveCount(1));
 
-            parsed.Arguments.Should().AllSatisfy(a => a.Target.UsesExplicitName.Should().BeFalse());
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().BeNull());
 
             parsed.CommandId.Should().Be("cmd");
         }
@@ -85,7 +85,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments[0].Tokens[0].Should().Be("val1");
 
-            parsed.Arguments.Should().AllSatisfy(a => a.Target.UsesExplicitName.Should().BeTrue());
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().NotBeNull());
 
             parsed.CommandId.Should().Be("cmd");
         }
@@ -102,10 +102,10 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[0].Tokens[0].Should().Be("val1");
             parsed.Arguments[1].Tokens[0].Should().Be("val2");
 
-            parsed.Arguments[0].Target.OptionIndex.Should().Be(0);
-            parsed.Arguments[1].Target.OptionIndex.Should().BeNull();
+            parsed.Arguments[0].Target.Index.Should().Be(0);
+            parsed.Arguments[1].Target.Index.Should().BeNull();
 
-            parsed.Arguments[1].Target.UsesExplicitName.Should().BeTrue();
+            parsed.Arguments[1].Target.Id.Should().NotBeNull();
 
             parsed.CommandId.Should().Be("cmd");
         }

@@ -15,6 +15,10 @@ namespace AsitLib.CommandLine
         //    '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         //];
 
+        internal static IReadOnlyList<string> s_antiPrefixes = [
+            "disable", "no"
+        ];
+
         internal static IReadOnlyList<char> s_invalidChars = [
             '"', '\'', ',',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
@@ -58,25 +62,33 @@ namespace AsitLib.CommandLine
 
         public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
-        internal static void ThrowIfInvalidName(string name, [CallerArgumentExpression("name")] string? valueName = "Input")
+        internal static void ThrowIfInvalidCommandProviderId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"'{valueName}' '{name}' is null or empty/whitespace.");
-            if (name.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{name}' contains a space.");
-            if (name == string.Empty) throw new InvalidOperationException($"'{valueName}' is an empty string.");
-            if (s_invalidNameStartChars.TryGetFirst(c => name.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{name}' starts with invalid character '{startChar}'.");
+            if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
+            if (id.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{id}' contains a space.");
+            if (s_invalidNameStartChars.TryGetFirst(c => id.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
+            if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
         }
 
-        internal static void ThrowIfInvalidId(string name, [CallerArgumentExpression("name")] string? valueName = "Input")
+        internal static void ThrowIfInvalidCommandId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new InvalidOperationException($"'{valueName}' '{name}' is null or empty/whitespace.");
-            if (name == string.Empty) throw new InvalidOperationException($"'{valueName}' is an empty string.");
+            if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
+            if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
 
-            foreach (string part in name.Split(' '))
+            foreach (string part in id.Split(' '))
             {
-                if (part == string.Empty) throw new InvalidOperationException($"{valueName} '{name}' has invalid spaces.");
-                if (s_invalidChars.TryGetFirst(c => part.Contains(c), out char containedChar)) throw new InvalidOperationException($"{valueName} '{name}' contains invalid character '{containedChar}'.");
-                if (part.StartsWith('-') || part.EndsWith('-')) throw new InvalidOperationException($"{valueName} '{name}' cannot start or end with a dash.");
+                if (part == string.Empty) throw new InvalidOperationException($"part in {valueName} '{id}' has invalid spaces.");
+                //if (part.StartsWith('-') || part.EndsWith('-')) throw new InvalidOperationException($"part in {valueName} '{id}' cannot start or end with a dash.");
+                //if (s_invalidNameStartChars.TryGetFirst(c => part.StartsWith(c), out char startChar)) throw new InvalidOperationException($"part in {valueName} '{id}' starts with invalid character '{startChar}'.");
             }
+        }
+
+        internal static void ThrowIfInvalidOptionId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
+        {
+            if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
+            if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
+            if (id.Contains(' ')) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
+            if (s_invalidNameStartChars.TryGetFirst(c => id.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
         }
 
         public static string[] SplitWithRespectForQuotes(string str)
@@ -117,6 +129,16 @@ namespace AsitLib.CommandLine
             return result.ToArray();
         }
 
+        public static string[] GetAntiIds(string[] ids)
+        {
+            IEnumerable<string> result = Enumerable.Empty<string>();
+            foreach (string prefix in s_antiPrefixes)
+            {
+                result = result.Concat(ids.Select(id => $"{prefix}-{id}"));
+            }
+            return result.ToArray();
+        }
+
         /// <summary>
         /// Extracts the <see cref="GlobalOption"/> instances that listen to the specified <paramref name="call"/>.
         /// </summary>
@@ -128,11 +150,11 @@ namespace AsitLib.CommandLine
             HashSet<GlobalOption> result = new HashSet<GlobalOption>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
-            foreach (Argument arg in call.Arguments.Where(a => a.Target.UsesExplicitName))
+            foreach (Argument arg in call.Arguments.Where(a => a.Target.Id is not null))
                 for (int i = 0; i < globalOptions.Length; i++)
                 {
                     GlobalOption globalOption = globalOptions[i];
-                    if (arg.Target.TargetsFlag(globalOption))
+                    if (arg.Target.IsMatchFor(globalOption))
                         if (!validArguments.Add(arg) || !result.Add(globalOption))
                         {
                             throw new InvalidOperationException("Duplicate argument to flag mapping.");
@@ -159,32 +181,15 @@ namespace AsitLib.CommandLine
             {
                 OptionInfo option = options[i];
                 Argument? matchingArgument = null;
-                string? shortHandName = option.Shorthand;
 
                 option.ThrowExceptionIfNoName();
 
                 foreach (Argument arg in call.Arguments)
-                    if ((arg.Target.OptionIndex == i) // positional.
-                        || (arg.Target.IsLongForm && arg.Target.SanitizedOptionToken == option.Name && option.GetInheritedPassingPoliciesFromContext(context).HasFlag(OptionPassingPolicies.Named)) // longform.
-                        || (shortHandName is not null && arg.Target.IsShorthand && arg.Target.SanitizedOptionToken == shortHandName && option.PassingPolicies.HasFlag(OptionPassingPolicies.Named))) // shorthand.
+                    if (arg.Target.IsMatchFor(option, i, context)) // shorthand.
                     {
-                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
+                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Id}'.");
                         matchingArgument = arg;
                     }
-
-                if (option.AntiParameterName is not null)
-                    foreach (Argument arg in call.Arguments)
-                        if (arg.Target.UsesExplicitName && arg.Target.SanitizedOptionToken == (option.AntiParameterName ?? $"no-{option.Name}"))
-                        {
-                            if (arg.Target.IsShorthand) throw new CommandException($"Shorthand anti-arguments are invalid.");
-                            if (option.OptionType != typeof(bool)) throw new CommandException($"Anti-arguments are only allowed for Boolean (true / false) parameters.");
-                            if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Name}'.");
-                            if (arg.Tokens.Length != 0) throw new CommandException("Anti-arguments cannot be passed any value.");
-
-                            result[i] = false;
-                            validArguments.Add(arg);
-                            goto Continue;
-                        }
 
                 if (matchingArgument is null) // no matching argument found.
                 {
@@ -193,10 +198,14 @@ namespace AsitLib.CommandLine
                         result[i] = option.DefaultValue;
                         goto Continue;
                     }
-                    else throw new CommandException($"No matching value found for parameter '{option.Name + (shortHandName is null ? string.Empty : $"(shorthand: {(shortHandName)})")}' (Index {i}).");
+                    else throw new CommandException($"No matching value found for parameter '{option}'.");
                 }
 
-                result[i] = option.Conform(matchingArgument.Tokens.AsSpan());
+                if (matchingArgument.Target.IsAntiTarget)
+                    result[i] = option.GetAntiTargetValue();
+                else
+                    result[i] = option.Conform(matchingArgument.Tokens.AsSpan());
+
                 validArguments.Add(matchingArgument);
 
             Continue:;

@@ -77,7 +77,7 @@
             if (globalOption.Option is null) throw new InvalidOperationException("Cannot get value passed to GlobalOption without Option.");
 
             foreach (Argument argument in ArgumentsInfo.Arguments)
-                if (argument.Target.TargetsFlag(globalOption))
+                if (argument.Target.IsMatchFor(globalOption))
                 {
                     value = (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());
                     return true;

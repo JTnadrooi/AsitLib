@@ -2,37 +2,61 @@
 {
     public readonly struct ArgumentTarget
     {
-        public readonly string? OptionToken { get; }
-        public readonly int? OptionIndex { get; }
-        public readonly bool IsShorthand => UsesExplicitName && !OptionToken!.StartsWith("--");
-        public readonly bool IsLongForm => UsesExplicitName && OptionToken!.StartsWith("--");
-        public readonly string? SanitizedOptionToken => OptionToken?.TrimStart('-');
+        public readonly string? Id { get; }
 
-        public bool UsesExplicitName => OptionToken is not null;
+        public readonly int? Index { get; }
 
-        public ArgumentTarget(string optionName)
+        public readonly bool IsShorthand => Id is not null && !Id.StartsWith("--");
+
+        public readonly bool IsLongForm => Id is not null && Id!.StartsWith("--");
+
+        public readonly string? SanitizedId => Id?.TrimStart('-');
+
+        public readonly bool IsAntiTarget
         {
-            OptionToken = optionName;
-            OptionIndex = null;
+            get
+            {
+                if (Id is null) return false;
+
+                string sanitizedId = SanitizedId!; // copy to prevent error.
+                return ParseHelpers.s_antiPrefixes.Any(p => sanitizedId.StartsWith(p + "-"));
+            }
         }
 
-        public ArgumentTarget(int optionIndex)
+        public ArgumentTarget(string id)
         {
-            if (optionIndex < 0) throw new ArgumentException(nameof(optionIndex));
-
-            OptionToken = null;
-            OptionIndex = optionIndex;
+            Id = id;
+            Index = null;
         }
 
-        public bool TargetsFlag(GlobalOption flagHandler)
-            => (IsShorthand && flagHandler.HasShorthandId && flagHandler.ShorthandId == SanitizedOptionToken) ||
-                (IsLongForm && flagHandler.LongFormId == SanitizedOptionToken);
+        public ArgumentTarget(int index)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(index);
 
-        public override string ToString() => UsesExplicitName ? OptionToken! : OptionIndex!.ToString()!;
+            Id = null;
+            Index = index;
+        }
+
+        public bool IsMatchFor(OptionInfo option, int optionIndex, CommandContext? context = null)
+        {
+            OptionPassingPolicies passingPolicies = option.GetInheritedPassingPoliciesFromContext(context);
+
+            bool matchesPositional = passingPolicies.HasFlag(OptionPassingPolicies.Positional) && (Index == optionIndex);
+            bool matchesNamed = passingPolicies.HasFlag(OptionPassingPolicies.Named) && (option.Ids.Contains(SanitizedId));
+            bool matchesAnti = passingPolicies.HasFlag(OptionPassingPolicies.Named) && (option.AntiIds.Contains(SanitizedId));
+
+            return matchesPositional || matchesNamed || matchesAnti;
+        }
+
+        public bool IsMatchFor(GlobalOption globalOption)
+            => (IsShorthand && globalOption.HasShorthandId && globalOption.ShorthandId == SanitizedId) ||
+                (IsLongForm && globalOption.LongFormId == SanitizedId);
+
+        public override string ToString() => Id is null ? Index!.ToString()! : Id;
 
         public override bool Equals(object? obj)
         {
-            if (obj is ArgumentTarget other) return (OptionToken == other.OptionToken && OptionIndex == other.OptionIndex);
+            if (obj is ArgumentTarget other) return (Id == other.Id && Index == other.Index);
             return false;
         }
 
@@ -41,8 +65,8 @@
             unchecked
             {
                 int hashCode = 17;
-                if (OptionToken is not null) hashCode = hashCode * 23 + OptionToken.GetHashCode();
-                if (OptionIndex.HasValue) hashCode = hashCode * 23 + OptionIndex.GetHashCode();
+                if (Id is not null) hashCode = hashCode * 23 + Id.GetHashCode();
+                if (Index.HasValue) hashCode = hashCode * 23 + Index.GetHashCode();
                 return hashCode;
             }
         }

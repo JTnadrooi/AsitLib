@@ -19,11 +19,9 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public string? Shorthand { get; init; }
+        public string? Id { get; init; }
 
-        public string? Name { get; init; }
-
-        public string? AntiParameterName { get; init; }
+        public string[]? Aliases { get; init; }
 
         public OptionPassingPolicies PassingPolicies { get; init; } = OptionPassingPolicies.All;
 

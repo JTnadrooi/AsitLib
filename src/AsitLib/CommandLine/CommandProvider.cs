@@ -13,7 +13,7 @@ namespace AsitLib.CommandLine
 
         public CommandProvider(string name, ICommandInfoFactory? infoFactory = null)
         {
-            ParseHelpers.ThrowIfInvalidName(name);
+            ParseHelpers.ThrowIfInvalidCommandProviderId(name);
 
             Name = name;
             InfoFactory = infoFactory;

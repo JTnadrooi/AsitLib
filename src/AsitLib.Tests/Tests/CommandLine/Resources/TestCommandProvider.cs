@@ -13,19 +13,13 @@ namespace AsitLib.Tests
         }
 
         [Command("desc")]
-        public string Tv([Option(AntiParameterName = "no-color")] bool color = true)
-        {
-            return "Tv" + (color ? " in color!" : ".");
-        }
-
-        [Command("desc")]
-        public string TvEnable([Option(AntiParameterName = "disable-color")] bool color = true)
+        public string Tv(bool color = true)
         {
             return "Tv" + (color ? " in color!" : ".");
         }
 
         [Command("desc", Aliases = ["hi"])]
-        public string Greet([Option(Name = "name")] string yourName)
+        public string Greet([Option(Id = "name")] string yourName)
         {
             return $"Hi, {yourName}!";
         }
@@ -43,13 +37,13 @@ namespace AsitLib.Tests
         }
 
         [Command("desc")]
-        public string Shorthand([Option(Shorthand = "wa")] string wayToLongParameterName, [Option(Shorthand = "s")] int secondWayToLongOne = 0)
+        public string Shorthand([Option(Aliases = ["wa"])] string wayToLongParameterName, [Option(Aliases = ["s"])] int secondWayToLongOne = 0)
         {
             return wayToLongParameterName + " | " + secondWayToLongOne;
         }
 
         [Command("desc")]
-        public string FlagConflict([Option(Shorthand = "t")] string testAlso)
+        public string FlagConflict([Option(Aliases = ["t"])] string testAlso)
         {
             return testAlso;
         }

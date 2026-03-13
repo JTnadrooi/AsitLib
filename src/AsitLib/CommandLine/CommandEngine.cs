@@ -259,7 +259,7 @@ namespace AsitLib.CommandLine
 
             CallInfo toret = new CallInfo(args[0], outArgs);
 
-            if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => !a.Target.UsesExplicitName) > 0)
+            if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => a.Target.Id is null) > 0)
             {
                 toret = Parse(ArrayHelpers.Combine(args[0] + " " + args[1], args[2..]));
             }

@@ -111,8 +111,8 @@
         public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                OptionInfo.FromType( typeof(string) ,"testop", OptionPassingPolicies.Named) ,
-                OptionInfo.FromType(typeof(string) ,"testop2", OptionPassingPolicies.Named) ,
+                OptionInfo.FromType(typeof(string), "testop", OptionPassingPolicies.Named),
+                OptionInfo.FromType(typeof(string), "testop2", OptionPassingPolicies.Named),
             });
 
             info.IsMainCommandEligible().Should().BeTrue();
