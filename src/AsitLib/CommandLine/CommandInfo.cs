@@ -137,7 +137,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in ids)
             {
-                ParseHelpers.ThrowIfInvalidCommandId(id);
+                ThrowHelpers.ThrowIfInvalidCommandId(id);
 
                 if (!seen.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 

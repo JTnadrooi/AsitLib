@@ -79,7 +79,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in Ids)
             {
-                ParseHelpers.ThrowIfInvalidOptionId(id);
+                ThrowHelpers.ThrowIfInvalidOptionId(id);
             }
 
             if (OptionType == typeof(bool))
@@ -98,7 +98,7 @@ namespace AsitLib.CommandLine
 
             foreach (string id in ids)
             {
-                ParseHelpers.ThrowIfInvalidOptionId(id);
+                ThrowHelpers.ThrowIfInvalidOptionId(id);
             }
 
             if (OptionType == typeof(bool))
