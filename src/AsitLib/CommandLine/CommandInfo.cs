@@ -63,10 +63,6 @@ namespace AsitLib.CommandLine
 
             List<string> commandIds = new List<string>([cmdId]);
             commandIds.AddRange(attribute.Aliases);
-            if (attribute.IsGenericFlag)
-            {
-                commandIds.AddRange(commandIds.Select(id => ParseHelpers.GetGenericFlagSignature(id)).ToArray()); // to array so linq gets executed first.
-            }
 
             return new MethodCommandInfo(commandIds.ToArray(), attribute.Description, methodInfo)
             {
