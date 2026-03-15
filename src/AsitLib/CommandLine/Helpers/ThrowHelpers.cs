@@ -14,7 +14,7 @@ namespace AsitLib.CommandLine
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
-        internal static IReadOnlyList<char> s_invalidNameStartChars = [
+        internal static IReadOnlyList<char> s_invalidNameStartOrEndChars = [
             '-', ' ',
         ];
 
@@ -22,7 +22,7 @@ namespace AsitLib.CommandLine
         {
             if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (id.Contains(' ')) throw new InvalidOperationException($"'{valueName}' '{id}' contains a space.");
-            if (s_invalidNameStartChars.TryGetFirst(c => id.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
+            if (s_invalidNameStartOrEndChars.TryGetFirst(c => id.StartsOrEndsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
         }
 
@@ -34,8 +34,7 @@ namespace AsitLib.CommandLine
             foreach (string part in id.Split(' '))
             {
                 if (part == string.Empty) throw new InvalidOperationException($"part in {valueName} '{id}' has invalid spaces.");
-                //if (part.StartsWith('-') || part.EndsWith('-')) throw new InvalidOperationException($"part in {valueName} '{id}' cannot start or end with a dash.");
-                //if (s_invalidNameStartChars.TryGetFirst(c => part.StartsWith(c), out char startChar)) throw new InvalidOperationException($"part in {valueName} '{id}' starts with invalid character '{startChar}'.");
+                if (s_invalidNameStartOrEndChars.TryGetFirst(c => part.StartsOrEndsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{part}' starts with invalid character '{startChar}'.");
             }
         }
 
@@ -44,7 +43,7 @@ namespace AsitLib.CommandLine
             if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
             if (id.Contains(' ')) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
-            if (s_invalidNameStartChars.TryGetFirst(c => id.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
+            if (s_invalidNameStartOrEndChars.TryGetFirst(c => id.StartsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{id}' starts with invalid character '{startChar}'.");
         }
     }
 }
