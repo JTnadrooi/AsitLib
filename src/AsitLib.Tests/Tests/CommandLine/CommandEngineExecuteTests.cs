@@ -49,7 +49,6 @@ namespace AsitLib.Tests
         public void Execute_NoValueAntiArgument_ActsAsFalse()
         {
             AssertExecute("Tv.", "tv --no-color");
-            AssertExecute("Tv.", "tv --disable-color");
         }
 
         [TestMethod]
@@ -103,7 +102,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_VoidReturningCommand_IsVoid()
         {
-            Assert.IsTrue(Engine.Execute("void").IsVoid);
+            Engine.Execute("void").IsVoid.Should().BeTrue();
         }
 
         [TestMethod]

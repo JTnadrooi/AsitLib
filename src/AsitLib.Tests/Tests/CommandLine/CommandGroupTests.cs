@@ -1,22 +1,5 @@
 ﻿namespace AsitLib.Tests
 {
-    public class TestCommandGroup : CommandGroup
-    {
-        public TestCommandGroup() : base("testg", CommandInfoFactory.Default)
-        //public TestCommandGroup() : base("testg", nameof(Main))
-        {
-
-        }
-
-        //[Command("desc")]
-        //public void Main()
-        //{
-
-        //}
-
-        [Command("desc")]
-        public string Print(string msg) => msg;
-    }
 
     [TestClass]
     public class CommandGroupTests
@@ -44,17 +27,11 @@
             Engine.Execute(args).ToOutputString().Should().Be(expected);
         }
 
-        public static void AssertCheckOutput()
-        {
-            Assert.Inconclusive("Check output.");
-        }
-
         [TestMethod]
         public void Execute_SubCommandWithPositionalArgument()
         {
             AssertExecute("bonjour", "testg print bonjour");
         }
-
 
         [TestMethod]
         public void Execute_SubCommand_HasCorrectId()

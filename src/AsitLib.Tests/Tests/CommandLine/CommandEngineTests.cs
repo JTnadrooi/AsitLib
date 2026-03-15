@@ -141,5 +141,58 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments.Should().HaveCount(1);
         }
+
+        [TestMethod]
+        public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
+        {
+            CommandInfo info = new DummyCommandInfo("testg", options: new[] {
+                 OptionInfo.FromType( typeof(string)),
+            });
+
+            Engine.AddCommand(info);
+
+            CommandInfo info2 = new DummyCommandInfo("testg print");
+
+            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsEx()
+        {
+            CommandInfo info = new DummyCommandInfo("testg print");
+            Engine.AddCommand(info);
+
+            CommandInfo info2 = new DummyCommandInfo("testg", options: new[] {
+                 OptionInfo.FromType(typeof(string)),
+            });
+            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void Add_GroupedCommandBeforeMainCommand()
+        {
+            CommandInfo info = new DummyCommandInfo("testg print");
+            Engine.AddCommand(info);
+
+            CommandInfo info2 = new DummyCommandInfo("testg");
+            Engine.AddCommand(info2);
+        }
+
+        [TestMethod]
+        public void Add_GroupedCommandAfterMainCommand()
+        {
+            CommandInfo info = new DummyCommandInfo("testg");
+            Engine.AddCommand(info);
+
+            CommandInfo info2 = new DummyCommandInfo("testg print");
+            Engine.AddCommand(info2);
+        }
+
+        [TestMethod]
+        public void Add_GroupedCommand_AddsGroup()
+        {
+            Engine.AddCommand(new DummyCommandInfo("testg print"));
+            Engine.Groups.Should().Contain("testg");
+        }
     }
 }

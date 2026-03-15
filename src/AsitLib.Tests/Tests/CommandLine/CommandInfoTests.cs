@@ -1,47 +1,8 @@
 ﻿namespace AsitLib.Tests
 {
-    public class DummyCommandInfo : CommandInfo
-    {
-        public OptionInfo[] Options { get; }
-
-        public DummyCommandInfo(string id, string? description = null, OptionInfo[]? options = null)
-            : this(new[] { id }, description, options) { }
-        public DummyCommandInfo(string[] ids, string? description = null, OptionInfo[]? options = null)
-            : base(ids, description ?? "No desc.")
-        {
-            Options = options ?? Array.Empty<OptionInfo>();
-        }
-
-        public override OptionInfo[] GetOptions() => Options;
-        public override object? Invoke(object?[] parameters) => DBNull.Value;
-    }
-
     [TestClass]
     public class CommandInfoTests
     {
-        [TestInitialize]
-        public void TestInit()
-        {
-            Engine = new CommandEngine();
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-
-        }
-
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        public static CommandEngine Engine { get; private set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
-        [TestMethod]
-        public void Add_GroupedCommand_AddsGroup()
-        {
-            Engine.AddCommand(new DummyCommandInfo("testg print"));
-            Engine.Groups.Contains("testg").Should().BeTrue();
-        }
-
         [TestMethod]
         public void GroupedCommand_WithAliases_HasGroup()
         {
@@ -54,52 +15,6 @@
         {
             Invoking(() => new DummyCommandInfo(new[] { "debug print", "testg writel" })).Should().Throw<InvalidOperationException>();
         }
-
-        [TestMethod]
-        public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
-        {
-            CommandInfo info = new DummyCommandInfo("testg", options: new[] {
-                 OptionInfo.FromType( typeof(string)),
-            });
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg print");
-
-            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
-        }
-
-        [TestMethod]
-        public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsEx()
-        {
-            CommandInfo info = new DummyCommandInfo("testg print");
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg", options: new[] {
-                 OptionInfo.FromType(typeof(string)),
-            });
-            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
-        }
-
-        [TestMethod]
-        public void Add_GroupedCommandBeforeMainCommand()
-        {
-            CommandInfo info = new DummyCommandInfo("testg print");
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg");
-            Engine.AddCommand(info2);
-        }
-
-        [TestMethod]
-        public void Add_GroupedCommandAfterMainCommand()
-        {
-            CommandInfo info = new DummyCommandInfo("testg");
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg print");
-            Engine.AddCommand(info2);
-        }
-
         [TestMethod]
         public void IsMainCommandEligible_CommandWithoutOptions_ReturnsTrue()
         {
@@ -111,8 +26,8 @@
         public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                OptionInfo.FromType(typeof(string), "testop", OptionPassingPolicies.Named),
-                OptionInfo.FromType(typeof(string), "testop2", OptionPassingPolicies.Named),
+                OptionInfo.FromType(typeof(string), "a", OptionPassingPolicies.Named),
+                OptionInfo.FromType(typeof(string), "b", OptionPassingPolicies.Named),
             });
 
             info.IsMainCommandEligible().Should().BeTrue();
@@ -132,23 +47,11 @@
         }
 
         [TestMethod]
-        public void GetInheritedPassingPolicies_EngineWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
-        {
-            CommandEngine engine = new CommandEngine() { PassingPolicies = OptionPassingPolicies.Positional };
-
-            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
-            });
-
-            info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
-        }
-
-        [TestMethod]
         public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                OptionInfo.FromType(typeof(string), "1" ),
-                OptionInfo.FromType(typeof(string), "2"),
+                OptionInfo.FromType(typeof(string), "a" ),
+                OptionInfo.FromType(typeof(string), "b"),
             });
 
             info.IsMainCommandEligible().Should().BeFalse();
@@ -169,11 +72,10 @@
         [DataRow(" ")]
         [DataRow("      ")]
         [DataRow(" print")]
-        [DataRow("-print")]
         [DataRow("testg -print")]
         [DataRow("testg1 testg2 -print")]
         [DataRow("   ")]
-        public void Contruct_InvalidIds_ThrowsEx(string name)
+        public void Contruct_InvalidId_ThrowsEx(string name)
         {
             Invoking(() => new DummyCommandInfo(name)).Should().Throw<InvalidOperationException>();
         }

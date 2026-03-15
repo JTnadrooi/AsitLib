@@ -47,5 +47,17 @@ namespace AsitLib.Tests
         {
             ((string[])OptionInfo.FromType(typeof(string[])).Conform(new[] { "e", "a" })!).Should().Equal(new string[] { "e", "a" });
         }
+
+        [TestMethod]
+        public void GetInheritedPassingPolicies_EngineWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
+        {
+            CommandEngine engine = new CommandEngine() { PassingPolicies = OptionPassingPolicies.Positional };
+
+            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
+                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
+            });
+
+            info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
+        }
     }
 }

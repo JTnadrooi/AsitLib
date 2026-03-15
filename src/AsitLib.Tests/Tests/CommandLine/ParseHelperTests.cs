@@ -53,9 +53,9 @@
         }
 
         [TestMethod]
-        public void Split_EmptyString_ReturnsEmptyArray()
+        public void Split_EmptyString_ThrowsEx()
         {
-            ParseHelpers.SplitWithRespectForQuotes(string.Empty).Should().Equal(Array.Empty<string>());
+            Invoking(() => ParseHelpers.SplitWithRespectForQuotes(string.Empty)).Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -65,7 +65,6 @@
         }
 
         #endregion
-
 
         [TestMethod]
         [DataRow("-help")]
