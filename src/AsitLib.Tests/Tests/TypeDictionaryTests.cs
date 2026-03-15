@@ -16,7 +16,7 @@
 
             dictionary.Add<Dog>(dog);
 
-            dictionary.Should().HaveCount(1);
+            dictionary.Should().ContainSingle();
             dictionary.ContainsKey(typeof(Dog)).Should().BeTrue();
             dictionary[typeof(Dog)].Should().BeSameAs(dog);
         }
