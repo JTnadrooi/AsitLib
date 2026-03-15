@@ -2,8 +2,33 @@
 
 namespace AsitLib
 {
+    /// <summary>
+    /// Provides extension methods for string operations.
+    /// </summary>
     public static class StringExtensions
     {
+        public static bool StartsOrEndsWith(this string str, params ReadOnlySpan<string> values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (str.StartsWith(values[i]) || str.EndsWith(values[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool StartsOrEndsWith(this string str, params ReadOnlySpan<char> values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (str.StartsWith(values[i]) || str.EndsWith(values[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static string FirstLine(this string str)
         {
             using StringReader reader = new StringReader(str);
