@@ -144,8 +144,6 @@ namespace AsitLib.CommandLine
                 OptionInfo option = options[i];
                 Argument? matchingArgument = null;
 
-                option.ThrowExceptionIfNoName();
-
                 foreach (Argument arg in call.Arguments)
                     if (arg.Target.IsMatchFor(option, i, context)) // shorthand.
                     {

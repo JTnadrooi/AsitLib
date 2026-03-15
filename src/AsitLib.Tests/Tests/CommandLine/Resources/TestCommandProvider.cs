@@ -65,9 +65,9 @@ namespace AsitLib.Tests
         }
 
         [Command("desc")]
-        public void Validation([Range(0, 10)] int i)
+        public int Validation([Range(0, 10)] int i)
         {
-
+            return i;
         }
     }
 }

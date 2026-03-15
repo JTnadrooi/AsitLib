@@ -158,6 +158,12 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
+        public void Execute_WithQuotedInt()
+        {
+            AssertExecute("4", "validation \"4\"");
+        }
+
+        [TestMethod]
         public void Execute_HelpFullStopGlobalOption()
         {
             Console.WriteLine(Engine.Execute("void --help"));

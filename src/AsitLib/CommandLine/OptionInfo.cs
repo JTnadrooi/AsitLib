@@ -108,11 +108,6 @@ namespace AsitLib.CommandLine
             else AntiIds = Array.Empty<string>();
         }
 
-        internal void ThrowExceptionIfNoName()
-        {
-            if (Id is null) throw new InvalidOperationException("This operation is not valid on an unnamed OptionInfo.");
-        }
-
         internal void ThrowExceptionIfInvalidValue(object? value)
         {
             foreach (ValidationAttribute attribute in ValidationAttributes)
