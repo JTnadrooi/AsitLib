@@ -132,7 +132,7 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RemoveCommand(string id)
         {
-            if (!_commands.ContainsKey(id)) throw new KeyNotFoundException($"Command with Id '{id}' was not found.");
+            if (!_commands.ContainsKey(id)) throw new InvalidOperationException($"Command with Id '{id}' was not found.");
 
             CommandInfo commandToRemove = _commands[id];
 
