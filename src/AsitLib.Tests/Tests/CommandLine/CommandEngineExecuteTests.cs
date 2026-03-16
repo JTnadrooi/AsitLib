@@ -16,7 +16,11 @@ namespace AsitLib.Tests
         [NotNull]
         public static CommandEngine? Engine { get; private set; }
 
-        public static void AssertExecute(string expected, string args) => AssertExecute(expected, ParseHelpers.SplitWithRespectForQuotes(args));
+        public static void AssertExecute(string expected, string args)
+        {
+            Engine.Execute(args).ToOutputString().Should().Be(expected);
+        }
+
         public static void AssertExecute(string expected, string[] args)
         {
             Engine.Execute(args).ToOutputString().Should().Be(expected);
