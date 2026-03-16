@@ -28,13 +28,13 @@
         //}
 
         [TestMethod]
-        public void Execute_SubCommandWithPositionalArgument()
+        public void Execute_ChildCommandWithPositionalArgument()
         {
             AssertExecute("bonjour", "testg print bonjour");
         }
 
         [TestMethod]
-        public void Execute_SubCommand_HasCorrectId()
+        public void Execute_ChildCommand_HasCorrectId()
         {
             Engine.Commands.Should().ContainKey("testg print");
         }

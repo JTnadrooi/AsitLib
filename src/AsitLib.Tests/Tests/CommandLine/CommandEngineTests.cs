@@ -109,11 +109,11 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly.");
             parsed.Arguments[1].Target.Id.Should().NotBeNull(); // same as above.
 
-            parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a subcommand.");
+            parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a childcommand.");
         }
 
         [TestMethod]
-        public void Parse_SubCommandWithPositionalOptionCall_CallsSubCommand()
+        public void Parse_ChildCommandWithPositionalOptionCall_CallsChildCommand()
         {
             CommandInfo info2 = new DummyCommandInfo("cmdg");
             Engine.AddCommand(info2);
@@ -129,7 +129,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
-        public void Parse_GroupCommandWithNamedOptionCall_CallsGroupCommand()
+        public void Parse_ParentCommandWithNamedOptionCall_CallsParentCommand()
         {
             CommandInfo info2 = new DummyCommandInfo("cmdg");
             Engine.AddCommand(info2);
@@ -145,7 +145,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
-        public void Parse_GroupCommandWithQuotedOptionCallThatWouldOtherwiseMatchSubcommand_CallsGroupCommand()
+        public void Parse_ParentCommandWithQuotedOptionCallThatWouldOtherwiseMatchChildCommand_CallsParentCommand()
         {
             CommandInfo info2 = new DummyCommandInfo("cmdg");
             Engine.AddCommand(info2);
@@ -160,7 +160,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
-        public void Parse_GroupCommandWithArgumentThatDoesNotMatchSubcommand_CallsGroupCommand()
+        public void Parse_ParentCommandWithArgumentThatDoesNotMatchChildCommand_CallsParentCommand()
         {
             CommandInfo info2 = new DummyCommandInfo("cmdg");
             Engine.AddCommand(info2);
@@ -170,28 +170,12 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "notcmd"]);
 
-            parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as subcommand, so it tries to get used for the `cmdg` groupcommand input instead.");
+            parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead.");
         }
 
         #endregion
 
         #region ADD_REMOVE
-
-        [TestMethod]
-        public void Add_GroupedCommandBeforeMainCommand()
-        {
-            Engine.AddCommand(new DummyCommandInfo("testg print"));
-
-            Engine.AddCommand(new DummyCommandInfo("testg"));
-        }
-
-        [TestMethod]
-        public void Add_GroupedCommandAfterMainCommand()
-        {
-            Engine.AddCommand(new DummyCommandInfo("testg"));
-
-            Engine.AddCommand(new DummyCommandInfo("testg print"));
-        }
 
         [TestMethod]
         public void Add_DuplicateCommandIds_ThrowsEx()
