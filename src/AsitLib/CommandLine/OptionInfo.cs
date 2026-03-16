@@ -144,14 +144,14 @@ namespace AsitLib.CommandLine
                 Type elementType = OptionType.GetElementType()!;
                 Array resultArray = Array.CreateInstance(elementType, tokens.Length);
 
-                for (int i = 0; i < tokens.Length; i++) resultArray.SetValue(FromType(elementType).Conform([tokens[i]]), i);
+                for (int i = 0; i < tokens.Length; i++) resultArray.SetValue(FromType(elementType).Conform([ParseHelpers.UnQuote(tokens[i])]), i);
 
                 result = resultArray;
             }
             else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
             else if (OptionType.IsEnum)
             {
-                if (int.TryParse(tokens[0], out int intResult)) result = Enum.ToObject(OptionType, intResult);
+                if (int.TryParse(ParseHelpers.UnQuote(tokens[0]), out int intResult)) result = Enum.ToObject(OptionType, intResult);
                 else
                 {
                     bool foundEnumEntry = false;
@@ -163,7 +163,7 @@ namespace AsitLib.CommandLine
                         .ToDictionary();
 
                     foreach (KeyValuePair<string, string> kvp in names)
-                        if (string.Equals(kvp.Key, tokens[0], StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(kvp.Key, ParseHelpers.UnQuote(tokens[0]), StringComparison.OrdinalIgnoreCase))
                         {
                             result = Enum.Parse(OptionType, kvp.Value);
                             foundEnumEntry = true;
@@ -174,7 +174,7 @@ namespace AsitLib.CommandLine
                 }
 
             }
-            else result = System.Convert.ChangeType(tokens[0], OptionType);
+            else result = System.Convert.ChangeType(ParseHelpers.UnQuote(tokens[0]), OptionType);
 
             ThrowExceptionIfInvalidValue(result);
 

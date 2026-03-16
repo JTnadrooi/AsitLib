@@ -11,29 +11,6 @@
         }
 
         [TestMethod]
-        public void GroupedCommand_WithInvalidAliases_ThrowsEx()
-        {
-            Invoking(() => new DummyCommandInfo(["debug print", "testg writel"])).Should().Throw<InvalidOperationException>();
-        }
-        [TestMethod]
-        public void IsMainCommandEligible_CommandWithoutOptions_ReturnsTrue()
-        {
-            CommandInfo info = new DummyCommandInfo("testc");
-            info.IsMainCommandEligible().Should().BeTrue();
-        }
-
-        [TestMethod]
-        public void IsMainCommandEligible_CommandWithoutPositonalOptions_ReturnsTrue()
-        {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
-                OptionInfo.FromType(typeof(string), "a", OptionPassingPolicies.Named),
-                OptionInfo.FromType(typeof(string), "b", OptionPassingPolicies.Named),
-            ]);
-
-            info.IsMainCommandEligible().Should().BeTrue();
-        }
-
-        [TestMethod]
         public void GetInheritedPassingPolicies_CommandWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
         {
             CommandInfo info = new DummyCommandInfo("testc", options: [
@@ -44,17 +21,6 @@
             };
 
             info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional).Should().BeTrue();
-        }
-
-        [TestMethod]
-        public void IsMainCommandEligible_CommandWithNamedOptions_ReturnsFalse()
-        {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
-                OptionInfo.FromType(typeof(string), "a" ),
-                OptionInfo.FromType(typeof(string), "b"),
-            ]);
-
-            info.IsMainCommandEligible().Should().BeFalse();
         }
 
         [TestMethod]
@@ -93,6 +59,70 @@
         public void Ctor_AnySubgroupDepth(int subgroupDepth)
         {
             Invoking(() => new DummyCommandInfo(Enumerable.Repeat("str", subgroupDepth).ToJoinedString(" "))).Should().NotThrow();
+        }
+
+        [TestMethod]
+        public void Group_DifferingGroupIds_ReturnsNull()
+        {
+            CommandInfo info = new DummyCommandInfo(["group1 cmd", "group2 cmd"]);
+
+            info.Group.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void Group_MixedGroupAndNoGroupIds_ReturnsNull()
+        {
+            CommandInfo info = new DummyCommandInfo(["cmd", "group2 cmd"]);
+
+            info.Group.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void Group_AlignedGroupedIds()
+        {
+            CommandInfo info = new DummyCommandInfo(["group1 cmd1", "group1 cmd2"]);
+
+            info.Group.Should().Be("group1");
+        }
+
+        [TestMethod]
+        public void Group_NoGroupedIds()
+        {
+            CommandInfo info = new DummyCommandInfo(["cmd1", "cmd2"]);
+
+            info.Group.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void Groups_DifferingGroupIds_ReturnsAllGroups()
+        {
+            CommandInfo info = new DummyCommandInfo(["group1 cmd", "group2 cmd"]);
+
+            info.Groups.Should().BeEquivalentTo(["group1", "group2"]);
+        }
+
+        [TestMethod]
+        public void Groups_MixedGroupAndNoGroupIds_ReturnsFoundGroupsFromAllIds()
+        {
+            CommandInfo info = new DummyCommandInfo(["cmd", "group2 cmd"]);
+
+            info.Groups.Should().BeEquivalentTo(["group2"]);
+        }
+
+        [TestMethod]
+        public void Groups_AlignedGroupedIds_ReturnsNoDuplicates()
+        {
+            CommandInfo info = new DummyCommandInfo(["group1 cmd1", "group1 cmd2"]);
+
+            info.Groups.Should().BeEquivalentTo(["group1"]);
+        }
+
+        [TestMethod]
+        public void Groups_NoGroupedIds_ReturnsEmptyArray()
+        {
+            CommandInfo info = new DummyCommandInfo(["cmd1", "cmd2"]);
+
+            info.Groups.Should().BeEquivalentTo(Array.Empty<string>());
         }
     }
 }

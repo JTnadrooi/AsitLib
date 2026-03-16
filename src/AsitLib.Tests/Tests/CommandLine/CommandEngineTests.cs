@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AsitLib.Tests.Tests.CommandLine
 {
@@ -98,14 +99,14 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments.Should().HaveCount(2, because: "'val1' at '#0' and 'val2' at '--arg2'.");
 
-            parsed.Arguments[0].Tokens.Should().ContainSingle(because: "Only the 'val1' gets passed at '#0'.");
+            parsed.Arguments[0].Tokens.Should().ContainSingle(because: "only the 'val1' gets passed at '#0'.");
 
             parsed.Arguments[0].Tokens.Should().ContainSingle("val1");
             parsed.Arguments[1].Tokens.Should().ContainSingle("val2");
 
-            parsed.Arguments[0].Target.Index.Should().Be(0, because: "It's passed positionally.");
+            parsed.Arguments[0].Target.Index.Should().Be(0, because: "it's passed positionally.");
             parsed.Arguments[0].Target.Id.Should().BeNull();
-            parsed.Arguments[1].Target.Index.Should().BeNull(because: "It's passed named-ly.");
+            parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly.");
             parsed.Arguments[1].Target.Id.Should().NotBeNull(); // same as above.
 
             parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a subcommand.");
@@ -122,9 +123,9 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
 
-            parsed.CommandId.Should().Be("cmdg cmd", because: "No command 'cmdg cmd val1' exists.");
+            parsed.CommandId.Should().Be("cmdg cmd", because: "no command 'cmdg cmd val1' exists");
 
-            parsed.Arguments.Should().ContainSingle(because: "'cmdg' exists so cmd gets used as command, resulting in 'val1' as only argument.");
+            parsed.Arguments.Should().ContainSingle(because: "'cmdg' exists so cmd gets used as command, resulting in 'val1' as only argument");
         }
 
         [TestMethod]
@@ -152,9 +153,10 @@ namespace AsitLib.Tests.Tests.CommandLine
             CommandInfo info = new DummyCommandInfo("cmdg cmd");
             Engine.AddCommand(info);
 
-            CallInfo parsed = Engine.Parse(["cmdg", "\"val1\""]);
+            CallInfo parsed = Engine.Parse(["cmdg", "\"cmd\""]);
 
-            parsed.CommandId.Should().Be("cmdg", because: "Quotes are always for inputs."); // quotes are also not allowed in commandnames.
+            parsed.CommandId.Should().Be("cmdg", because: "quotes are always for inputs (quotes are not allowed in commandnames)"); // .
+            parsed.Arguments.Should().ContainSingle(a => a == new Argument(new ArgumentTarget(0), new string[] { "\"cmd\"" }));
         }
 
         [TestMethod]
@@ -174,32 +176,6 @@ namespace AsitLib.Tests.Tests.CommandLine
         #endregion
 
         #region ADD_REMOVE
-
-        [TestMethod]
-        public void Add_GroupedCommandAfterInvalidMainCommand_ThrowsEx()
-        {
-            CommandInfo info = new DummyCommandInfo("testg", options: new[] {
-                 OptionInfo.FromType(typeof(string)),
-            });
-
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg print");
-
-            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
-        }
-
-        [TestMethod]
-        public void Add_GroupedCommandBeforeInvalidMainCommand_ThrowsEx()
-        {
-            CommandInfo info = new DummyCommandInfo("testg print");
-            Engine.AddCommand(info);
-
-            CommandInfo info2 = new DummyCommandInfo("testg", options: new[] {
-                 OptionInfo.FromType(typeof(string)),
-            });
-            Invoking(() => Engine.AddCommand(info2)).Should().Throw<InvalidOperationException>();
-        }
 
         [TestMethod]
         public void Add_GroupedCommandBeforeMainCommand()
@@ -226,7 +202,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
-        public void AddAndRemove_GroupedCommand_AddsGroup()
+        public void AddAndRemove_GroupedCommand_AddsAndRemovesGroup()
         {
             Engine.AddCommand(new DummyCommandInfo("testg print"));
             Engine.Groups.Should().Contain("testg");
@@ -235,6 +211,36 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             Engine.Groups.Should().NotContain("testg");
             Engine.Commands.Keys.Should().NotContain("testg print");
+        }
+
+        [TestMethod]
+        public void AddAndRemove_CommandWithMultipleGroups_AddsAndRemovesGroups()
+        {
+            Engine.AddCommand(new DummyCommandInfo(["group1 cmd", "group2 cmd"]));
+            Engine.Groups.Should().Contain("group1");
+            Engine.Groups.Should().Contain("group2");
+
+            Engine.RemoveCommand("group1 cmd");
+
+            Engine.Groups.Should().NotContain("group1");
+            Engine.Groups.Should().NotContain("group2");
+            Engine.Commands.Keys.Should().NotContain("group1 cmd");
+            Engine.Commands.Keys.Should().NotContain("group2 cmd");
+        }
+
+        [TestMethod]
+        [DataRow(1)]
+        [DataRow(2)]
+        public void AddAndRemove_CommandWithMultipleIdsUsingAnyId(int index)
+        {
+            Engine.AddCommand(new DummyCommandInfo(["cmd1", "cmd2"]));
+            Engine.Commands.Keys.Should().Contain("cmd1");
+            Engine.Commands.Keys.Should().Contain("cmd2");
+
+            Engine.RemoveCommand("cmd" + index);
+
+            Engine.Commands.Keys.Should().NotContain("cmd1");
+            Engine.Commands.Keys.Should().NotContain("cmd2");
         }
 
         [TestMethod]

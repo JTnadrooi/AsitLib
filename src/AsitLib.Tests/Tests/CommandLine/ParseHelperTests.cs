@@ -36,32 +36,113 @@
         [TestMethod]
         public void Split_QuotedString_TreatsQuotesAsOneToken()
         {
-            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" four").Should().Equal(new string[] { "one", "two three", "four" });
+            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" four").Should().Equal(new string[] { "one", "\"two three\"", "four" });
         }
 
         [TestMethod]
-        public void Split_EscapedQuote_HandlesProperly()
+        public void Split_MultipleQuotedSections()
+        {
+            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" \"four 4\"").Should().Equal(new string[] { "one", "\"two three\"", "\"four 4\"" });
+        }
+
+        [TestMethod]
+        public void Split_EscapedQuotes()
         {
             ParseHelpers.SplitWithRespectForQuotes("one \\\"two three\\\" four").Should().Equal(new string[] { "one", "\"two", "three\"", "four" });
         }
 
         [TestMethod]
-        public void Split_ExtraSpaces_IgnoresThemOutsideQuotes()
+        public void Split_ExtraSpacesExcludeQuotes_IgnoresThemOutsideQuotes()
         {
             ParseHelpers.SplitWithRespectForQuotes("  one   two  ").Should().Equal(new string[] { "one", "two" });
-            ParseHelpers.SplitWithRespectForQuotes("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "   " });
+            ParseHelpers.SplitWithRespectForQuotes("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "\"   \"" });
         }
 
         [TestMethod]
-        public void Split_EmptyString_ThrowsEx()
+        public void Split_EmptyString_ReturnsEmptyArray() // like with Split()
         {
-            Invoking(() => ParseHelpers.SplitWithRespectForQuotes(string.Empty)).Should().Throw<InvalidOperationException>();
+            ParseHelpers.SplitWithRespectForQuotes(string.Empty).Should().Equal(Array.Empty<string>());
         }
 
         [TestMethod]
         public void Split_Single_ReturnsInput()
         {
             ParseHelpers.SplitWithRespectForQuotes("hello").Should().Equal(new string[] { "hello" });
+        }
+
+        #endregion
+
+        #region UNQUOTE
+
+        [TestMethod]
+        public void UnQuote_OuterQuotes_ReturnsStringWithoutOuterQuotes()
+        {
+            ParseHelpers.UnQuote("\"string\"").Should().Be("string"); // input: "string", output: string
+        }
+
+        [TestMethod]
+        public void UnQuote_EscapedOuterQuotes_ReturnsStringWithEscapedOuterQuotes()
+        {
+            ParseHelpers.UnQuote("\\\"string\\\"").Should().Be("\\\"string\\\""); // input: \"string\", output: \"string\"
+        }
+
+        [TestMethod]
+        public void UnQuote_WhenStringHasNoOuterQuotes_ShouldReturnSameString()
+        {
+            ParseHelpers.UnQuote("string").Should().Be("string"); // input: string, output: string
+        }
+
+        [TestMethod]
+        public void UnQuote_MidStringQuote_ShouldReturnSameString()
+        {
+            ParseHelpers.UnQuote("str\"ng").Should().Be("str\"ng"); // input: string, output: string
+        }
+
+        [TestMethod]
+        public void UnQuote_StringWithInnerQuotes_ShouldOnlyRemoveOuterQuotes()
+        {
+            ParseHelpers.UnQuote("\"hello \\\"world\\\"\"").Should().Be("hello \\\"world\\\""); // input: "hello \"world\"", output: hello \"world\"
+        }
+
+        [TestMethod]
+        public void UnQuote_EmptyString_ShouldReturnEmptyString()
+        {
+            ParseHelpers.UnQuote(string.Empty).Should().BeEmpty(); // input: (empty string), output: (empty string)
+        }
+
+        [TestMethod]
+        public void UnQuote_TwoQuotes_ShouldReturnEmptyString()
+        {
+            ParseHelpers.UnQuote("\"\"").Should().BeEmpty(); // input: "", output: (empty string)
+        }
+
+        [TestMethod]
+        public void UnQuote_ThreeQuotes_ShouldReturnEmptyString()
+        {
+            ParseHelpers.UnQuote("\"\"\"").Should().Be("\""); // input: """, output: "
+        }
+
+        [TestMethod]
+        public void WhenInputIsSingleCharacter_ShouldReturnSameCharacter()
+        {
+            ParseHelpers.UnQuote("a").Should().Be("a"); // input: a, output: a
+        }
+
+        [TestMethod]
+        [DataRow("hello world\"")] // hello world"
+        [DataRow("\"hello world")] // "hello world
+        [DataRow("\"\"\\\"")] // ""\"
+        [DataRow("\"")] // "
+        //[DataRow("\"\"\"")] // """
+        public void WhenQuotesAreMismatched_ThrowEx(string stringWithMismatchedQuotes)
+        {
+            Invoking(() => ParseHelpers.UnQuote(stringWithMismatchedQuotes)).Should().Throw<ArgumentException>(because: "quotes are mismatched");
+        }
+
+        [TestMethod]
+        public void WhenQuotedStringHasWhitespace_ShouldRemoveQuotesAndPreserveWhitespace()
+        {
+            ParseHelpers.UnQuote("\"  hello world  \"").Should().Be("  hello world  "); // input: "  hello world  ", output:   hello world  
         }
 
         #endregion
@@ -73,6 +154,7 @@
         [DataRow("--h")]
         [DataRow("--?")]
         [DataRow("h")]
+        [DataRow("help")]
         public void IsValidGenericFlagCall_InvalidSignature_ReturnsFalse(string input)
         {
             ParseHelpers.IsValidGenericFlagCall(input).Should().BeFalse();

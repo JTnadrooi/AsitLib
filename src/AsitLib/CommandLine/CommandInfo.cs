@@ -91,6 +91,8 @@ namespace AsitLib.CommandLine
         /// </summary>
         public IReadOnlyList<string> Ids { get; }
 
+        public IReadOnlyList<string> Groups { get; }
+
         /// <summary>
         /// Gets if the command represented by this instance has aliases. Generic flag ids count as aliases.
         /// <code>Ids.Count > 1</code>
@@ -106,8 +108,6 @@ namespace AsitLib.CommandLine
         /// Gets the group this command belongs to.
         /// </summary>
         public string? Group { get; }
-
-        public bool HasGroup => Group is not null;
 
         public CommandProvider? Provider { get; init; }
 
@@ -127,31 +127,35 @@ namespace AsitLib.CommandLine
 
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
-            string? group = null;
             string mainId = ids[0];
-            HashSet<string> seen = new HashSet<string>();
+            HashSet<string> seenIds = new HashSet<string>();
+            HashSet<string> seenGroups = new HashSet<string>();
+            bool validGroup = true;
 
             foreach (string id in ids)
             {
                 ThrowHelpers.ThrowIfInvalidCommandId(id);
 
-                if (!seen.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
+                if (!seenIds.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 
-                switch (id.Count(c => c == ' '))
-                {
-                    case 1:
-                        string idGroup = id.Split(' ')[0];
-                        group ??= idGroup;
-                        if (group != idGroup) throw new InvalidOperationException($"Command aliasses for command '{mainId}' use differing groups.");
-                        break;
-                    case > 1:
-                        throw new InvalidOperationException($"Nested command subgroups are invalid.");
-                }
+                CommandId commandId = new CommandId(id);
+
+                if (commandId.Group is not null)
+                    seenGroups.Add(commandId.Group);
+                else validGroup = false;
             }
+
+            if (validGroup && seenGroups.Count == 1)
+            {
+                Group = seenGroups.Single();
+            }
+            else
+                Group = null;
+
+            Groups = seenGroups.ToArray();
 
             Ids = ids.ToArray();
             Description = description;
-            Group = group;
             IsEnabled = true;
         }
 
@@ -187,9 +191,6 @@ namespace AsitLib.CommandLine
 
             return sb.ToString();
         }
-
-        public bool IsMainCommandEligible(CommandEngine? engine = null)
-            => !GetOptions().Any(o => o.GetInheritedPassingPolicies(engine, this).HasFlag(OptionPassingPolicies.Positional));
 
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }

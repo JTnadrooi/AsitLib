@@ -89,18 +89,6 @@ namespace AsitLib.CommandLine
 
             info.ThrowIfInvalid();
 
-            foreach (string id in info.Ids)
-            {
-                if (_groupMap.ContainsKey(id) && !info.IsMainCommandEligible(this))
-                    throw new InvalidOperationException($"Command id '{id}' is not valid as main command for group with same name.");
-            }
-
-            if (info.HasGroup)
-            {
-                if (_commands.TryGetValue(info.Group!, out CommandInfo? mainCommandInfo) && !mainCommandInfo.IsMainCommandEligible(this))
-                    throw new InvalidOperationException($"Group cannot be added as command has already been added that cannot be a main command for group '{info.Group!}'.");
-            }
-
             #endregion
 
             foreach (string id in info.Ids)
@@ -121,10 +109,10 @@ namespace AsitLib.CommandLine
                 _providerMap[provider.Name].Add(info.Id);
             }
 
-            if (info.HasGroup)
+            foreach (string group in info.Groups)
             {
-                _groupMap.TryAdd(info.Group!, new List<string>());
-                _groupMap[info.Group!].Add(info.Id);
+                _groupMap.TryAdd(group!, new List<string>());
+                _groupMap[group!].Add(info.Id);
             }
 
             return this;
@@ -154,10 +142,10 @@ namespace AsitLib.CommandLine
                 }
             }
 
-            if (commandToRemove.HasGroup)
+            foreach (string group in commandToRemove.Groups)
             {
-                _groupMap[commandToRemove.Group!].Remove(commandToRemove.Id);
-                if (_groupMap[commandToRemove.Group!].Count == 0) _groupMap.Remove(commandToRemove.Group!);
+                _groupMap[group].Remove(commandToRemove.Id);
+                if (_groupMap[group].Count == 0) _groupMap.Remove(group);
             }
 
             _uniqueCommands.Remove(commandToRemove.Id);
@@ -213,7 +201,7 @@ namespace AsitLib.CommandLine
 
         public CallInfo Parse(string[] args)
         {
-            if (args.Length == 0) throw new ArgumentException("No command provided.", nameof(args));
+            if (args.Length == 0) throw new CommandException("No command provided.");
 
             List<string> currentValues = new List<string>();
             List<Argument> outArgs = new List<Argument>();
@@ -222,6 +210,7 @@ namespace AsitLib.CommandLine
             bool noMoreParams = false;
             string token = string.Empty;
             string commandId = args[0];
+            CallInfo result;
 
             void PushArgument()
             {
@@ -250,21 +239,25 @@ namespace AsitLib.CommandLine
                 }
                 else
                 {
-                    if (currentName is null) outArgs.Add(new Argument(new ArgumentTarget(position++), [token]));
-                    else currentValues.Add(token);
+                    if (currentName is null)
+                        outArgs.Add(new Argument(new ArgumentTarget(position++), [token]));
+                    else
+                        currentValues.Add(token);
                 }
             }
 
             if (currentName is not null) PushArgument();
 
-            CallInfo toret = new CallInfo(args[0], outArgs);
-
-            if (_groupMap.ContainsKey(commandId) && outArgs.Count(a => a.Target.Id is null) > 0)
+            if (_groupMap.ContainsKey(commandId) && outArgs.Count > 0 && outArgs[0].CanTargetSubcommand && Commands.ContainsKey($"{args[0]} {args[1]}"))
             {
-                toret = Parse(ArrayHelpers.Combine(args[0] + " " + args[1], args[2..]));
+                result = Parse(ArrayHelpers.Combine($"{args[0]} {args[1]}", args[2..]));
+            }
+            else
+            {
+                result = new CallInfo(args[0], outArgs);
             }
 
-            return toret;
+            return result;
         }
 
         public CommandInfo[] GetProviderCommands(string name)
