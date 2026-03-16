@@ -7,24 +7,24 @@ using System.Threading.Tasks;
 namespace AsitLib.Tests
 {
     [TestClass]
-    public class CommandIdTests
+    public class CommandIdentifierTests
     {
         [TestMethod]
         public void Group_NotNested()
         {
-            new CommandId("group cmd").Group.Should().Be("group");
+            new CommandIdentifier("group cmd").Group.Should().Be("group");
         }
 
         [TestMethod]
         public void Group_NestedGroup()
         {
-            new CommandId("group1 group2 cmd").Group.Should().Be("group1 group2");
+            new CommandIdentifier("group1 group2 cmd").Group.Should().Be("group1 group2");
         }
 
         [TestMethod]
         public void Group_NoGroup_ReturnsNull()
         {
-            new CommandId("cmd").Group.Should().BeNull();
+            new CommandIdentifier("cmd").Group.Should().BeNull();
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace AsitLib.Tests
         [DataRow("   ")]
         public void Ctor_InvalidSource_ThrowsEx(string invalidSource)
         {
-            Invoking(() => new CommandId(invalidSource)).Should().Throw<InvalidOperationException>();
+            Invoking(() => new CommandIdentifier(invalidSource)).Should().Throw<InvalidOperationException>();
         }
     }
 }

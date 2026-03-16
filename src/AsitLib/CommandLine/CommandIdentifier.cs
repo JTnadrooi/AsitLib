@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public sealed class CommandId
+    public sealed class CommandIdentifier
     {
         private string? _group;
         public string? Group
@@ -39,9 +39,7 @@ namespace AsitLib.CommandLine
             }
         }
 
-        //public CommandId() : this(string.Empty) { }
-
-        public CommandId(string source)
+        public CommandIdentifier(string source)
         {
             ThrowHelpers.ThrowIfInvalidCommandId(source);
 
@@ -58,18 +56,6 @@ namespace AsitLib.CommandLine
                 _group = split[..^1].ToJoinedString(' ');
             }
         }
-
-        //public CommandId SetGroup(string? group)
-        //{
-        //    Group = group;
-        //    return this;
-        //}
-
-        //public CommandId SetIsolatedId(string isolatedId)
-        //{
-        //    Name = isolatedId;
-        //    return this;
-        //}
 
         public override string ToString()
         {
