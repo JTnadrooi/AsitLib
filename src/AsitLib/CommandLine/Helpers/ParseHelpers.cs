@@ -69,6 +69,8 @@ namespace AsitLib.CommandLine
                     if (!escaped)
                     {
                         inQuotes = !inQuotes;
+
+                        sb.Append(c);
                         continue;
                     }
                     else if (sb.Length > 0 && sb[^1] == '\\') sb.Remove(sb.Length - 1, 1);
@@ -83,12 +85,55 @@ namespace AsitLib.CommandLine
                     continue;
                 }
 
-                sb.Append(c);
+                if (c != '"' || escaped)
+                {
+                    sb.Append(c);
+                }
             }
 
             if (sb.Length > 0) result.Add(sb.ToString());
 
             return result.ToArray();
+        }
+
+        public static bool IsQuoted(string str)
+        {
+            return str != UnQuote(str);
+        }
+
+        public static string UnQuote(string str)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(nameof(str));
+
+            const char magicChar = '\u001F'; // escaped quotes will be made to be the magicChar
+
+            if (str.Contains(magicChar))
+                throw new ArgumentException("String cannot contain magic character 001F.", nameof(str));
+
+            string replacedString = str.Replace("\\\"", magicChar.ToString()); // /" -> <magicchar>
+
+            if (replacedString.Contains('"'))
+            {
+                bool startsWithQuote = replacedString[0] == '"';
+                bool endsWithQuote = replacedString[^1] == '"';
+
+                if (replacedString.Length == 1)
+                {
+                    throw new ArgumentException($"Mismatched quotes in string.", nameof(str));
+                }
+
+                if (startsWithQuote ^ endsWithQuote)
+                {
+                    throw new ArgumentException($"Mismatched quotes in string.", nameof(str));
+                }
+            }
+
+            if (replacedString.Length >= 2 && str[0] == '"' && str[^1] == '"')
+            {
+                return str.Substring(1, str.Length - 2);
+            }
+
+            return str;
         }
 
         public static string[] GetAntiIds(string[] ids)
