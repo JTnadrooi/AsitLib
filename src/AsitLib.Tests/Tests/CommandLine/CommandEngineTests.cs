@@ -97,19 +97,19 @@ namespace AsitLib.Tests.Tests.CommandLine
         {
             CallInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
 
-            parsed.Arguments.Should().HaveCount(2, because: "'val1' at '#0' and 'val2' at '--arg2'.");
+            parsed.Arguments.Should().HaveCount(2, because: "'val1' at '#0' and 'val2' at '--arg2'");
 
-            parsed.Arguments[0].Tokens.Should().ContainSingle(because: "only the 'val1' gets passed at '#0'.");
+            parsed.Arguments[0].Tokens.Should().ContainSingle(because: "only the 'val1' gets passed at '#0'");
 
             parsed.Arguments[0].Tokens.Should().ContainSingle("val1");
             parsed.Arguments[1].Tokens.Should().ContainSingle("val2");
 
-            parsed.Arguments[0].Target.Index.Should().Be(0, because: "it's passed positionally.");
+            parsed.Arguments[0].Target.Index.Should().Be(0, because: "it's passed positionally");
             parsed.Arguments[0].Target.Id.Should().BeNull();
-            parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly.");
+            parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly");
             parsed.Arguments[1].Target.Id.Should().NotBeNull(); // same as above.
 
-            parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a childcommand.");
+            parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a childcommand");
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "notcmd"]);
 
-            parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead.");
+            parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead");
         }
 
         #endregion
