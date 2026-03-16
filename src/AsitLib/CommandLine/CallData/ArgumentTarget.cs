@@ -1,6 +1,6 @@
 ﻿namespace AsitLib.CommandLine
 {
-    public readonly struct ArgumentTarget
+    public readonly struct ArgumentTarget : IEquatable<ArgumentTarget>
     {
         public readonly string? Id { get; }
 
@@ -54,10 +54,14 @@
 
         public override string ToString() => Id is null ? Index!.ToString()! : Id;
 
+        public bool Equals(ArgumentTarget other)
+        {
+            return Id == other.Id && Index == other.Index;
+        }
+
         public override bool Equals(object? obj)
         {
-            if (obj is ArgumentTarget other) return (Id == other.Id && Index == other.Index);
-            return false;
+            return obj is ArgumentTarget other && Equals(other);
         }
 
         public override int GetHashCode()
