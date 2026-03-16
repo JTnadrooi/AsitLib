@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,12 +11,12 @@ namespace AsitLib.CommandLine
     public static class ThrowHelpers
     {
         internal static IReadOnlyList<char> s_invalidChars = [
-            '"', '\'', ',',
+            '"', ',',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
         internal static IReadOnlyList<char> s_invalidNameStartOrEndChars = [
-            '-', ' ',
+            '-',
         ];
 
         internal static void ThrowIfInvalidCommandProviderId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
@@ -31,10 +32,15 @@ namespace AsitLib.CommandLine
             if (string.IsNullOrWhiteSpace(id)) throw new InvalidOperationException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new InvalidOperationException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
 
-            foreach (string part in id.Split(' '))
+            string[] parts = id.Split(' ');
+            for (int i = 0; i < parts.Length; i++)
             {
+                string part = parts[i];
+
                 if (part == string.Empty) throw new InvalidOperationException($"part in {valueName} '{id}' has invalid spaces.");
-                if (s_invalidNameStartOrEndChars.TryGetFirst(c => part.StartsOrEndsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{part}' starts with invalid character '{startChar}'.");
+
+                if (i != 0)
+                    if (s_invalidNameStartOrEndChars.TryGetFirst(c => part.StartsOrEndsWith(c), out char startChar)) throw new InvalidOperationException($"{valueName} '{part}' starts with invalid character '{startChar}'.");
             }
         }
 

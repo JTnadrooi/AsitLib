@@ -47,6 +47,21 @@
         }
 
         [TestMethod]
+        [DataRow("group1 group2 cmd")]
+        [DataRow("group cmd")]
+        [DataRow("cmd")]
+        [DataRow("--globaloption")]
+        [DataRow("-weird-but-ok")]
+        [DataRow("------sure")]
+        [DataRow("[]why[]would[]i[]stop[]them?")]
+        [DataRow("(&#&@ThisIsNotRegex3938293")]
+        [DataRow("pls|dont+do|this")]
+        public void Ctor_ValidId(string name)
+        {
+            Invoking(() => new DummyCommandInfo(name)).Should().NotThrow();
+        }
+
+        [TestMethod]
         [DataRow(1)]
         [DataRow(2)]
         [DataRow(3)]

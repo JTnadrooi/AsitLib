@@ -127,7 +127,6 @@ namespace AsitLib.CommandLine
 
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
 
-            string mainId = ids[0];
             HashSet<string> seenIds = new HashSet<string>();
             HashSet<string> seenGroups = new HashSet<string>();
             bool validGroup = true;
