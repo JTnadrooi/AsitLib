@@ -13,7 +13,7 @@ namespace AsitLib.CommandLine
         {
             bool callsGenericFlag = commandId.StartsWith("-");
 
-            if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Arguments call command as generic flag, but argument count is not 0.");
+            if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Cannot call generic flag with arguments.");
             if (callsGenericFlag && !ParseHelpers.IsValidGenericFlagCall(commandId)) throw new CommandException("Invalid generic flag call.");
 
             CommandId = commandId;
