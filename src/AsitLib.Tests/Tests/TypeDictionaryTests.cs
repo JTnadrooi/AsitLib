@@ -89,7 +89,7 @@
 
             dictionary.Add<Dog>(dog1);
 
-            Invoking(() => dictionary.Add<Dog>(dog2)).Should().Throw<ArgumentException>();
+            Invoking(() => dictionary.Add<Dog>(dog2)).Should().ThrowExactly<ArgumentException>();
         }
 
         //[TestMethod]
@@ -103,7 +103,7 @@
         //    dictionary.Add(dog);
         //    dictionary.Add(golden);
 
-        //    Invoking(() => dictionary.Add(cat.GetType(), cat)).Should().Throw<ArgumentException>();
+        //    Invoking(() => dictionary.Add(cat.GetType(), cat)).Should().ThrowExactly<ArgumentException>();
         //}
 
         [TestMethod]
@@ -112,7 +112,7 @@
             TypeDictionary<IAnimal> dictionary = new TypeDictionary<IAnimal>();
 
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            Invoking(() => dictionary.Add<Dog>(null)).Should().Throw<ArgumentNullException>();
+            Invoking(() => dictionary.Add<Dog>(null)).Should().ThrowExactly<ArgumentNullException>();
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
     }

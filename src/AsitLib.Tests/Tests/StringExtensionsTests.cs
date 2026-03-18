@@ -14,7 +14,7 @@
         [TestMethod]
         public void FirstLine_ShouldReturnNull_WhenStringIsEmpty()
         {
-            Invoking(() => string.Empty.FirstLine()).Should().Throw<InvalidOperationException>();
+            Invoking(() => string.Empty.FirstLine()).Should().ThrowExactly<InvalidOperationException>();
         }
 
         [TestMethod]

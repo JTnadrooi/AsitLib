@@ -65,7 +65,7 @@
         {
             int[] source = [1, 2, 3, 4, 5];
 
-            Invoking(() => source.GetFirstIndexWhere(x => x == 6)).Should().Throw<InvalidOperationException>();
+            Invoking(() => source.GetFirstIndexWhere(x => x == 6)).Should().ThrowExactly<InvalidOperationException>();
         }
 
         [TestMethod]

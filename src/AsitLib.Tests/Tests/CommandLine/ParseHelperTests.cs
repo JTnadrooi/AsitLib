@@ -136,7 +136,7 @@
         //[DataRow("\"\"\"")] // """
         public void WhenQuotesAreMismatched_ThrowEx(string stringWithMismatchedQuotes)
         {
-            Invoking(() => ParseHelpers.UnQuote(stringWithMismatchedQuotes)).Should().Throw<ArgumentException>(because: "quotes are mismatched");
+            Invoking(() => ParseHelpers.UnQuote(stringWithMismatchedQuotes)).Should().ThrowExactly<ArgumentException>(because: "quotes are mismatched");
         }
 
         [TestMethod]
@@ -185,7 +185,7 @@
         [DataRow("-h")]
         public void GetGenericFlagSignature_AlreadyFlag_ThrowsEx(string input)
         {
-            Invoking(() => ParseHelpers.GetGenericFlagSignature(input)).Should().Throw<InvalidOperationException>();
+            Invoking(() => ParseHelpers.GetGenericFlagSignature(input)).Should().ThrowExactly<InvalidOperationException>();
         }
     }
 }
