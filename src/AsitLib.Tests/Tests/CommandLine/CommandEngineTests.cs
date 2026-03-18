@@ -25,9 +25,8 @@ namespace AsitLib.Tests.Tests.CommandLine
 
         static CommandEngineTests()
         {
-            OneCommandCommandProvider = new DummyCommandProvider("test", commands: []);
-
-            OneCommandCommandProvider.Commands.Add(new DummyCommandInfo("test-command") { Provider = OneCommandCommandProvider });
+            OneCommandCommandProvider = new DummyCommandProvider("test");
+            OneCommandCommandProvider.Commands.Add(new DummyCommandInfo("test-command") { Provider = OneCommandCommandProvider }); // add command here so the property is initialized.
         }
 
         [TestMethod]
@@ -54,6 +53,8 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_NoArguments()
         {
+            Engine.AddCommand(new DummyCommandInfo("cmd"));
+
             CallInfo parsed = Engine.Parse(["cmd"]);
 
             parsed.Arguments.Should().BeEmpty();
@@ -61,8 +62,36 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
+        public void Parse_ChildCommandNoArgumentsNoParentCommand_CallsChildCommand()
+        {
+            Engine.AddCommand(new DummyCommandInfo("group cmd"));
+
+            CallInfo parsed = Engine.Parse(["group", "cmd"]);
+
+            parsed.Arguments.Should().BeEmpty();
+            parsed.CommandId.Should().Be("group cmd");
+        }
+
+        [TestMethod]
+        public void Parse_ChildCommandPostionalArgumentsNoParentCommand_CallsChildCommand()
+        {
+            Engine.AddCommand(new DummyCommandInfo("group cmd", options: [
+                OptionInfo.FromType(typeof(string), "1"),
+            ]));
+
+            CallInfo parsed = Engine.Parse(["group", "cmd", "val1"]);
+
+            parsed.Arguments.Should().Equal([new Argument(new ArgumentTarget(0), ["val1"])]);
+            parsed.CommandId.Should().Be("group cmd");
+        }
+
+        [TestMethod]
         public void Parse_PositionalArguments()
         {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "1"),
+            ]));
+
             CallInfo parsed = Engine.Parse(["cmd", "val1", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
@@ -79,6 +108,8 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_NamedArguments()
         {
+            Engine.AddCommand(new DummyCommandInfo("cmd"));
+
             CallInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1-2", "--arg2", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
@@ -95,6 +126,8 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_PositionalAndNamedArguments()
         {
+            Engine.AddCommand(new DummyCommandInfo("cmd"));
+
             CallInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2, because: "'val1' at '#0' and 'val2' at '--arg2'");
@@ -171,6 +204,18 @@ namespace AsitLib.Tests.Tests.CommandLine
             CallInfo parsed = Engine.Parse(["cmdg", "notcmd"]);
 
             parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead");
+        }
+
+        [TestMethod]
+        public void Parse_NonExistentCommand_ThrowsEx()
+        {
+            Invoking(() => Engine.Parse(["cmd"])).Should().ThrowExactly<CommandException>();
+        }
+
+        [TestMethod]
+        public void Parse_NonExistentGroupCommand_ThrowsEx()
+        {
+            Invoking(() => Engine.Parse(["group cmd"])).Should().ThrowExactly<CommandException>();
         }
 
         #endregion
