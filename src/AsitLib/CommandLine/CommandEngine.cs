@@ -271,7 +271,7 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public CommandResult Execute(string args) => Execute(ParseHelpers.SplitWithRespectForQuotes(args));
+        public CommandResult Execute(string args) => Execute(ParseHelpers.GetTokens(args));
         public CommandResult Execute(string[] args)
         {
             CallInfo call = Parse(args);

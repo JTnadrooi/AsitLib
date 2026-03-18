@@ -53,7 +53,7 @@ namespace AsitLib.CommandLine
 
         public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
 
-        public static string[] SplitWithRespectForQuotes(string str)
+        public static string[] GetTokens(string str)
         {
             List<string> result = new List<string>();
             StringBuilder sb = new StringBuilder();

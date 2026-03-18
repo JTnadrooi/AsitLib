@@ -3,71 +3,71 @@
     [TestClass]
     public class ParseHelperTests
     {
-        #region PARSE_SIGNATURE
+        #region GET_SIGNATURE
 
         [TestMethod]
-        public void ParseSignature_PascalCase_ReturnsKebabCase()
+        public void GetSignature_PascalCase_ReturnsKebabCase()
         {
             ParseHelpers.GetSignature("HelloWorld").Should().Be("hello-world");
         }
 
         [TestMethod]
-        public void ParseSignature_MixedCase_ReturnsLowercaseKebabCase()
+        public void GetSignature_MixedCase_ReturnsLowercaseKebabCase()
         {
             ParseHelpers.GetSignature("HTTPRequest").Should().Be("http-request");
         }
 
         [TestMethod]
-        public void ParseSignature_SingleWord_ReturnsLowercaseWord()
+        public void GetSignature_SingleWord_ReturnsLowercaseWord()
         {
             ParseHelpers.GetSignature("Word").Should().Be("word");
         }
 
         #endregion
 
-        #region SPLIT
+        #region GET_TOKENS
 
         [TestMethod]
-        public void Split_SimpleWords_SplitsByWhitespace()
+        public void GetTokens_SimpleWords_SplitsByWhitespace()
         {
-            ParseHelpers.SplitWithRespectForQuotes("one two three").Should().Equal(new string[] { "one", "two", "three" });
+            ParseHelpers.GetTokens("one two three").Should().Equal(new string[] { "one", "two", "three" });
         }
 
         [TestMethod]
-        public void Split_QuotedString_TreatsQuotesAsOneToken()
+        public void GetTokens_QuotedString_TreatsQuotesAsOneToken()
         {
-            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" four").Should().Equal(new string[] { "one", "\"two three\"", "four" });
+            ParseHelpers.GetTokens("one \"two three\" four").Should().Equal(new string[] { "one", "\"two three\"", "four" });
         }
 
         [TestMethod]
-        public void Split_MultipleQuotedSections()
+        public void GetTokens_MultipleQuotedSections()
         {
-            ParseHelpers.SplitWithRespectForQuotes("one \"two three\" \"four 4\"").Should().Equal(new string[] { "one", "\"two three\"", "\"four 4\"" });
+            ParseHelpers.GetTokens("one \"two three\" \"four 4\"").Should().Equal(new string[] { "one", "\"two three\"", "\"four 4\"" });
         }
 
         [TestMethod]
-        public void Split_EscapedQuotes()
+        public void GetTokens_EscapedQuotes()
         {
-            ParseHelpers.SplitWithRespectForQuotes("one \\\"two three\\\" four").Should().Equal(new string[] { "one", "\"two", "three\"", "four" });
+            ParseHelpers.GetTokens("one \\\"two three\\\" four").Should().Equal(new string[] { "one", "\"two", "three\"", "four" });
         }
 
         [TestMethod]
-        public void Split_ExtraSpacesExcludeQuotes_IgnoresThemOutsideQuotes()
+        public void GetTokens_ExtraSpacesExcludeQuotes_IgnoresThemOutsideQuotes()
         {
-            ParseHelpers.SplitWithRespectForQuotes("  one   two  ").Should().Equal(new string[] { "one", "two" });
-            ParseHelpers.SplitWithRespectForQuotes("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "\"   \"" });
+            ParseHelpers.GetTokens("  one   two  ").Should().Equal(new string[] { "one", "two" });
+            ParseHelpers.GetTokens("  one   two  \"   \"").Should().Equal(new string[] { "one", "two", "\"   \"" });
         }
 
         [TestMethod]
-        public void Split_EmptyString_ReturnsEmptyArray() // like with Split()
+        public void GetTokens_EmptyString_ReturnsEmptyArray() // like with Split()
         {
-            ParseHelpers.SplitWithRespectForQuotes(string.Empty).Should().Equal(Array.Empty<string>());
+            ParseHelpers.GetTokens(string.Empty).Should().Equal(Array.Empty<string>());
         }
 
         [TestMethod]
-        public void Split_Single_ReturnsInput()
+        public void GetTokens_Single_ReturnsInput()
         {
-            ParseHelpers.SplitWithRespectForQuotes("hello").Should().Equal(new string[] { "hello" });
+            ParseHelpers.GetTokens("hello").Should().Equal(new string[] { "hello" });
         }
 
         #endregion
@@ -95,7 +95,7 @@
         [TestMethod]
         public void UnQuote_MidStringQuote_ShouldReturnSameString()
         {
-            ParseHelpers.UnQuote("str\"ng").Should().Be("str\"ng"); // input: string, output: string
+            ParseHelpers.UnQuote("str\"ng").Should().Be("str\"ng"); // input: str"ng, output: str"ng
         }
 
         [TestMethod]
@@ -117,7 +117,7 @@
         }
 
         [TestMethod]
-        public void UnQuote_ThreeQuotes_ShouldReturnEmptyString()
+        public void UnQuote_ThreeQuotes_ShouldReturnInBetweenQuotes()
         {
             ParseHelpers.UnQuote("\"\"\"").Should().Be("\""); // input: """, output: "
         }
