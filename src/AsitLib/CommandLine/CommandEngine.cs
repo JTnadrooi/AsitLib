@@ -1,5 +1,6 @@
 ﻿using AsitLib.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AsitLib.CommandLine
@@ -214,74 +215,118 @@ namespace AsitLib.CommandLine
             if (args.Length == 0) throw new CommandException("No command provided.");
             if (_commands.Count == 0) throw new InvalidOperationException("Cannot parse for engine without commands.");
 
-            List<string> currentValues = new List<string>();
-            List<Argument> outArgs = new List<Argument>();
-            string? currentName = null;
-            int position = 0;
-            bool noMoreParams = false;
-            string token = string.Empty;
             string commandId = args[0];
-            CallInfo result;
 
-            void PushArgument()
+            //for (int i = args.Length - 1; i >= 0; i--)
+            //{
+            //    string testingCommandId = args[i..].ToJoinedString(" ");
+            //    if (_groupMap.ContainsKey(testingCommandId))
+            //    {
+            //        return Parse(ArrayHelpers.Combine(testingCommandId, ));
+            //    }
+            //}
+
+
+            if (!_commands.ContainsKey(commandId))
             {
-                outArgs.Add(new Argument(new ArgumentTarget(currentName), currentValues.ToArray()));
-                currentValues.Clear();
+                if (_groupMap.ContainsKey(commandId))
+                {
+                    return Parse(ArrayHelpers.Combine($"{args[0]} {args[1]}", args[2..]));
+                }
+
+                CallInfo tempCallInfo = new CallInfo(commandId, Array.Empty<Argument>());
+
+                if (tempCallInfo.CallsGenericFlag)
+                {
+                    if (Commands.ContainsKey(tempCallInfo.CommandId.TrimStart('-')))
+                        throw new InvalidOperationException($"Command with id '{tempCallInfo.SanitizedCommandId}' cannot be used as generic flag.");
+                    else
+                        throw new CommandNotFoundException($"Generic flag '{tempCallInfo.CommandId}' not found.", tempCallInfo.CommandId);
+                }
+                else
+                    throw new CommandNotFoundException($"Command '{tempCallInfo.CommandId}' not found.", tempCallInfo.CommandId);
+            }
+            else if (!_commands[commandId].IsEnabled)
+                throw new CommandException("Cannot call disabled command.");
+
+            CommandInfo targetCommand = _commands[commandId];
+
+            List<string> currentTokens = new List<string>();
+            List<Argument> outArguments = new List<Argument>();
+            string? currentOptionName = null;
+            int argumentIndex = 0;
+            bool acceptNamedParams = true;
+            OptionInfo[] options = targetCommand.GetOptions();
+
+            void PushPositionalArgument()
+            {
+                outArguments.Add(new Argument(new ArgumentTarget(argumentIndex), currentTokens.ToArray()));
+                currentTokens.Clear();
+
+                argumentIndex++;
+            }
+            void PushNamedArgument()
+            {
+                Debug.Assert(currentOptionName is not null);
+
+                outArguments.Add(new Argument(new ArgumentTarget(currentOptionName!), currentTokens.ToArray()));
+                currentTokens.Clear();
             }
 
-            for (int i = 1; i < args.Length; i++)
+            for (int tokenIndex = 1; tokenIndex < args.Length; tokenIndex++)
             {
-                token = args[i];
+                string token = args[tokenIndex];
 
-                if (!noMoreParams && token == "--")
+                if (acceptNamedParams && token == "--")
                 {
-                    noMoreParams = true;
+                    acceptNamedParams = false;
                     continue;
                 }
 
-                if (!noMoreParams && token.StartsWith("-"))
+                if (acceptNamedParams && token.StartsWith("-"))
                 {
-                    if (currentName is not null)
+                    if (currentOptionName is not null)
                     {
-                        PushArgument();
+                        PushNamedArgument();
                     }
+                    else if (currentTokens.Count > 0) PushPositionalArgument();
 
-                    currentName = token;
+                    currentOptionName = token;
                 }
                 else
                 {
-                    if (currentName is null)
-                        outArgs.Add(new Argument(new ArgumentTarget(position++), [token]));
+                    if (currentOptionName is null)
+                    {
+                        currentTokens.Add(token);
+
+                        if (!options[argumentIndex].OptionType.IsArray)
+                        {
+                            PushPositionalArgument();
+                        }
+                    }
                     else
-                        currentValues.Add(token);
+                    {
+                        currentTokens.Add(token);
+                    }
                 }
             }
 
-            if (currentName is not null) PushArgument();
+            if (currentOptionName is not null)
+            {
+                PushNamedArgument();
+            }
+            else if (currentTokens.Count > 0) PushPositionalArgument();
 
-            if (_groupMap.ContainsKey(commandId) && outArgs.Count > 0 && outArgs[0].CanTargetSubcommand && Commands.ContainsKey($"{args[0]} {args[1]}"))
+            CallInfo result;
+
+            if (_groupMap.ContainsKey(commandId) && outArguments.Count > 0 && outArguments[0].CanTargetSubcommand && Commands.ContainsKey($"{args[0]} {args[1]}"))
             {
                 result = Parse(ArrayHelpers.Combine($"{args[0]} {args[1]}", args[2..]));
             }
             else
             {
-                result = new CallInfo(args[0], outArgs);
+                result = new CallInfo(args[0], outArguments);
             }
-
-            if (!_commands.ContainsKey(result.CommandId))
-            {
-                if (result.CallsGenericFlag)
-                {
-                    if (Commands.ContainsKey(result.CommandId.TrimStart('-')))
-                        throw new InvalidOperationException($"Command with id '{result.SanitizedCommandId}' cannot be used as generic flag.");
-                    else
-                        throw new InvalidOperationException($"Generic flag '{result.CommandId}' not found.");
-                }
-                else
-                    throw new InvalidOperationException($"Command '{result.CommandId}' not found.");
-            }
-            else if (!_commands[result.CommandId].IsEnabled)
-                throw new CommandException("Cannot call disabled command.");
 
             return result;
         }

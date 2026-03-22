@@ -90,6 +90,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         {
             Engine.AddCommand(new DummyCommandInfo("cmd", options: [
                 OptionInfo.FromType(typeof(string), "1"),
+                OptionInfo.FromType(typeof(string), "2"),
             ]));
 
             CallInfo parsed = Engine.Parse(["cmd", "val1", "val2"]);
@@ -108,7 +109,10 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_NamedArguments()
         {
-            Engine.AddCommand(new DummyCommandInfo("cmd"));
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+                OptionInfo.FromType(typeof(string), "arg2"),
+            ]));
 
             CallInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1-2", "--arg2", "val2"]);
 
@@ -126,7 +130,10 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_PositionalAndNamedArguments()
         {
-            Engine.AddCommand(new DummyCommandInfo("cmd"));
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+                OptionInfo.FromType(typeof(string), "arg2"),
+            ]));
 
             CallInfo parsed = Engine.Parse(["cmd", "val1", "--arg2", "val2"]);
 
@@ -148,11 +155,11 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_ChildCommandWithPositionalOptionCall_CallsChildCommand()
         {
-            CommandInfo info2 = new DummyCommandInfo("cmdg");
-            Engine.AddCommand(info2);
+            Engine.AddCommand(new DummyCommandInfo("cmdg"));
 
-            CommandInfo info = new DummyCommandInfo("cmdg cmd");
-            Engine.AddCommand(info);
+            Engine.AddCommand(new DummyCommandInfo("cmdg cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+            ]));
 
             CallInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
 
@@ -162,13 +169,31 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(5)]
+        public void Parse_FarChildCommandWithPositionalOptionCall_CallsChildCommand(int depth)
+        {
+            string[] commandParts = Enumerable.Range(1, depth).Select(i => $"cmdg{i}").Concat(["cmd"]).ToArray();
+            string commandId = commandParts.ToJoinedString(" ");
+
+            Engine.AddCommand(new DummyCommandInfo(commandParts[0]));
+
+            Engine.AddCommand(new DummyCommandInfo(commandId));
+
+            CallInfo parsed = Engine.Parse(commandParts);
+
+            parsed.CommandId.Should().Be(commandId);
+        }
+
+        [TestMethod]
         public void Parse_ParentCommandWithNamedOptionCall_CallsParentCommand()
         {
-            CommandInfo info2 = new DummyCommandInfo("cmdg");
-            Engine.AddCommand(info2);
+            Engine.AddCommand(new DummyCommandInfo("cmdg"));
 
-            CommandInfo info = new DummyCommandInfo("cmdg cmd");
-            Engine.AddCommand(info);
+            Engine.AddCommand(new DummyCommandInfo("cmdg cmd"));
 
             CallInfo parsed = Engine.Parse(["cmdg", "--arg1", "val1"]);
 
@@ -180,11 +205,11 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_ParentCommandWithQuotedOptionCallThatWouldOtherwiseMatchChildCommand_CallsParentCommand()
         {
-            CommandInfo info2 = new DummyCommandInfo("cmdg");
-            Engine.AddCommand(info2);
+            Engine.AddCommand(new DummyCommandInfo("cmdg", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+            ]));
 
-            CommandInfo info = new DummyCommandInfo("cmdg cmd");
-            Engine.AddCommand(info);
+            Engine.AddCommand(new DummyCommandInfo("cmdg cmd"));
 
             CallInfo parsed = Engine.Parse(["cmdg", "\"cmd\""]);
 
@@ -195,11 +220,11 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Parse_ParentCommandWithArgumentThatDoesNotMatchChildCommand_CallsParentCommand()
         {
-            CommandInfo info2 = new DummyCommandInfo("cmdg");
-            Engine.AddCommand(info2);
+            Engine.AddCommand(new DummyCommandInfo("cmdg", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+            ]));
 
-            CommandInfo info = new DummyCommandInfo("cmdg cmd");
-            Engine.AddCommand(info);
+            Engine.AddCommand(new DummyCommandInfo("cmdg cmd"));
 
             CallInfo parsed = Engine.Parse(["cmdg", "notcmd"]);
 
@@ -207,15 +232,79 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
+        public void Parse_PositionalArray()
+        {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string[]), "arg1"),
+            ]));
+
+            CallInfo parsed = Engine.Parse(["cmd", "a", "b", "c"]);
+
+            parsed.Arguments[0].Tokens.Should().Equal(["a", "b", "c"], because: "array inputs should be parsed as continued input, not as different positional ones");
+            parsed.Arguments[0].Target.Index.Should().Be(0);
+        }
+
+        [TestMethod]
+        public void Parse_PositionalArrayAndNamedTrailingArgument()
+        {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string[]), "arg1"),
+                OptionInfo.FromType(typeof(string), "arg2"),
+            ]));
+
+            CallInfo parsed = Engine.Parse(["cmd", "a", "b", "c", "--arg2", "hi"]);
+
+            parsed.Arguments[0].Tokens.Should().Equal(["a", "b", "c"], because: "array inputs should be parsed as continued input, not as different positional ones");
+            parsed.Arguments[0].Target.Index.Should().Be(0);
+
+            parsed.Arguments[1].Tokens.Should().Equal(["hi"]);
+            parsed.Arguments[1].Target.SanitizedId.Should().Be("arg2");
+        }
+
+        [TestMethod]
+        public void Parse_PositionalArrayAfterPositionalArgument()
+        {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+                OptionInfo.FromType(typeof(string[]), "arg2"),
+            ]));
+
+            CallInfo parsed = Engine.Parse(["cmd", "hi", "a", "b", "c"]);
+
+            parsed.Arguments[0].Tokens.Should().Equal(["hi"]);
+            parsed.Arguments[0].Target.Index.Should().Be(0);
+
+            parsed.Arguments[1].Tokens.Should().Equal(["a", "b", "c"], because: "array inputs should be parsed as continued input, not as different positional ones");
+            parsed.Arguments[1].Target.Index.Should().Be(1);
+        }
+
+        [TestMethod]
+        public void Parse_PositionalArrayAfterNamedArgument()
+        {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+                OptionInfo.FromType(typeof(string[]), "arg2"),
+            ]));
+
+            CallInfo parsed = Engine.Parse(["cmd", "hi", "--arg2", "a", "b", "c"]);
+
+            parsed.Arguments[0].Target.Index.Should().Be(0);
+            parsed.Arguments[0].Tokens.Should().Equal(["hi"]);
+
+            parsed.Arguments[1].Tokens.Should().Equal(["a", "b", "c"]);
+            parsed.Arguments[1].Target.SanitizedId.Should().Be("arg2");
+        }
+
+        [TestMethod]
         public void Parse_NonExistentCommand_ThrowsEx()
         {
-            Invoking(() => Engine.Parse(["cmd"])).Should().ThrowExactly<CommandException>();
+            Invoking(() => Engine.Parse(["cmd"])).Should().ThrowExactly<CommandNotFoundException>();
         }
 
         [TestMethod]
         public void Parse_NonExistentGroupCommand_ThrowsEx()
         {
-            Invoking(() => Engine.Parse(["group cmd"])).Should().ThrowExactly<CommandException>();
+            Invoking(() => Engine.Parse(["group cmd"])).Should().ThrowExactly<CommandNotFoundException>();
         }
 
         #endregion

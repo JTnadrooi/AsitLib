@@ -2,7 +2,7 @@
 {
     public readonly struct ArgumentTarget : IEquatable<ArgumentTarget>
     {
-        public readonly string? Id { get; }
+        public readonly string? Id { get; } // rename to Token
 
         public readonly int? Index { get; }
 
@@ -10,7 +10,7 @@
 
         public readonly bool IsLongForm => Id is not null && Id!.StartsWith("--");
 
-        public readonly string? SanitizedId => Id?.TrimStart('-');
+        public readonly string? SanitizedId => Id?.TrimStart('-'); // rename to Id
 
         public readonly bool IsAntiTarget
         {
