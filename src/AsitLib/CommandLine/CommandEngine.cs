@@ -229,7 +229,7 @@ namespace AsitLib.CommandLine
 
             if (!_commands.ContainsKey(commandId))
             {
-                if (_groupMap.ContainsKey(commandId))
+                if (_groupMap.ContainsKey(commandId) && tokens.Length > 1)
                 {
                     return Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
                 }
