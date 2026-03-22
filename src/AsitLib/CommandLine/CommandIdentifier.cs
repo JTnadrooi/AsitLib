@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +21,28 @@ namespace AsitLib.CommandLine
                 }
                 else
                 {
-                    ThrowHelpers.ThrowIfInvalidCommandId(value);
+                    ThrowHelpers.ThrowIfInvalidCommandId(value); // works for groups as well.
                     _group = value;
                 }
+            }
+        }
+
+        public ImmutableArray<string> Groups
+        {
+            get
+            {
+                if (Group is null)
+                    return ImmutableArray<string>.Empty;
+
+                var groups = new List<string>();
+                var parts = Group.Split(' ');
+
+                for (int i = 1; i <= parts.Length; i++)
+                {
+                    groups.Add(string.Join(" ", parts.Take(i)));
+                }
+
+                return groups.ToImmutableArray();
             }
         }
 

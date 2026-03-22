@@ -137,10 +137,14 @@ namespace AsitLib.CommandLine
 
                 if (!seenIds.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
 
-                CommandIdentifier commandId = new CommandIdentifier(id);
+                CommandIdentifier commandIdInfo = new CommandIdentifier(id);
 
-                if (commandId.Group is not null)
-                    seenGroups.Add(commandId.Group);
+                if (commandIdInfo.Groups.Length > 0)
+                {
+                    if (commandIdInfo.Groups.Length > 0)
+                        for (int i = 0; i < commandIdInfo.Groups.Length; i++)
+                            seenGroups.Add(commandIdInfo.Groups[i]);
+                }
                 else validGroup = false;
             }
 

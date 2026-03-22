@@ -210,12 +210,12 @@ namespace AsitLib.CommandLine
         /// <returns></returns>
         /// <exception cref="CommandException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public CallInfo Parse(string[] args)
+        public CallInfo Parse(string[] tokens)
         {
-            if (args.Length == 0) throw new CommandException("No command provided.");
+            if (tokens.Length == 0) throw new CommandException("No command provided.");
             if (_commands.Count == 0) throw new InvalidOperationException("Cannot parse for engine without commands.");
 
-            string commandId = args[0];
+            string commandId = tokens[0];
 
             //for (int i = args.Length - 1; i >= 0; i--)
             //{
@@ -231,7 +231,7 @@ namespace AsitLib.CommandLine
             {
                 if (_groupMap.ContainsKey(commandId))
                 {
-                    return Parse(ArrayHelpers.Combine($"{args[0]} {args[1]}", args[2..]));
+                    return Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
                 }
 
                 CallInfo tempCallInfo = new CallInfo(commandId, Array.Empty<Argument>());
@@ -273,9 +273,14 @@ namespace AsitLib.CommandLine
                 currentTokens.Clear();
             }
 
-            for (int tokenIndex = 1; tokenIndex < args.Length; tokenIndex++)
+            for (int tokenIndex = 1; tokenIndex < tokens.Length; tokenIndex++)
             {
-                string token = args[tokenIndex];
+                string token = tokens[tokenIndex];
+
+                if (_groupMap.ContainsKey($"{tokens[0]} {tokens[1]}") || _commands.ContainsKey($"{tokens[0]} {tokens[1]}"))
+                {
+                    return Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
+                }
 
                 if (acceptNamedParams && token == "--")
                 {
@@ -319,13 +324,13 @@ namespace AsitLib.CommandLine
 
             CallInfo result;
 
-            if (_groupMap.ContainsKey(commandId) && outArguments.Count > 0 && outArguments[0].CanTargetSubcommand && Commands.ContainsKey($"{args[0]} {args[1]}"))
+            if (_groupMap.ContainsKey(commandId) && outArguments.Count > 0 && outArguments[0].CanTargetSubcommand && Commands.ContainsKey($"{tokens[0]} {tokens[1]}"))
             {
-                result = Parse(ArrayHelpers.Combine($"{args[0]} {args[1]}", args[2..]));
+                result = Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
             }
             else
             {
-                result = new CallInfo(args[0], outArguments);
+                result = new CallInfo(tokens[0], outArguments);
             }
 
             return result;

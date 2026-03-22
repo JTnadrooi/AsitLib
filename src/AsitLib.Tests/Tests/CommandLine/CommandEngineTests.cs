@@ -332,6 +332,18 @@ namespace AsitLib.Tests.Tests.CommandLine
         }
 
         [TestMethod]
+        public void AddAndRemove_NestedGroupedCommand_AddsAndRemovesGroups()
+        {
+            Engine.AddCommand(new DummyCommandInfo("group1 group2 print"));
+            Engine.Groups.Should().BeEquivalentTo(["group1", "group1 group2"]);
+
+            Engine.RemoveCommand("group1 group2 print");
+
+            Engine.Groups.Should().BeEmpty();
+            Engine.Commands.Keys.Should().NotContain("group1 group2 print");
+        }
+
+        [TestMethod]
         public void AddAndRemove_CommandWithMultipleGroups_AddsAndRemovesGroups()
         {
             Engine.AddCommand(new DummyCommandInfo(["group1 cmd", "group2 cmd"]));
