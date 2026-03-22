@@ -69,11 +69,27 @@
         }
 
         [TestMethod]
-        public void ToJoinedString_JoinsValuesIncludingNulls()
+        public void ToJoinedString_ArrayWithNull_ConvertsNullToStringAndReturnsJoinedValues()
         {
             int?[] source = [1, null, 3, 4];
 
             source.ToJoinedString(',').Should().Be("1,null,3,4");
+        }
+
+        [TestMethod]
+        public void ToJoinedString_Array_ReturnsJoinedValues()
+        {
+            int?[] source = [1, 2, 3, 4];
+
+            source.ToJoinedString(',').Should().Be("1,2,3,4");
+        }
+
+        [TestMethod]
+        public void ToJoinedString_EmptyArray_ReturnsEmptyString()
+        {
+            int?[] source = [];
+
+            source.ToJoinedString(',').Should().BeEmpty();
         }
 
         [TestMethod]
