@@ -4,7 +4,60 @@ using System.Diagnostics.CodeAnalysis;
 namespace AsitLib
 {
     public static class EnumerableExtensions
-    {
+    {/// <summary>
+     /// Determines whether a sequence contains any duplicate elements.
+     /// </summary>
+     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+     /// <param name="source">The sequence to check for duplicates.</param>
+     /// <returns><see langword="true"/> if the source sequence contains any duplicate elements; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource>(this IEnumerable<TSource> source)
+        {
+            return source.HasDuplicates(static x => x);
+        }
+
+        /// <summary>
+        /// Determines whether a sequence contains any duplicate elements based on a specified key selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The sequence to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <returns><see langword="true"/> if the source sequence contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector)
+        {
+            return source.HasDuplicates(keySelector, null);
+        }
+
+        /// <summary>
+        /// Determines whether a sequence contains any duplicate elements based on a specified key selector function
+        /// and using a specified equality comparer.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The sequence to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <param name="comparer">An equality comparer to compare keys.</param>
+        /// <returns><see langword="true"/> if the source sequence contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey>? comparer)
+        {
+            if (source is null) throw new ArgumentNullException(nameof(source));
+            if (keySelector is null) throw new ArgumentNullException(nameof(keySelector));
+
+            HashSet<TKey> seen = new(comparer ?? EqualityComparer<TKey>.Default);
+            foreach (TSource item in source)
+            {
+                TKey key = keySelector(item);
+                if (!seen.Add(key))
+                    return true;
+            }
+            return false;
+        }
+
         public static int IndexOf<T>(this IEnumerable<T> source, T value)
         {
             int index = 0;
@@ -152,8 +205,6 @@ namespace AsitLib
                 else index++;
             throw new InvalidOperationException("No items match the given predicate.");
         }
-
-        public static bool HasDuplicates<T>(this IEnumerable<T> source) => source.GroupBy(x => x).Any(g => g.Count() > 1);
 
         public static bool TryGetFirstIndexWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate, [NotNullWhen(true)] out int? value)
         {

@@ -75,5 +75,29 @@
 
             source.ToJoinedString(',').Should().Be("1,null,3,4");
         }
+
+        [TestMethod]
+        public void HasDuplicates_ArrayWithDuplicates_ReturnsTrue()
+        {
+            int[] source = [1, 1, 3, 4];
+
+            source.HasDuplicates().Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void HasDuplicates_ArrayWithoutDuplicates_ReturnsFalse()
+        {
+            int[] source = [1, 2, 3, 4];
+
+            source.HasDuplicates().Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void HasDuplicates_EmptyArray_ReturnsFalse()
+        {
+            int[] source = [];
+
+            source.HasDuplicates().Should().BeFalse();
+        }
     }
 }
