@@ -164,7 +164,7 @@ namespace AsitLib.CommandLine
                     if (arg.Target.IsMatchFor(globalOption))
                         if (!validArguments.Add(arg) || !result.Add(globalOption))
                         {
-                            throw new InvalidOperationException("Duplicate argument to flag mapping.");
+                            throw new CommandArgumentException("Duplicate argument to flag mapping.");
                         }
                 }
 
@@ -190,9 +190,10 @@ namespace AsitLib.CommandLine
                 Argument? matchingArgument = null;
 
                 foreach (Argument arg in call.Arguments)
-                    if (arg.Target.IsMatchFor(option, i, context)) // shorthand.
+                    if (arg.Target.IsMatchFor(option, i, context))
                     {
-                        if (matchingArgument is not null) throw new CommandException($"Duplicate argument found for target '{option.Id}'.");
+                        if (matchingArgument is not null)
+                            throw new CommandArgumentException($"Duplicate argument found for target '{option.Id}'."); // still needed if positional and named arguments conflict.
                         matchingArgument = arg;
                     }
 
@@ -203,7 +204,7 @@ namespace AsitLib.CommandLine
                         result[i] = option.DefaultValue;
                         goto Continue;
                     }
-                    else throw new CommandException($"No matching value found for parameter '{option}'.");
+                    else throw new CommandArgumentException($"No matching value found for parameter '{option}'.");
                 }
 
                 if (matchingArgument.Target.IsAntiTarget)

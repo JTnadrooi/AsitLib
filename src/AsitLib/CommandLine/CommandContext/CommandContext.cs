@@ -2,7 +2,7 @@
 {
     public sealed class CommandContext
     {
-        public CallInfo ArgumentsInfo { get; }
+        public CallInfo Call { get; }
         public CommandEngine Engine { get; }
         public CommandInfo Command { get; }
         public ExecutingContextFlags Flags { get; set; }
@@ -12,7 +12,7 @@
 
         internal CommandContext(CommandEngine engine, CallInfo argumentsInfo, bool preCommand, CommandInfo command)
         {
-            ArgumentsInfo = argumentsInfo;
+            Call = argumentsInfo;
             Engine = engine;
             Flags = ExecutingContextFlags.None;
             Command = command;
@@ -76,7 +76,7 @@
         {
             if (globalOption.Option is null) throw new InvalidOperationException("Cannot get value passed to GlobalOption without Option.");
 
-            foreach (Argument argument in ArgumentsInfo.Arguments)
+            foreach (Argument argument in Call.Arguments)
                 if (argument.Target.IsMatchFor(globalOption))
                 {
                     value = (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());

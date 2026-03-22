@@ -217,16 +217,6 @@ namespace AsitLib.CommandLine
 
             string commandId = tokens[0];
 
-            //for (int i = args.Length - 1; i >= 0; i--)
-            //{
-            //    string testingCommandId = args[i..].ToJoinedString(" ");
-            //    if (_groupMap.ContainsKey(testingCommandId))
-            //    {
-            //        return Parse(ArrayHelpers.Combine(testingCommandId, ));
-            //    }
-            //}
-
-
             if (!_commands.ContainsKey(commandId))
             {
                 if (_groupMap.ContainsKey(commandId) && tokens.Length > 1)
@@ -265,6 +255,7 @@ namespace AsitLib.CommandLine
 
                 argumentIndex++;
             }
+
             void PushNamedArgument()
             {
                 Debug.Assert(currentOptionName is not null);
@@ -359,7 +350,7 @@ namespace AsitLib.CommandLine
             List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
             toRunHooks.AddRange(_hooks.Values);
 
-            if (call.Arguments.Length > 0) throw new CommandException($"Duplicate or unresolved argument targets found; [{call.Arguments.ToJoinedString(", ")}].");
+            if (call.Arguments.Length > 0) throw new CommandArgumentException($"Duplicate or unresolved argument targets found; [{call.Arguments.ToJoinedString(", ")}].");
 
             foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 

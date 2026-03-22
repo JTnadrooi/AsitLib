@@ -137,7 +137,7 @@ namespace AsitLib.CommandLine
             {
                 if (ImplicitValue is not null) result = ImplicitValue;
                 else if (OptionType == typeof(bool)) result = true;
-                else throw new InvalidOperationException($"Cannot convert empty token to '{this.OptionType}' type.");
+                else throw new CommandArgumentException($"Cannot convert empty token to '{this.OptionType}' type.");
             }
             else if (OptionType.IsArray)
             {
@@ -148,7 +148,7 @@ namespace AsitLib.CommandLine
 
                 result = resultArray;
             }
-            else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this.OptionType}'.");
+            else if (tokens.Length > 1) throw new CommandArgumentException($"Cannot convert multiple tokens to '{this.OptionType}'.");
             else if (OptionType.IsEnum)
             {
                 if (int.TryParse(ParseHelpers.UnQuote(tokens[0]), out int intResult)) result = Enum.ToObject(OptionType, intResult);
@@ -170,7 +170,7 @@ namespace AsitLib.CommandLine
                         }
 
                     if (!foundEnumEntry)
-                        throw new ArgumentException($"Invalid enum value '{tokens[0]}' could not be parsed to any of [{names.ToJoinedString(", ")}].", nameof(tokens));
+                        throw new CommandArgumentException($"Invalid enum value '{tokens[0]}' could not be parsed to any of [{names.ToJoinedString(", ")}].");
                 }
 
             }
@@ -189,7 +189,7 @@ namespace AsitLib.CommandLine
             }
             else
             {
-                throw new InvalidOperationException("Option does not support anti targets.");
+                throw new CommandArgumentException("Option does not support anti targets.");
             }
         }
 

@@ -58,13 +58,13 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_DuplicateArguments_ThrowsEx()
         {
-            Invoking(() => AssertExecute("print.", "print ahoy --input bonjour")).Should().ThrowExactly<CommandException>();
+            Invoking(() => AssertExecute("print.", "print ahoy --input bonjour")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]
         public void Execute_DuplicateAntiArguments_ThrowsEx()
         {
-            Invoking(() => AssertExecute("Tv.", "tv --color false --disable-color")).Should().ThrowExactly<CommandException>();
+            Invoking(() => AssertExecute("Tv.", "tv --color false --disable-color")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]
@@ -86,13 +86,13 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_InvalidParameter_ThrowsCommandException()
+        public void Execute_InvalidParameter_ThrowsEx()
         {
-            Invoking(() => Engine.Execute("print hi --doesnt-exist ahoy")).Should().ThrowExactly<CommandException>();
+            Invoking(() => Engine.Execute("print hi --doesnt-exist ahoy")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]
-        public void Execute_MissingArgument_ThrowsCommandException()
+        public void Execute_MissingArgument_ThrowsEx()
         {
             Invoking(() => Engine.Execute("print"));
         }
@@ -118,9 +118,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_DuplicateLongShortOptions_ThrowsCommandException()
+        public void Execute_DuplicateLongShortOptions_ThrowsEx()
         {
-            Invoking(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi")).Should().ThrowExactly<CommandException>();
+            Invoking(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]

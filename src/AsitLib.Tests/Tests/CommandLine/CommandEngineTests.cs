@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 namespace AsitLib.Tests.Tests.CommandLine
@@ -305,6 +306,89 @@ namespace AsitLib.Tests.Tests.CommandLine
         public void Parse_NonExistentGroupCommand_ThrowsEx()
         {
             Invoking(() => Engine.Parse(["group cmd"])).Should().ThrowExactly<CommandNotFoundException>();
+        }
+
+        //[TestMethod]
+        //public void Parse_NonExistentArgument_ThrowsEx()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(string), "arg1"),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd", "--doesntexist", "aaa"])).Should().ThrowExactly<CommandArgumentException>();
+        //}
+
+        [TestMethod]
+        public void Parse_DuplicateArgument_ThrowsEx()
+        {
+            Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+            ]));
+
+            Invoking(() => Engine.Parse(["cmd", "--arg1", "aaa", "--arg1", "bbb"])).Should().ThrowExactly<CommandArgumentException>();
+        }
+
+        //[TestMethod]
+        //public void Parse_MissingArgument_ThrowsEx()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(string), "arg1"),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd"])).Should().ThrowExactly<CommandException>();
+        //}
+
+        //[TestMethod]
+        //public void Parse_UnparsableArgument_ThrowsEx()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(int), "arg1"),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd", "aeaeae"])).Should().ThrowExactly<CommandArgumentException>();
+        //}
+
+        //[TestMethod]
+        //public void Parse_UnusedPositionalArgument_ThrowsEx()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(string), "arg1"),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd", "a", "b"])).Should().ThrowExactly<CommandArgumentException>();
+        //}
+
+        //[TestMethod]
+        //public void Parse_UnusedNamedArgument_ThrowsEx()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(string), "arg1"),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd", "--arg1", "a", "--arg2", "b"])).Should().ThrowExactly<CommandArgumentException>();
+        //}
+
+        //[TestMethod]
+        //public void Parse_TargetOptionsWithValidationAttributes_ChecksAgainstAttributes()
+        //{
+        //    Engine.AddCommand(new DummyCommandInfo("cmd", options: [
+        //        OptionInfo.FromType(typeof(string), "arg1", validationAttributes: [new MaxLengthAttribute(1)]),
+        //    ]));
+
+        //    Invoking(() => Engine.Parse(["cmd", "--arg1", "aaaaa"])).Should().ThrowExactly<CommandArgumentException>();
+        //    Invoking(() => Engine.Parse(["cmd", "aaaaa"])).Should().ThrowExactly<CommandArgumentException>();
+
+        //    Invoking(() => Engine.Parse(["cmd", "--arg1", "a"])).Should().NotThrow();
+        //    Invoking(() => Engine.Parse(["cmd", "a"])).Should().NotThrow();
+        //}
+
+        [TestMethod]
+        public void Parse_TargetGroupThatExistButCommandThatDoesnt_ThrowEx()
+        {
+            Engine.AddCommand(new DummyCommandInfo("group1 group2 group3 cmd"));
+
+            Invoking(() => Engine.Parse(["group1"])).Should().ThrowExactly<CommandNotFoundException>();
+            Invoking(() => Engine.Parse(["group1", "aaaa"])).Should().ThrowExactly<CommandNotFoundException>();
         }
 
         #endregion
