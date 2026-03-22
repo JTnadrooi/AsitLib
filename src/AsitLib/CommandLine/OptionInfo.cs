@@ -148,7 +148,7 @@ namespace AsitLib.CommandLine
 
                 result = resultArray;
             }
-            else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this}' type.");
+            else if (tokens.Length > 1) throw new InvalidOperationException($"Cannot convert multiple tokens to '{this.OptionType}'.");
             else if (OptionType.IsEnum)
             {
                 if (int.TryParse(ParseHelpers.UnQuote(tokens[0]), out int intResult)) result = Enum.ToObject(OptionType, intResult);
