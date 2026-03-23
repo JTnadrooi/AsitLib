@@ -75,7 +75,7 @@ namespace AsitLib.Tests
         [DataRow("   ")]
         public void Ctor_InvalidSource_ThrowsEx(string invalidSource)
         {
-            Invoking(() => new CommandIdentifier(invalidSource)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => new CommandIdentifier(invalidSource)).Should().ThrowExactly<ArgumentException>();
         }
     }
 }

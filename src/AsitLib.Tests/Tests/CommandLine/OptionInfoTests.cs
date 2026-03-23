@@ -59,5 +59,24 @@ namespace AsitLib.Tests
 
             info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
         }
+
+        [TestMethod]
+        [DataRow(typeof(void))]
+        [DataRow(typeof(DBNull))]
+        public void Ctor_InvalidType_ThrowsEx(Type type)
+        {
+            Invoking(() => OptionInfo.FromType(type)).Should().ThrowExactly<ArgumentException>();
+        }
+
+        [TestMethod]
+        [DataRow("---option")]
+        [DataRow("--option")]
+        [DataRow("-option")]
+        [DataRow("-option")]
+        [DataRow("opt ion")]
+        public void Ctor_InvalidId_ThrowsEx(string id)
+        {
+            Invoking(() => OptionInfo.FromType(typeof(string), id)).Should().ThrowExactly<ArgumentException>();
+        }
     }
 }

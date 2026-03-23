@@ -78,9 +78,7 @@ namespace AsitLib.CommandLine
                     _defaultValue = false;
 
             foreach (string id in Ids)
-            {
                 ThrowHelpers.ThrowIfInvalidOptionId(id);
-            }
 
             if (OptionType == typeof(bool))
             {
@@ -97,9 +95,9 @@ namespace AsitLib.CommandLine
             PassingPolicies = OptionPassingPolicies.All;
 
             foreach (string id in ids)
-            {
                 ThrowHelpers.ThrowIfInvalidOptionId(id);
-            }
+
+            ThrowHelpers.ThrowIfInvalidOptionType(type);
 
             if (OptionType == typeof(bool))
             {

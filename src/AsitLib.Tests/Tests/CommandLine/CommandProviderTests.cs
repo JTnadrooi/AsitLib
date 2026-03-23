@@ -13,7 +13,7 @@
         [DataRow("      ")]
         public void Contruct_WithInvalidName_ThrowsEx(string name)
         {
-            Invoking(() => new DummyCommandProvider(name)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => new DummyCommandProvider(name)).Should().ThrowExactly<ArgumentException>();
         }
     }
 }
