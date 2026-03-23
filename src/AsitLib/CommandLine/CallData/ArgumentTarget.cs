@@ -49,8 +49,7 @@
         }
 
         public bool IsMatchFor(GlobalOption globalOption)
-            => (IsShorthand && globalOption.HasShorthandId && globalOption.ShorthandId == SanitizedId) ||
-                (IsLongForm && globalOption.LongFormId == SanitizedId);
+            => IsMatchFor(globalOption.Option, -1);
 
         public override string ToString() => Id is null ? Index!.ToString()! : Id;
 

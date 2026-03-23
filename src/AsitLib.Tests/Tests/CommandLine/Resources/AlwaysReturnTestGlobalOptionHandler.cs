@@ -2,7 +2,7 @@
 {
     public class AlwaysReturnTestGlobalOptionHandler : GlobalOption
     {
-        public AlwaysReturnTestGlobalOptionHandler() : base("ret-test", "desc", "t", OptionInfo.FromType(typeof(string), implicitValue: "TEST"))
+        public AlwaysReturnTestGlobalOptionHandler() : base(OptionInfo.FromType(typeof(string), ["ret-test", "t"], implicitValue: "TEST"), "desc.")
         {
 
         }

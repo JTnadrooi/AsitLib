@@ -8,7 +8,7 @@ namespace AsitLib.CommandLine
 
         private ILogger _logger;
 
-        public VerboseGlobalOption(ILogger logger) : base("verbose", "Enables verbose logging.", "v")
+        public VerboseGlobalOption(ILogger logger) : base(OptionInfo.FromType(typeof(bool), ["verbose", "v"]), "Enables verbose logging.")
         {
             _logger = logger;
         }

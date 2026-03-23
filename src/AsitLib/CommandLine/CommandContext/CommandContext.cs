@@ -69,7 +69,7 @@
         public T? GetGlobalOptionValue<T>(GlobalOption globalOption)
         {
             if (TryGetGlobalOptionValue<T>(globalOption, out T? value)) return value;
-            else throw new InvalidOperationException($"No option provided for GlobalOption '{globalOption.LongFormId}'.");
+            else throw new InvalidOperationException($"No option provided for GlobalOption '{globalOption.Id}'.");
         }
 
         public bool TryGetGlobalOptionValue<T>(GlobalOption globalOption, out T? value)

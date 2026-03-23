@@ -2,7 +2,7 @@
 {
     public sealed class HelpGlobalOption : GlobalOption
     {
-        public HelpGlobalOption() : base("help", "Displays command help.", "h")
+        public HelpGlobalOption() : base(OptionInfo.FromType(typeof(bool), ["help", "h"]), "Displays command help.")
         {
 
         }

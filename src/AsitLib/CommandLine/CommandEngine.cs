@@ -174,9 +174,9 @@ namespace AsitLib.CommandLine
             return this;
         }
 
-        public CommandEngine AddGlobalOption(GlobalOption flagHandler)
+        public CommandEngine AddGlobalOption(GlobalOption globalOption)
         {
-            _globalOptions.Add(flagHandler.LongFormId, flagHandler);
+            _globalOptions.Add(globalOption.Id, globalOption);
             return this;
         }
 
