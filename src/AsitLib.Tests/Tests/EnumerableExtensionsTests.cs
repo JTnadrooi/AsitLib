@@ -41,16 +41,6 @@
         }
 
         [TestMethod]
-        public void SqueezeIndexes_MovesNullsToEndPreservingOrder()
-        {
-            int?[] source = [1, null, 2, null, 3];
-
-            int?[] result = source.SqueezeIndexes();
-
-            result.Should().Equal([1, 2, 3, null, null]);
-        }
-
-        [TestMethod]
         public void GetFirstIndexWhere_WhenMatchExists_ReturnsIndex()
         {
             int[] source = [1, 2, 3, 4, 5];

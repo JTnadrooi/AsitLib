@@ -280,17 +280,6 @@ namespace AsitLib
             return source;
         }
 
-        public static T?[] SqueezeIndexes<T>(this T?[] source)
-        {
-            List<T?> squeezedList = new List<T?>();
-
-            for (int i = 0; i < source.Length; i++)
-                if (source[i] is not null) squeezedList.Add(source[i]);
-            while (squeezedList.Count != source.Length) squeezedList.Add(default(T));
-
-            return squeezedList.ToArray();
-        }
-
         public static T[] ToSingleArray<T>(this T value) => [value]; // still needed in rare cases where [] doesn't work.
 
         /// <summary>
