@@ -1,4 +1,5 @@
 ﻿using AsitLib.Diagnostics;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -89,15 +90,15 @@ namespace AsitLib.CommandLine
         /// <summary>
         /// Gets a <see cref="HashSet{T}"/> containing all strings this command belongs to. This includes generic flags, aliasses, etc.
         /// </summary>
-        public IReadOnlyList<string> Ids { get; }
+        public ImmutableArray<string> Ids { get; }
 
-        public IReadOnlyList<string> Groups { get; }
+        public ImmutableArray<string> Groups { get; }
 
         /// <summary>
         /// Gets if the command represented by this instance has aliases. Generic flag ids count as aliases.
         /// <code>Ids.Count > 1</code>
         /// </summary>
-        public bool HasAliases => Ids.Count > 1;
+        public bool HasAliases => Ids.Length > 1;
 
         /// <summary>
         /// Gets the main id. (The first one.)
@@ -155,9 +156,9 @@ namespace AsitLib.CommandLine
             else
                 Group = null;
 
-            Groups = seenGroups.ToArray();
+            Groups = seenGroups.ToImmutableArray();
 
-            Ids = ids.ToArray();
+            Ids = ids.ToImmutableArray();
             Description = description;
             IsEnabled = true;
         }

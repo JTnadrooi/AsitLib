@@ -1,16 +1,18 @@
-﻿namespace AsitLib.Diagnostics
+﻿using System.Collections.Immutable;
+
+namespace AsitLib.Diagnostics
 {
     public class InvalidObjectException : Exception
     {
-        public IReadOnlyList<InvalidReason> Reasons { get; }
+        public ImmutableArray<InvalidReason> Reasons { get; }
 
         public InvalidObjectException(string message) : this(new InvalidReason(message)) { }
 
-        public InvalidObjectException(params IReadOnlyList<InvalidReason> reasons) : base($"Invalid state, reasons: '{reasons.ToJoinedString(", ")}'.")
+        public InvalidObjectException(params ReadOnlySpan<InvalidReason> reasons) : base($"Invalid state, reasons: '{reasons.ToJoinedString(", ")}'.")
         {
-            if (reasons.Count == 0) throw new ArgumentException("'reasons' cannot be empty.", nameof(reasons));
+            if (reasons.Length == 0) throw new ArgumentException("'reasons' cannot be empty.", nameof(reasons));
 
-            Reasons = reasons;
+            Reasons = reasons.ToImmutableArray();
         }
     }
 

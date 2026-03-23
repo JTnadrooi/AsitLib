@@ -4,15 +4,119 @@ using System.Diagnostics.CodeAnalysis;
 namespace AsitLib
 {
     public static class EnumerableExtensions
-    {/// <summary>
-     /// Determines whether a sequence contains any duplicate elements.
-     /// </summary>
-     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-     /// <param name="source">The sequence to check for duplicates.</param>
-     /// <returns><see langword="true"/> if the source sequence contains any duplicate elements; otherwise, <see langword="false"/>.</returns>
+    {
+        /// <summary>
+        /// Determines whether a span contains any duplicate elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <param name="source">The span to check for duplicates.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource>(this Span<TSource> source)
+            where TSource : notnull
+        {
+            return HasDuplicates((ReadOnlySpan<TSource>)source, static x => x);
+        }
+
+        /// <summary>
+        /// Determines whether a span contains any duplicate elements based on a specified key selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The span to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this Span<TSource> source,
+            Func<TSource, TKey> keySelector)
+            where TSource : notnull
+        {
+            return HasDuplicates((ReadOnlySpan<TSource>)source, keySelector, null);
+        }
+
+        /// <summary>
+        /// Determines whether a span contains any duplicate elements based on a specified key selector function
+        /// and using a specified equality comparer.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The span to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <param name="comparer">An equality comparer to compare keys.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this Span<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey>? comparer)
+            where TSource : notnull
+        {
+            return HasDuplicates((ReadOnlySpan<TSource>)source, keySelector, comparer);
+        }
+
+        /// <summary>
+        /// Determines whether a read-only span contains any duplicate elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <param name="source">The read-only span to check for duplicates.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource>(this ReadOnlySpan<TSource> source)
+            where TSource : notnull
+        {
+            return HasDuplicates(source, static x => x);
+        }
+
+        /// <summary>
+        /// Determines whether a read-only span contains any duplicate elements based on a specified key selector function.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The read-only span to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this ReadOnlySpan<TSource> source,
+            Func<TSource, TKey> keySelector)
+            where TSource : notnull
+        {
+            return HasDuplicates(source, keySelector, null);
+        }
+
+        /// <summary>
+        /// Determines whether a read-only span contains any duplicate elements based on a specified key selector function
+        /// and using a specified equality comparer.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the span.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by keySelector.</typeparam>
+        /// <param name="source">The read-only span to check for duplicates.</param>
+        /// <param name="keySelector">A function to extract the key for each element.</param>
+        /// <param name="comparer">An equality comparer to compare keys.</param>
+        /// <returns><see langword="true"/> if the source span contains any duplicate elements based on the key; otherwise, <see langword="false"/>.</returns>
+        public static bool HasDuplicates<TSource, TKey>(
+            this ReadOnlySpan<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey>? comparer)
+            where TSource : notnull
+        {
+            if (keySelector is null) throw new ArgumentNullException(nameof(keySelector));
+
+            HashSet<TKey> seen = new(comparer ?? EqualityComparer<TKey>.Default);
+            foreach (TSource item in source)
+            {
+                TKey key = keySelector.Invoke(item);
+                if (!seen.Add(key))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether a sequence contains any duplicate elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="source">The sequence to check for duplicates.</param>
+        /// <returns><see langword="true"/> if the source sequence contains any duplicate elements; otherwise, <see langword="false"/>.</returns>
         public static bool HasDuplicates<TSource>(this IEnumerable<TSource> source)
         {
-            return source.HasDuplicates(static x => x);
+            return source.HasDuplicates(x => x);
         }
 
         /// <summary>
@@ -51,7 +155,7 @@ namespace AsitLib
             HashSet<TKey> seen = new(comparer ?? EqualityComparer<TKey>.Default);
             foreach (TSource item in source)
             {
-                TKey key = keySelector(item);
+                TKey key = keySelector.Invoke(item);
                 if (!seen.Add(key))
                     return true;
             }
@@ -84,7 +188,7 @@ namespace AsitLib
         {
             foreach (T element in source)
             {
-                if (!predicate(element)) continue;
+                if (!predicate.Invoke(element)) continue;
 
                 value = element!;
                 return true;
@@ -110,7 +214,7 @@ namespace AsitLib
 
             foreach (T element in source)
             {
-                if (!predicate(element)) continue;
+                if (!predicate.Invoke(element)) continue;
 
                 last = element;
                 found = true;
@@ -141,7 +245,7 @@ namespace AsitLib
 
             foreach (T element in source)
             {
-                if (!predicate(element)) continue;
+                if (!predicate.Invoke(element)) continue;
 
                 if (matchIndex == index)
                 {
@@ -238,12 +342,43 @@ namespace AsitLib
             return indexes.ToArray();
         }
 
-        public static string ToJoinedString<T>(this IEnumerable<T> values, char joiner) => ToJoinedString(values, joiner.ToString());
+        public static string ToJoinedString<T>(this IEnumerable<T> values, char joiner)
+            => ToJoinedString(values, joiner.ToString());
+
         public static string ToJoinedString<T>(this IEnumerable<T> values, string? joiner = null)
         {
             joiner ??= string.Empty;
             if (values is null) return StringHelpers.NULL_STRING;
             return string.Join(joiner, values.Select(v => v?.ToString() ?? StringHelpers.NULL_STRING));
         }
+
+        public static string ToJoinedString<T>(this ReadOnlySpan<T> values, char joiner)
+            => ToJoinedString(values, joiner.ToString());
+
+        public static string ToJoinedString<T>(this ReadOnlySpan<T> values, string? joiner = null)
+        {
+            joiner ??= string.Empty;
+            if (values.IsEmpty) return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            T first = values[0];
+            sb.Append(first?.ToString() ?? StringHelpers.NULL_STRING);
+
+            for (int i = 1; i < values.Length; i++)
+            {
+                sb.Append(joiner);
+                T value = values[i];
+                sb.Append(value?.ToString() ?? StringHelpers.NULL_STRING);
+            }
+
+            return sb.ToString();
+        }
+
+        public static string ToJoinedString<T>(this Span<T> values, char joiner)
+            => ((ReadOnlySpan<T>)values).ToJoinedString(joiner);
+
+        public static string ToJoinedString<T>(this Span<T> values, string? joiner = null)
+            => ((ReadOnlySpan<T>)values).ToJoinedString(joiner);
     }
 }

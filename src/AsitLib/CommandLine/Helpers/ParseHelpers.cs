@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Immutable;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -6,7 +7,7 @@ namespace AsitLib.CommandLine
 {
     public static class ParseHelpers
     {
-        //public static IReadOnlyList<char> s_invalidChars = [
+        //public static ImmutableArray<char> s_invalidChars = [
         //    '@', '<', '>', '.', '!', '#', '$',
         //    '%', '^', '&', '*', '(', ')',
         //    '+', '=', '{', '}', '[', ']',
@@ -15,7 +16,7 @@ namespace AsitLib.CommandLine
         //    '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         //];
 
-        internal static IReadOnlyList<string> s_antiPrefixes = [
+        internal static ImmutableArray<string> s_antiPrefixes = [
             "no"
         ];
 
@@ -172,7 +173,7 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(IReadOnlyList{string})"/>.
+        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
         /// </summary>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
         /// <param name="context">The command context, used for option inheritance policies.</param>

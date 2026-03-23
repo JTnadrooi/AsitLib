@@ -321,7 +321,7 @@ namespace AsitLib.CommandLine
             }
             else
             {
-                result = new CallInfo(tokens[0], outArguments);
+                result = new CallInfo(tokens[0], outArguments.ToArray());
             }
 
             return result;

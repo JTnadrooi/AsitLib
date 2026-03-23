@@ -9,11 +9,11 @@ namespace AsitLib.CommandLine
         public ImmutableArray<Argument> Arguments { get; }
         public bool CallsGenericFlag { get; }
 
-        public CallInfo(string commandId, IReadOnlyList<Argument> arguments)
+        public CallInfo(string commandId, ReadOnlySpan<Argument> arguments)
         {
             bool callsGenericFlag = commandId.StartsWith("-");
 
-            if (callsGenericFlag && arguments.Count != 0) throw new CommandException("Cannot call generic flag with arguments.");
+            if (callsGenericFlag && arguments.Length != 0) throw new CommandException("Cannot call generic flag with arguments.");
             if (callsGenericFlag && !ParseHelpers.IsValidGenericFlagCall(commandId)) throw new CommandException("Invalid generic flag call.");
 
             if (arguments.HasDuplicates(a => a.Target)) throw new CommandArgumentException("Cannot have duplicate argument targets.");

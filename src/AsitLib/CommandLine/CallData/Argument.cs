@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
 
         public bool CanTargetSubcommand => Target.Id is null && Tokens.Length == 1 && !ParseHelpers.IsQuoted(Tokens[0]);
 
-        public Argument(ArgumentTarget target, IReadOnlyList<string> tokens)
+        public Argument(ArgumentTarget target, ReadOnlySpan<string> tokens)
         {
             Target = target;
             Tokens = tokens.ToImmutableArray();

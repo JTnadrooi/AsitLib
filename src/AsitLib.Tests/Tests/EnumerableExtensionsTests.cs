@@ -93,6 +93,30 @@
         }
 
         [TestMethod]
+        public void ToJoinedString_SpanWithNull_ConvertsNullToStringAndReturnsJoinedValues()
+        {
+            Span<int?> span = stackalloc int?[] { 1, null, 3, 4 };
+
+            span.ToJoinedString(',').Should().Be("1,null,3,4");
+        }
+
+        [TestMethod]
+        public void ToJoinedString_Span_ReturnsJoinedValues()
+        {
+            Span<int?> span = stackalloc int?[] { 1, 2, 3, 4 };
+
+            span.ToJoinedString(',').Should().Be("1,2,3,4");
+        }
+
+        [TestMethod]
+        public void ToJoinedString_EmptySpan_ReturnsEmptyString()
+        {
+            Span<int?> span = Span<int?>.Empty;
+
+            span.ToJoinedString(',').Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void HasDuplicates_ArrayWithDuplicates_ReturnsTrue()
         {
             int[] source = [1, 1, 3, 4];
@@ -115,5 +139,30 @@
 
             source.HasDuplicates().Should().BeFalse();
         }
+
+        [TestMethod]
+        public void HasDuplicates_SpanWithDuplicates_ReturnsTrue()
+        {
+            Span<int> span = stackalloc int[] { 1, 1, 3, 4 };
+
+            span.HasDuplicates().Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void HasDuplicates_SpanWithoutDuplicates_ReturnsFalse()
+        {
+            Span<int> span = stackalloc int[] { 1, 2, 3, 4 };
+
+            span.HasDuplicates().Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void HasDuplicates_EmptySpan_ReturnsFalse()
+        {
+            Span<int> span = Span<int>.Empty;
+
+            span.HasDuplicates().Should().BeFalse();
+        }
+
     }
 }

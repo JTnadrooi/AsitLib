@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,9 +69,9 @@ namespace AsitLib.Autocompleting
 
     public class Autocompletion
     {
-        public IReadOnlyList<string> OrderedOptions { get; } // best first
+        public ImmutableArray<string> OrderedOptions { get; } // best first
 
-        public Autocompletion(IReadOnlyList<string> orderedOptions)
+        public Autocompletion(ImmutableArray<string> orderedOptions)
         {
             OrderedOptions = orderedOptions;
         }
@@ -93,7 +94,7 @@ namespace AsitLib.Autocompleting
                    .OrderBy(c => c.Text.Length)
                    .ThenByDescending(c => c.Value)
                    .Select(c => c.Text)
-                   .ToArray());
+                   .ToImmutableArray());
             }
 
             int[] sourceCodePoints = str.EnumerateRunes()
@@ -118,12 +119,9 @@ namespace AsitLib.Autocompleting
                 }
             }
 
-            List<string> orderedCompletions = results
+            return new Autocompletion(results
                 .OrderByDescending(x => x.Score)
-                .Select(x => x.Text)
-                .ToList();
-
-            return new Autocompletion(orderedCompletions);
+                .Select(x => x.Text).ToImmutableArray());
         }
 
         /// <summary>

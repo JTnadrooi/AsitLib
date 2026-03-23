@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -10,16 +11,16 @@ namespace AsitLib.CommandLine
 {
     public static class ThrowHelpers
     {
-        internal static IReadOnlyList<char> s_invalidChars = [
+        internal static ImmutableArray<char> s_invalidChars = [
             '"', ',',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
-        internal static IReadOnlyList<char> s_invalidNameStartOrEndChars = [
+        internal static ImmutableArray<char> s_invalidNameStartOrEndChars = [
             '-',
         ];
 
-        internal static IReadOnlyList<Type> s_invalidOptionTypes = [
+        internal static ImmutableArray<Type> s_invalidOptionTypes = [
             typeof(void),
             typeof(DBNull),
         ];
