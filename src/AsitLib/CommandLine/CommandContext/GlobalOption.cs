@@ -9,7 +9,7 @@
 
         public OptionInfo Option { get; }
 
-        protected GlobalOption(OptionInfo option, string description) : base(option.Id)
+        protected GlobalOption(OptionInfo option, string description, string? id = null) : base(id ?? option.Id)
         {
             ArgumentNullException.ThrowIfNull(option);
             ArgumentNullException.ThrowIfNullOrEmpty(description);

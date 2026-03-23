@@ -8,7 +8,7 @@ namespace AsitLib.Tests
 {
     public class DummyGlobalOption : GlobalOption
     {
-        public DummyGlobalOption(OptionInfo option, string description) : base(option, description)
+        public DummyGlobalOption(OptionInfo option, string description, string? id = null) : base(option, description, id)
         {
         }
     }
