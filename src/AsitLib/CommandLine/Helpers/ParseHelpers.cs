@@ -160,11 +160,10 @@ namespace AsitLib.CommandLine
             foreach (Argument arg in call.Arguments.Where(a => a.Target.Id is not null))
                 for (int i = 0; i < globalOptions.Length; i++)
                 {
-                    GlobalOption globalOption = globalOptions[i];
-                    if (arg.Target.IsMatchFor(globalOption))
-                        if (!validArguments.Add(arg) || !result.Add(globalOption))
+                    if (arg.Target.IsMatchFor(globalOptions[i]))
+                        if (!validArguments.Add(arg) || !result.Add(globalOptions[i]))
                         {
-                            throw new CommandArgumentException("Duplicate argument to flag mapping.");
+                            throw new CommandArgumentException("Duplicate argument to GlobalOption mapping.");
                         }
                 }
 

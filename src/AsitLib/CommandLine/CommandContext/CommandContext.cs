@@ -36,7 +36,7 @@
 
             if (results.Count == 0) return DBNull.Value;
             else if (results.Count == 1) return results[0];
-            else throw new CommandException("Multiple context-action/function returns is invalid.");
+            else throw new CommandException("Multiple context-action/function returns are invalid.");
         }
 
         internal void ThrowIfNotPreCommand()
@@ -74,8 +74,6 @@
 
         public bool TryGetGlobalOptionValue<T>(GlobalOption globalOption, out T? value)
         {
-            if (globalOption.Option is null) throw new InvalidOperationException("Cannot get value passed to GlobalOption without Option.");
-
             foreach (Argument argument in Call.Arguments)
                 if (argument.Target.IsMatchFor(globalOption))
                 {
