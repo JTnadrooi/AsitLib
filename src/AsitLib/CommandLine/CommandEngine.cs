@@ -86,12 +86,6 @@ namespace AsitLib.CommandLine
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine AddCommand(CommandInfo info)
         {
-            #region CHECKS
-
-            info.ThrowIfInvalid();
-
-            #endregion
-
             foreach (string id in info.Ids)
                 if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
 

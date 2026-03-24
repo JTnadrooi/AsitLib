@@ -85,7 +85,7 @@ namespace AsitLib.CommandLine
     /// <summary>
     /// Represents info for a specific command. See <see cref="CommandAttribute"/>.
     /// </summary>
-    public abstract class CommandInfo : IValidatable
+    public abstract class CommandInfo
     {
         /// <summary>
         /// Gets a <see cref="HashSet{T}"/> containing all strings this command belongs to. This includes generic flags, aliasses, etc.
@@ -165,15 +165,6 @@ namespace AsitLib.CommandLine
 
         public abstract object? Invoke(object?[] parameters);
         public abstract OptionInfo[] GetOptions();
-
-        public virtual InvalidReason[] GetInvalidReasons()
-        {
-            List<InvalidReason> invalidReasons = new List<InvalidReason>();
-
-            //if (HasGenericFlagId && GetOptions().Count(o => !o.HasDefaultValue) > 0) invalidReasons.Add("Generic flags are not supported for commands with required options.");
-
-            return invalidReasons.ToArray();
-        }
 
         public virtual string GetHelpString()
         {
