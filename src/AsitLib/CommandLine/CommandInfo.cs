@@ -9,7 +9,7 @@ namespace AsitLib.CommandLine
     {
         public Delegate Delegate { get; }
 
-        public DelegateCommandInfo(string[] ids, string description, Delegate @delegate)
+        public DelegateCommandInfo(ReadOnlySpan<string> ids, string description, Delegate @delegate)
             : base(ids, description, @delegate.Method)
         {
             Target = @delegate.Target;
@@ -23,7 +23,7 @@ namespace AsitLib.CommandLine
         public object? Target { get; init; }
         public bool IsVoid => MethodInfo.ReturnType == typeof(void);
 
-        public MethodCommandInfo(string[] ids, string description, MethodInfo methodInfo)
+        public MethodCommandInfo(ReadOnlySpan<string> ids, string description, MethodInfo methodInfo)
             : base(ids, description)
         {
             MethodInfo = methodInfo;
@@ -31,7 +31,7 @@ namespace AsitLib.CommandLine
             if (methodInfo.ReturnType == typeof(DBNull)) throw new ArgumentException("Source MethodInfo cannot return use type DBNull, use void instead. Use object if the method may return void, or a return value.", nameof(methodInfo));
         }
 
-        public static MethodCommandInfo FromProvider(string[] ids, string description, MethodInfo methodInfo, CommandProvider provider)
+        public static MethodCommandInfo FromProvider(ReadOnlySpan<string> ids, string description, MethodInfo methodInfo, CommandProvider provider)
             => new MethodCommandInfo(ids, description, methodInfo)
             {
                 Target = provider,
@@ -68,7 +68,6 @@ namespace AsitLib.CommandLine
             return new MethodCommandInfo(commandIds.ToArray(), attribute.Description, methodInfo)
             {
                 Provider = provider,
-                PassingPolicies = attribute.PassingPolicies,
                 Target = target,
             };
         }
@@ -112,8 +111,6 @@ namespace AsitLib.CommandLine
 
         public CommandProvider? Provider { get; init; }
 
-        public OptionPassingPolicies PassingPolicies { get; init; }
-
         /// <summary>
         /// <inheritdoc cref="CommandAttribute.Description" path="/summary"/>
         /// </summary>
@@ -121,9 +118,8 @@ namespace AsitLib.CommandLine
 
         public bool IsEnabled { get; set; }
 
-        public CommandInfo(string[] ids, string description)
+        public CommandInfo(ReadOnlySpan<string> ids, string description)
         {
-            ArgumentNullException.ThrowIfNull(ids);
             ArgumentNullException.ThrowIfNull(description);
 
             if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
@@ -164,6 +160,7 @@ namespace AsitLib.CommandLine
         }
 
         public abstract object? Invoke(object?[] parameters);
+
         public abstract OptionInfo[] GetOptions();
 
         public virtual string GetHelpString()
@@ -190,3 +187,5 @@ namespace AsitLib.CommandLine
         public override string ToString() => $"{{Id: {Id}, Desc: {Description}}}";
     }
 }
+
+
