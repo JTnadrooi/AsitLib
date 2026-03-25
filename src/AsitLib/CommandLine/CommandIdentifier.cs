@@ -79,7 +79,7 @@ namespace AsitLib.CommandLine
 
         public override string ToString()
         {
-            return $"{Group} {Name}";
+            return Group is null ? Name : $"{Group} {Name}";
         }
     }
 }
