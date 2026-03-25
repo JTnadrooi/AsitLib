@@ -77,6 +77,29 @@ namespace AsitLib.CommandLine
             }
         }
 
+        public static implicit operator CommandIdentifier(string source)
+            => new CommandIdentifier(source);
+
+        public static implicit operator string(CommandIdentifier id)
+            => id.ToString();
+
+        public override bool Equals(object? obj)
+            => obj switch
+            {
+                CommandIdentifier other => ToString() == other.ToString(),
+                string str => ToString() == str,
+                _ => false
+            };
+
+        public override int GetHashCode()
+            => ToString().GetHashCode();
+
+        public static bool operator ==(CommandIdentifier a, CommandIdentifier b)
+            => a?.ToString() == b?.ToString();
+
+        public static bool operator !=(CommandIdentifier a, CommandIdentifier b)
+            => !(a == b);
+
         public override string ToString()
         {
             return Group is null ? Name : $"{Group} {Name}";
