@@ -327,7 +327,7 @@ namespace AsitLib.CommandLine
             CommandInfo commandInfo = _commands[call.CommandId];
 
             CommandContext context = new CommandContext(this, call, true, commandInfo);
-            object?[] conformed = ParseHelpers.Conform(ref call, commandInfo.GetOptions(), context);
+            object?[] conformed = ParseHelpers.Conform(ref call, commandInfo.GetOptions());
 
             GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref call, _globalOptions.Values.ToArray());
             List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions.Concat(_hooks.Values));

@@ -176,9 +176,8 @@ namespace AsitLib.CommandLine
         /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
         /// </summary>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
-        /// <param name="context">The command context, used for option inheritance policies.</param>
         /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
-        public static object?[] Conform(ref CallInfo call, ReadOnlySpan<OptionInfo> options, CommandContext? context = null)
+        public static object?[] Conform(ref CallInfo call, ReadOnlySpan<OptionInfo> options)
         {
             object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -190,7 +189,7 @@ namespace AsitLib.CommandLine
                 Argument? matchingArgument = null;
 
                 foreach (Argument arg in call.Arguments)
-                    if (arg.Target.IsMatchFor(option, i, context))
+                    if (arg.Target.IsMatchFor(option, i))
                     {
                         if (matchingArgument is not null)
                             throw new CommandArgumentException($"Duplicate argument found for target '{option.Id}'."); // still needed if positional and named arguments conflict.

@@ -37,7 +37,7 @@
             Index = index;
         }
 
-        public bool IsMatchFor(OptionInfo option, int optionIndex, CommandContext? context = null)
+        public bool IsMatchFor(OptionInfo option, int optionIndex)
         {
             bool matchesPositional = Index == optionIndex;
             bool matchesNamed = option.Ids.Contains(SanitizedId);
