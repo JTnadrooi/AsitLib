@@ -5,15 +5,6 @@ using System.Reflection;
 
 namespace AsitLib.CommandLine
 {
-    [Flags]
-    public enum OptionPassingPolicies
-    {
-        None = 0,
-        Positional = 1,
-        Named = 2,
-        All = Positional | Named
-    }
-
     public sealed class CommandEngine
     {
         public ReadOnlyDictionary<string, CommandProvider> Providers { get; }
@@ -22,8 +13,6 @@ namespace AsitLib.CommandLine
         public ReadOnlyDictionary<string, GlobalOption> GlobalOptions { get; }
         public ReadOnlyDictionary<string, ActionHook> Hooks { get; }
         public IReadOnlyCollection<string> Groups { get; }
-
-        public OptionPassingPolicies PassingPolicies { get; set; }
 
         public string NewLine { get; set; }
         public string KeyValueSeperator { get; set; }
@@ -55,7 +44,6 @@ namespace AsitLib.CommandLine
             Hooks = _hooks.AsReadOnly();
             Groups = _groupMap.Keys;
 
-            PassingPolicies = OptionPassingPolicies.None;
             DefaultInfoFactory = null;
 
             NewLine = "\n";
@@ -340,9 +328,9 @@ namespace AsitLib.CommandLine
 
             CommandContext context = new CommandContext(this, call, true, commandInfo);
             object?[] conformed = ParseHelpers.Conform(ref call, commandInfo.GetOptions(), context);
+
             GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref call, _globalOptions.Values.ToArray());
-            List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions);
-            toRunHooks.AddRange(_hooks.Values);
+            List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions.Concat(_hooks.Values));
 
             if (call.Arguments.Length > 0) throw new CommandArgumentException($"Duplicate or unresolved argument targets found; [{call.Arguments.ToJoinedString(", ")}].");
 

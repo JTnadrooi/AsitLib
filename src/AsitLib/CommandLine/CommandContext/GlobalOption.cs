@@ -14,7 +14,6 @@
             ArgumentNullException.ThrowIfNull(option);
             ArgumentNullException.ThrowIfNullOrEmpty(description);
 
-            if ((option.PassingPolicies & OptionPassingPolicies.Named) == 0) throw new ArgumentException("PassingPolicies does not include OptionPassingPolicies.Named.", nameof(option));
             if (option.Id == OptionInfo.IdForUnnamedOptions) throw new ArgumentException("Missing Id.", nameof(option));
 
             Description = description;

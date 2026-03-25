@@ -50,8 +50,6 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public OptionPassingPolicies PassingPolicies { get; init; }
-
         public OptionInfo(ParameterInfo parameter)
         {
             Attribute[] attributes = parameter.GetCustomAttributes(true).Cast<Attribute>().ToArray();
@@ -66,7 +64,6 @@ namespace AsitLib.CommandLine
 
             Ids = (optionAttribute.Id ?? ParseHelpers.GetSignature(parameter)).ToSingleArray().Concat(optionAttribute.Aliases ?? Array.Empty<string>()).ToArray();
 
-            PassingPolicies = optionAttribute.PassingPolicies;
             ValidationAttributes = attributes.Where(a => a is ValidationAttribute).Cast<ValidationAttribute>().ToArray();
 
             if (!HasDefaultValue)
@@ -92,7 +89,6 @@ namespace AsitLib.CommandLine
             Ids = ids;
             OptionType = type;
             ValidationAttributes = Array.Empty<ValidationAttribute>();
-            PassingPolicies = OptionPassingPolicies.All;
 
             foreach (string id in ids)
                 ThrowHelpers.ThrowIfInvalidOptionId(id);
@@ -191,15 +187,6 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public OptionPassingPolicies GetInheritedPassingPoliciesFromContext(CommandContext? context = null)
-            => GetInheritedPassingPolicies(context?.Engine, context?.Command);
-        public OptionPassingPolicies GetInheritedPassingPolicies(CommandEngine? engine = null, CommandInfo? command = null)
-        {
-            OptionPassingPolicies? ToNullIfNone(OptionPassingPolicies? passingPolicies) => (passingPolicies == OptionPassingPolicies.None || passingPolicies is null) ? null : passingPolicies;
-
-            return ToNullIfNone(engine?.PassingPolicies) ?? ToNullIfNone(command?.PassingPolicies) ?? PassingPolicies;
-        }
-
         /// <summary>
         /// Creates a new <see cref="OptionInfo"/> instance with the specified <paramref name="type"/>.
         /// </summary>
@@ -209,15 +196,13 @@ namespace AsitLib.CommandLine
         public static OptionInfo FromType(
             Type type,
             string? id = null,
-            OptionPassingPolicies passingPolicies = OptionPassingPolicies.All,
             object? implicitValue = null,
             ValidationAttribute[]? validationAttributes = null)
-            => FromType(type, id?.ToSingleArray() ?? [IdForUnnamedOptions], passingPolicies, implicitValue, validationAttributes);
+            => FromType(type, id?.ToSingleArray() ?? [IdForUnnamedOptions], implicitValue, validationAttributes);
 
         public static OptionInfo FromType(
             Type type,
             string[] ids,
-            OptionPassingPolicies passingPolicies = OptionPassingPolicies.All,
             object? implicitValue = null,
             ValidationAttribute[]? validationAttributes = null)
         {
@@ -226,7 +211,6 @@ namespace AsitLib.CommandLine
 
             return new OptionInfo(type, ids)
             {
-                PassingPolicies = passingPolicies,
                 _implicitValue = implicitValue,
                 ValidationAttributes = validationAttributes ?? Array.Empty<ValidationAttribute>()
             };

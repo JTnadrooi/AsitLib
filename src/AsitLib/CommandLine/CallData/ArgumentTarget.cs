@@ -39,11 +39,9 @@
 
         public bool IsMatchFor(OptionInfo option, int optionIndex, CommandContext? context = null)
         {
-            OptionPassingPolicies passingPolicies = option.GetInheritedPassingPoliciesFromContext(context);
-
-            bool matchesPositional = passingPolicies.HasFlag(OptionPassingPolicies.Positional) && (Index == optionIndex);
-            bool matchesNamed = passingPolicies.HasFlag(OptionPassingPolicies.Named) && (option.Ids.Contains(SanitizedId));
-            bool matchesAnti = passingPolicies.HasFlag(OptionPassingPolicies.Named) && (option.AntiIds.Contains(SanitizedId));
+            bool matchesPositional = Index == optionIndex;
+            bool matchesNamed = option.Ids.Contains(SanitizedId);
+            bool matchesAnti = option.AntiIds.Contains(SanitizedId);
 
             return matchesPositional || matchesNamed || matchesAnti;
         }

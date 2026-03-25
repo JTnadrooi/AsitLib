@@ -23,8 +23,6 @@ namespace AsitLib.CommandLine
 
         public string[]? Aliases { get; init; }
 
-        public OptionPassingPolicies PassingPolicies { get; init; } = OptionPassingPolicies.All;
-
         public OptionAttribute() { }
 
         public static OptionAttribute Default { get; } = new OptionAttribute();

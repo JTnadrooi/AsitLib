@@ -22,8 +22,6 @@
         /// </summary>
         public string[] Aliases { get; init; }
 
-        public OptionPassingPolicies PassingPolicies { get; init; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandAttribute"/> with the specified <see cref="Description"/>.
         /// </summary>
