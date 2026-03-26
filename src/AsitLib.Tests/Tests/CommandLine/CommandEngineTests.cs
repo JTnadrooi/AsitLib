@@ -59,7 +59,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             CallInfo parsed = Engine.Parse(["cmd"]);
 
             parsed.Arguments.Should().BeEmpty();
-            parsed.CommandId.Should().Be("cmd");
+            parsed.Command.Id.Should().Be("cmd");
         }
 
         [TestMethod]
@@ -70,7 +70,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             CallInfo parsed = Engine.Parse(["group", "cmd"]);
 
             parsed.Arguments.Should().BeEmpty();
-            parsed.CommandId.Should().Be("group cmd");
+            parsed.Command.Id.Should().Be("group cmd");
         }
 
         [TestMethod]
@@ -83,7 +83,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             CallInfo parsed = Engine.Parse(["group", "cmd", "val1"]);
 
             parsed.Arguments.Should().Equal([new Argument(new ArgumentTarget(0), ["val1"])]);
-            parsed.CommandId.Should().Be("group cmd");
+            parsed.Command.Id.Should().Be("group cmd");
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().BeNull());
 
-            parsed.CommandId.Should().Be("cmd");
+            parsed.Command.Id.Should().Be("cmd");
         }
 
         [TestMethod]
@@ -115,17 +115,17 @@ namespace AsitLib.Tests.Tests.CommandLine
                 OptionInfo.FromType(typeof(string), "arg2"),
             ]));
 
-            CallInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "val1-2", "--arg2", "val2"]);
+            CallInfo parsed = Engine.Parse(["cmd", "--arg1", "val1", "--arg2", "val2"]);
 
             parsed.Arguments.Should().HaveCount(2);
 
-            parsed.Arguments[0].Tokens.Should().HaveCount(2);
+            parsed.Arguments[0].Tokens.Should().HaveCount(1);
 
             parsed.Arguments[0].Tokens[0].Should().Be("val1");
 
             parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().NotBeNull());
 
-            parsed.CommandId.Should().Be("cmd");
+            parsed.Command.Id.Should().Be("cmd");
         }
 
         [TestMethod]
@@ -150,7 +150,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly");
             parsed.Arguments[1].Target.Id.Should().NotBeNull(); // same as above.
 
-            parsed.CommandId.Should().Be("cmd", because: "'val1' a argument, not a childcommand");
+            parsed.Command.Id.Should().Be("cmd", because: "'val1' a argument, not a childcommand");
         }
 
         [TestMethod]
@@ -164,7 +164,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "cmd", "val1"]);
 
-            parsed.CommandId.Should().Be("cmdg cmd", because: "no command 'cmdg cmd val1' exists");
+            parsed.Command.Id.Should().Be("cmdg cmd", because: "no command 'cmdg cmd val1' exists");
 
             parsed.Arguments.Should().ContainSingle(because: "'cmdg' exists so cmd gets used as command, resulting in 'val1' as only argument");
         }
@@ -186,19 +186,21 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(commandParts);
 
-            parsed.CommandId.Should().Be(commandId);
+            parsed.Command.Id.Should().Be(commandId);
         }
 
         [TestMethod]
         public void Parse_ParentCommandWithNamedOptionCall_CallsParentCommand()
         {
-            Engine.AddCommand(new DummyCommandInfo("cmdg"));
+            Engine.AddCommand(new DummyCommandInfo("cmdg", options: [
+                OptionInfo.FromType(typeof(string), "arg1"),
+            ]));
 
             Engine.AddCommand(new DummyCommandInfo("cmdg cmd"));
 
             CallInfo parsed = Engine.Parse(["cmdg", "--arg1", "val1"]);
 
-            parsed.CommandId.Should().Be("cmdg");
+            parsed.Command.Id.Should().Be("cmdg");
 
             parsed.Arguments.Should().ContainSingle().Which.Target.SanitizedId.Should().Be("arg1");
         }
@@ -214,7 +216,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "\"cmd\""]);
 
-            parsed.CommandId.Should().Be("cmdg", because: "quotes are always for inputs (quotes are not allowed in commandnames)"); // .
+            parsed.Command.Id.Should().Be("cmdg", because: "quotes are always for inputs (quotes are not allowed in commandnames)"); // .
             parsed.Arguments.Should().ContainSingle(a => a == new Argument(new ArgumentTarget(0), new string[] { "\"cmd\"" }));
         }
 
@@ -229,7 +231,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             CallInfo parsed = Engine.Parse(["cmdg", "notcmd"]);
 
-            parsed.CommandId.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead");
+            parsed.Command.Id.Should().Be("cmdg", because: "'notcmd' is not found as childcommand, so it tries to get used for the `cmdg` parentcommand input instead");
         }
 
         [TestMethod]

@@ -4,18 +4,16 @@
     {
         public CallInfo Call { get; }
         public CommandEngine Engine { get; }
-        public CommandInfo Command { get; }
         public ExecutingContextFlags Flags { get; set; }
         internal bool PreCommand { get; set; }
 
         private List<Func<object?>> _funcs;
 
-        internal CommandContext(CommandEngine engine, CallInfo argumentsInfo, bool preCommand, CommandInfo command)
+        internal CommandContext(CommandEngine engine, CallInfo argumentsInfo, bool preCommand)
         {
             Call = argumentsInfo;
             Engine = engine;
             Flags = ExecutingContextFlags.None;
-            Command = command;
 
             _funcs = new List<Func<object?>>();
             PreCommand = preCommand;

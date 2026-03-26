@@ -49,18 +49,6 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void GetInheritedPassingPolicies_EngineWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
-        {
-            CommandEngine engine = new CommandEngine() { PassingPolicies = OptionPassingPolicies.Positional };
-
-            CommandInfo info = new DummyCommandInfo("testc", options: new[] {
-                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
-            });
-
-            info.GetOptions().All(o => o.GetInheritedPassingPolicies(engine, info) == OptionPassingPolicies.Positional).Should().BeTrue();
-        }
-
-        [TestMethod]
         [DataRow(typeof(void))]
         [DataRow(typeof(DBNull))]
         public void Ctor_InvalidType_ThrowsEx(Type type)

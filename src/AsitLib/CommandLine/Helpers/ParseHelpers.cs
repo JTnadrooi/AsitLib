@@ -153,12 +153,12 @@ namespace AsitLib.CommandLine
         /// <param name="call">The call information containing arguments to evaluate. This parameter is updated to remove arguments that target global options.</param>
         /// <param name="globalOptions">The array of global option handlers to check against the call arguments.</param>
         /// <returns>An array of unique <see cref="GlobalOption"/> instances that are targeted by the named arguments in the call.</returns>
-        public static GlobalOption[] ExtractGlobalOptions(ref CallInfo call, ReadOnlySpan<GlobalOption> globalOptions)
+        public static GlobalOption[] ExtractGlobalOptions(List<Argument> arguments, ReadOnlySpan<GlobalOption> globalOptions)
         {
             HashSet<GlobalOption> result = new HashSet<GlobalOption>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
-            foreach (Argument arg in call.Arguments.Where(a => a.Target.Id is not null))
+            foreach (Argument arg in arguments.Where(a => a.Target.Id is not null))
                 for (int i = 0; i < globalOptions.Length; i++)
                 {
                     if (arg.Target.IsMatchFor(globalOptions[i]))
@@ -168,16 +168,21 @@ namespace AsitLib.CommandLine
                         }
                 }
 
-            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToArray());
+            foreach (Argument validArgument in validArguments)
+            {
+                arguments.Remove(validArgument);
+            }
+
             return result.ToArray();
         }
 
         /// <summary>
         /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
         /// </summary>
+        /// <param name="arguments">The list of <see cref="Argument"/> to parse to the specified <paramref name="options"/>. Used options will be consumed.</param>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
         /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
-        public static object?[] Conform(ref CallInfo call, ReadOnlySpan<OptionInfo> options)
+        public static object?[] Conform(List<Argument> arguments, ReadOnlySpan<OptionInfo> options)
         {
             object?[] result = new object?[options.Length];
             NullabilityInfoContext nullabilityInfoContext = new NullabilityInfoContext();
@@ -188,7 +193,7 @@ namespace AsitLib.CommandLine
                 OptionInfo option = options[i];
                 Argument? matchingArgument = null;
 
-                foreach (Argument arg in call.Arguments)
+                foreach (Argument arg in arguments)
                     if (arg.Target.IsMatchFor(option, i))
                     {
                         if (matchingArgument is not null)
@@ -216,7 +221,10 @@ namespace AsitLib.CommandLine
             Continue:;
             }
 
-            call = new CallInfo(call.CommandId, call.Arguments.Except(validArguments).ToArray());
+            foreach (Argument validArgument in validArguments)
+            {
+                arguments.Remove(validArgument);
+            }
 
             return result;
         }

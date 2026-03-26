@@ -206,17 +206,17 @@ namespace AsitLib.CommandLine
                     return Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
                 }
 
-                CallInfo tempCallInfo = new CallInfo(commandId, Array.Empty<Argument>());
+                bool callsGenericFlag = commandId.StartsWith("-");
 
-                if (tempCallInfo.CallsGenericFlag)
+                if (callsGenericFlag)
                 {
-                    if (Commands.ContainsKey(tempCallInfo.CommandId.TrimStart('-')))
-                        throw new InvalidOperationException($"Command with id '{tempCallInfo.SanitizedCommandId}' cannot be used as generic flag.");
+                    if (Commands.ContainsKey(commandId.TrimStart('-')))
+                        throw new InvalidOperationException($"Command with id '{commandId.TrimStart('-')}' cannot be used as generic flag.");
                     else
-                        throw new CommandNotFoundException($"Generic flag '{tempCallInfo.CommandId}' not found.", tempCallInfo.CommandId);
+                        throw new CommandNotFoundException($"Generic flag '{commandId}' not found.", commandId);
                 }
                 else
-                    throw new CommandNotFoundException($"Command '{tempCallInfo.CommandId}' not found.", tempCallInfo.CommandId);
+                    throw new CommandNotFoundException($"Command '{commandId}' not found.", commandId);
             }
             else if (!_commands[commandId].IsEnabled)
                 throw new CommandException("Cannot call disabled command.");
@@ -303,7 +303,13 @@ namespace AsitLib.CommandLine
             }
             else
             {
-                result = new CallInfo(tokens[0], outArguments.ToArray());
+                Argument[] preConsumeArguments = outArguments.ToArray();
+
+                object?[] conformed = ParseHelpers.Conform(outArguments, targetCommand.GetOptions());
+                GlobalOption[] pendingGlobalOptions = ParseHelpers.ExtractGlobalOptions(outArguments, _globalOptions.Values.ToArray());
+                if (outArguments.Count > 0) throw new CommandArgumentException($"Duplicate or unresolved argument targets found; [{outArguments.ToJoinedString(", ")}].");
+
+                result = new CallInfo(this, preConsumeArguments, conformed, targetCommand, pendingGlobalOptions);
             }
 
             return result;
@@ -324,19 +330,15 @@ namespace AsitLib.CommandLine
         public CommandResult Execute(string[] args)
         {
             CallInfo call = Parse(args);
-            CommandInfo commandInfo = _commands[call.CommandId];
 
-            CommandContext context = new CommandContext(this, call, true, commandInfo);
-            object?[] conformed = ParseHelpers.Conform(ref call, commandInfo.GetOptions());
+            CommandContext context = new CommandContext(this, call, true);
 
-            GlobalOption[] toRunGlobalOptions = ParseHelpers.ExtractGlobalOptions(ref call, _globalOptions.Values.ToArray());
-            List<ActionHook> toRunHooks = new List<ActionHook>(toRunGlobalOptions.Concat(_hooks.Values));
+            List<ActionHook> toRunHooks = new List<ActionHook>(call.GlobalOptions.Concat(_hooks.Values));
 
-            if (call.Arguments.Length > 0) throw new CommandArgumentException($"Duplicate or unresolved argument targets found; [{call.Arguments.ToJoinedString(", ")}].");
 
             foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 
-            object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? DBNull.Value : commandInfo.Invoke(conformed);
+            object? returned = context.HasFlag(ExecutingContextFlags.PreventCommand) ? DBNull.Value : call.Command.Invoke(call.Conformed);
             context.PreCommand = false;
 
             object? contextResult = context.RunAll();

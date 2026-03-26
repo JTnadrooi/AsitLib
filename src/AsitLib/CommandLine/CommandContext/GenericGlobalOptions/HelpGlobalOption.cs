@@ -11,7 +11,7 @@
         {
             context
                 .AddFlag(ExecutingContextFlags.FullStop)
-                .AddFunction(() => context.Engine.Execute("help " + context.Call.CommandId).ToOutputString());
+                .AddFunction(() => context.Engine.Execute("help " + context.Call.Command.Id).ToOutputString());
         }
     }
 }

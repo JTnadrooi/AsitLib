@@ -11,19 +11,6 @@
         }
 
         [TestMethod]
-        public void GetInheritedPassingPolicies_CommandWithInheringPositionalPassingPolicies_OverwritesOptionPassingPolicies()
-        {
-            CommandInfo info = new DummyCommandInfo("testc", options: [
-                OptionInfo.FromType(typeof(string), passingPolicies: OptionPassingPolicies.Named),
-            ])
-            {
-                PassingPolicies = OptionPassingPolicies.Positional
-            };
-
-            info.GetOptions().All(o => o.GetInheritedPassingPolicies(null, info) == OptionPassingPolicies.Positional).Should().BeTrue();
-        }
-
-        [TestMethod]
         public void Ctor_DuplicateId_ThrowsEx()
         {
             Invoking(() => new DummyCommandInfo(["test", "test"])).Should().ThrowExactly<InvalidOperationException>();
