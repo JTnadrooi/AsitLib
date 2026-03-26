@@ -19,6 +19,31 @@
             Description = description;
             Option = option;
         }
+
+        public sealed override void PreCommand(CommandContext context)
+            => PreCommand(context, context.GetGlobalOptionValue(this));
+        /// <inheritdoc cref="ActionHook.PreCommand(CommandContext)"/>
+        /// <param name="optionValue">
+        /// The value parsed from the argument matching the <see cref="GlobalOption.Option"/>.
+        /// </param>
+        protected virtual void PreCommand(CommandContext context, object? optionValue) { }
+
+        public sealed override void PostCommand(CommandContext context)
+            => PostCommand(context, context.GetGlobalOptionValue(this));
+        /// <inheritdoc cref="ActionHook.PostCommand(CommandContext)"/>
+        /// <param name="optionValue">
+        /// The value parsed from the argument matching the <see cref="GlobalOption.Option"/>.
+        /// </param>
+        protected virtual void PostCommand(CommandContext context, object? optionValue) { }
+
+        public sealed override object? OnReturned(CommandContext context, object? returned)
+            => OnReturned(context, context.GetGlobalOptionValue(this), returned);
+        /// <inheritdoc cref="ActionHook.OnReturned(CommandContext, object?)"/>
+        /// <param name="optionValue">
+        /// The value parsed from the argument matching the <see cref="GlobalOption.Option"/>.
+        /// </param>
+        protected virtual object? OnReturned(CommandContext context, object? optionValue, object? returned)
+            => returned;
     }
 
     [Flags]

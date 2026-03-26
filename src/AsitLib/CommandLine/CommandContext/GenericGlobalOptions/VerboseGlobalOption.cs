@@ -13,15 +13,21 @@ namespace AsitLib.CommandLine
             _logger = logger;
         }
 
-        public override void PreCommand(CommandContext context)
+        protected override void PreCommand(CommandContext context, object? optionValue)
         {
-            _initialVerboseState = _logger.Silent;
-            _logger.Silent = false;
+            if ((bool)optionValue!)
+            {
+                _initialVerboseState = _logger.Silent;
+                _logger.Silent = false;
+            }
         }
 
-        public override void PostCommand(CommandContext context)
+        protected override void PostCommand(CommandContext context, object? optionValue)
         {
-            _logger.Silent = _initialVerboseState;
+            if ((bool)optionValue!)
+            {
+                _logger.Silent = _initialVerboseState;
+            }
         }
     }
 }

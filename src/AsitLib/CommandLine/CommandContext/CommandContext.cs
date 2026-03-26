@@ -37,7 +37,7 @@
         {
             Call = argumentsInfo;
             Engine = engine;
-            Flags = ExecutingContextFlags.None;
+            _flags = ExecutingContextFlags.None;
 
             _funcs = new List<Func<object?>>();
             PreCommand = true;
@@ -71,7 +71,7 @@
         /// </summary>
         /// <param name="flag">The flag to check.</param>
         /// <returns><see langword="true"/> if the flag is set; otherwise, <see langword="false"/>.</returns>
-        public bool HasFlag(ExecutingContextFlags flag) => Flags.HasFlag(flag);
+        public bool HasFlag(ExecutingContextFlags flag) => _flags.HasFlag(flag);
 
         public CommandContext AddAction(Action action) => AddFunction(() =>
             {

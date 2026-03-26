@@ -7,9 +7,9 @@
 
         }
 
-        public override object? OnReturned(CommandContext context, object? returned)
+        protected override object? OnReturned(CommandContext context, object? optionValue, object? returned)
         {
-            return context.GetGlobalOptionValue<string>(this);
+            return optionValue;
         }
     }
 }

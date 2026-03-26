@@ -1,4 +1,6 @@
-﻿namespace AsitLib.CommandLine
+﻿using AsitLib.Diagnostics;
+
+namespace AsitLib.CommandLine
 {
     public sealed class HelpGlobalOption : GlobalOption
     {
@@ -7,11 +9,14 @@
 
         }
 
-        public override void PreCommand(CommandContext context)
+        protected override void PreCommand(CommandContext context, object? optionValue)
         {
-            context
-                .AddFlag(ExecutingContextFlags.FullStop)
-                .AddFunction(() => context.Engine.Execute("help " + context.Call.Command.Id).ToOutputString());
+            if ((bool)optionValue!)
+            {
+                context.Flags |= ExecutingContextFlags.FullStop;
+
+                context.AddFunction(() => context.Engine.Execute("help " + context.Call.Command.Id).ToOutputString());
+            }
         }
     }
 }
