@@ -402,7 +402,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         {
             Engine.AddCommand(new DummyCommandInfo("testc"));
 
-            Invoking(() => Engine.AddCommand(new DummyCommandInfo("testc"))).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => Engine.AddCommand(new DummyCommandInfo("testc"))).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
@@ -462,7 +462,7 @@ namespace AsitLib.Tests.Tests.CommandLine
         [TestMethod]
         public void Remove_CommandThatDoesNotExist_ThrowsEx()
         {
-            Invoking(() => Engine.RemoveCommand("cmd-that-doesnt-exist")).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => Engine.RemoveCommand("cmd-that-doesnt-exist")).Should().ThrowExactly<KeyNotFoundException>();
         }
 
         #endregion

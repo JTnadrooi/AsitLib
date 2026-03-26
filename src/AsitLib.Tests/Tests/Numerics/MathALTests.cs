@@ -14,19 +14,19 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Invert_InvalidValueNaN_ThrowsEx()
         {
-            Invoking(() => MathAL.Invert(float.NaN, 0f)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathAL.Invert(float.NaN, 0f)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
         public void Invert_InvalidValueInf_ThrowsEx()
         {
-            Invoking(() => MathAL.Invert(float.PositiveInfinity, 0f)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathAL.Invert(float.PositiveInfinity, 0f)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
         public void Invert_InvalidValueNegInf_ThrowsEx()
         {
-            Invoking(() => MathAL.Invert(float.NegativeInfinity, 0f)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathAL.Invert(float.NegativeInfinity, 0f)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
@@ -56,13 +56,13 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Average_InvalidValueNaN_ThrowsEx()
         {
-            Invoking(() => MathAL.Average(10f, 20f, float.NaN)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathAL.Average(10f, 20f, float.NaN)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
         public void Average_InvalidValueInf_ThrowsEx()
         {
-            Invoking(() => MathAL.Average(10f, float.PositiveInfinity, 20f)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathAL.Average(10f, float.PositiveInfinity, 20f)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void ToBigInteger_InvalidType_ThrowsEx()
         {
-            Invoking(() => MathHelperAL.ToBigInteger("test")).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => MathHelperAL.ToBigInteger("test")).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]

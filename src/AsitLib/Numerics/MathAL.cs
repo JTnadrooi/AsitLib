@@ -14,11 +14,10 @@ namespace AsitLib.Numerics
         /// <param name="value">The value to invert.</param>
         /// <param name="pointZero">The reference point to invert around (defaults to 0).</param>
         /// <returns>The inverted value.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the value is not a normal number.</exception>
         public static float Invert(float value, float pointZero = 0f)
         {
             if (float.IsNaN(value) || value == float.PositiveInfinity || value == float.NegativeInfinity)
-                throw new InvalidOperationException("Value is not a normal number.");
+                throw new ArgumentException("Value is not a normal number.", nameof(value));
 
             if (value == pointZero) return value;
 
@@ -57,12 +56,11 @@ namespace AsitLib.Numerics
         /// </summary>
         /// <param name="values">The values to average.</param>
         /// <returns>The average of the values.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if any value is not a normal number.</exception>
         public static float Average(params float[] values)
         {
             float total = values.Sum();
             if (float.IsNaN(total) || total == float.PositiveInfinity || total == float.NegativeInfinity)
-                throw new InvalidOperationException("Value is not a normal number; average failed.");
+                throw new ArgumentException($"{nameof(values)} contains abnormal number.", nameof(values));
             return total / values.Length;
         }
     }

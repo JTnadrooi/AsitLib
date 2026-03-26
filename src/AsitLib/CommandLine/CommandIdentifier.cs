@@ -33,7 +33,7 @@ namespace AsitLib.CommandLine
             get => _name;
             set
             {
-                if (value.Contains(' ')) throw new InvalidOperationException("IsolatedId cannot contain spaces.");
+                if (value.Contains(' ')) throw new ArgumentException("Name cannot contain spaces.", nameof(value));
                 ThrowHelpers.ThrowIfInvalidCommandId(value);
 
                 _name = value;

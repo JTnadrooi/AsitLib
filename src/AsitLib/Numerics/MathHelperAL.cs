@@ -44,10 +44,9 @@ namespace AsitLib.Numerics
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>The <see cref="BigInteger"/> representation of the value.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the value is not numeric.</exception>
         public static BigInteger ToBigInteger(object value)
         {
-            if (!IsNumberic(value)) throw new InvalidOperationException();
+            if (!IsNumberic(value)) throw new ArgumentException("Value is not numeric.");
 
             if (value is Int128 i1) return i1;
             else if (value is UInt128 i2) return i2;

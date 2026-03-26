@@ -48,7 +48,7 @@ namespace AsitLib.CommandLine
         {
             CommandAttribute? attribute = methodInfo.GetCustomAttribute<CommandAttribute>();
 
-            if (attribute is null) throw new InvalidOperationException("Source method does not have a CommandAttribute derived attribute.");
+            if (attribute is null) throw new ArgumentException("Source method does not have a CommandAttribute derived attribute.", nameof(methodInfo));
 
             string cmdId;
             switch (provider)
@@ -122,7 +122,7 @@ namespace AsitLib.CommandLine
         {
             ArgumentNullException.ThrowIfNull(description);
 
-            if (ids.Length == 0) throw new InvalidOperationException("Command must have at least one id.");
+            if (ids.Length == 0) throw new ArgumentException("Command must have at least one id.");
 
             HashSet<string> seenIds = new HashSet<string>();
             HashSet<string> seenGroups = new HashSet<string>();
@@ -132,7 +132,7 @@ namespace AsitLib.CommandLine
             {
                 ThrowHelpers.ThrowIfInvalidCommandId(id);
 
-                if (!seenIds.Add(id)) throw new InvalidOperationException("Duplicate command id's are invalid.");
+                if (!seenIds.Add(id)) throw new ArgumentException("Duplicate command id's are invalid.");
 
                 CommandIdentifier commandIdInfo = new CommandIdentifier(id);
 

@@ -78,11 +78,11 @@ namespace AsitLib.Diagnostics
             if (!string.IsNullOrEmpty(msg))
             {
                 NormalizeMessage(msg!, out int delta, out char? prefix);
-                if (delta != 0) throw new InvalidOperationException("Cannot change depth when thread-safe logging.");
+                if (delta != 0) throw new NotSupportedException("Cannot change depth when thread-safe logging.");
                 switch (prefix)
                 {
                     case null: break;
-                    default: throw new InvalidOperationException("Invalid prefix for thread-safe logging.");
+                    default: throw new NotSupportedException($"Invalid prefix '{prefix.ToString()}' for thread-safe logging.");
                 }
             }
 

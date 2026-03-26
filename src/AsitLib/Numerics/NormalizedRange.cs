@@ -36,7 +36,7 @@ namespace AsitLib.Numerics
         /// <param name="end"></param>
         public NormalizedRange(int start, int end)
         {
-            if (start > end) throw new InvalidOperationException($"Range cannot start past the end; '{start}' > '{end}'");
+            if (start > end) throw new ArgumentException($"Range cannot start past the end; '{start}' > '{end}'");
             Start = start;
             End = end;
         }

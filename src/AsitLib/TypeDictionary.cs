@@ -46,7 +46,7 @@ namespace AsitLib
             ArgumentNullException.ThrowIfNull(key);
             ArgumentNullException.ThrowIfNull(value);
 
-            if (!key.IsAssignableTo(typeof(TParentType))) throw new InvalidOperationException($"{key} is not assignable to {typeof(TParentType)}");
+            if (!key.IsAssignableTo(typeof(TParentType))) throw new ArgumentException($"{key} is not assignable to {typeof(TParentType)}", nameof(key));
         }
 
         public void Add<T>(T value) where T : TParentType => Add(typeof(T), value);

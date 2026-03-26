@@ -13,7 +13,7 @@
         [TestMethod]
         public void Ctor_DuplicateId_ThrowsEx()
         {
-            Invoking(() => new DummyCommandInfo(["test", "test"])).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => new DummyCommandInfo(["test", "test"])).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]

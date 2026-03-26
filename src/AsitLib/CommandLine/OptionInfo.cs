@@ -46,7 +46,7 @@ namespace AsitLib.CommandLine
             init
             {
                 if (value == DBNull.Value) throw new Exception($"{nameof(DBNull.Value)} is not valid as implicit value.");
-                _implicitValue = value ?? throw new InvalidOperationException("Cannot set null as implicit value.");
+                _implicitValue = value ?? throw new ArgumentException("Cannot set null as implicit value.", nameof(value));
             }
         }
 

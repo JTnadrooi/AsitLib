@@ -39,7 +39,7 @@
 
         internal void ThrowIfNotPreCommand()
         {
-            if (!PreCommand) throw new InvalidOperationException("This operaton is invalid after the command has already executed.");
+            if (!PreCommand) throw new ArgumentException("This operaton is invalid after the command has already executed.");
         }
 
         public bool HasFlag(ExecutingContextFlags flag) => Flags.HasFlag(flag);
@@ -67,7 +67,7 @@
         public T? GetGlobalOptionValue<T>(GlobalOption globalOption)
         {
             if (TryGetGlobalOptionValue<T>(globalOption, out T? value)) return value;
-            else throw new InvalidOperationException($"No option provided for GlobalOption '{globalOption.Id}'.");
+            else throw new KeyNotFoundException($"No option provided for GlobalOption '{globalOption.Id}'.");
         }
 
         public bool TryGetGlobalOptionValue<T>(GlobalOption globalOption, out T? value)

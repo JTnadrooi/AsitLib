@@ -10,7 +10,8 @@ namespace AsitLib.CommandLine
         {
             get
             {
-                ThrowIfVoid();
+                if (IsVoid) throw new InvalidOperationException("Cannot get value from void return.");
+
                 return _rawValue;
             }
         }
@@ -27,16 +28,11 @@ namespace AsitLib.CommandLine
             Engine = engine;
         }
 
-        internal void ThrowIfVoid()
-        {
-            if (IsVoid) throw new InvalidOperationException("Command returned void.");
-        }
-
         public T? GetValue<T>() => (T?)Value;
 
         public string ToOutputString()
         {
-            ThrowIfVoid();
+            if (IsVoid) throw new InvalidOperationException("Cannot get output string from void return.");
 
             if (Value is null) return StringHelpers.NULL_STRING;
 

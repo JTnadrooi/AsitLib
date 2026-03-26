@@ -75,7 +75,7 @@ namespace AsitLib.CommandLine
         public CommandEngine AddCommand(CommandInfo info)
         {
             foreach (string id in info.Ids)
-                if (!_commands.TryAdd(id, info)) throw new InvalidOperationException($"Command with duplicate key '{id}' found.");
+                if (!_commands.TryAdd(id, info)) throw new ArgumentException($"The command contains an id '{id}' that has already been added.", nameof(info));
 
             _uniqueCommands.Add(info.Id, info);
 
@@ -84,7 +84,7 @@ namespace AsitLib.CommandLine
                 CommandProvider provider = info.Provider;
 
                 if (_providers.ContainsKey(provider.Name) && _providers[provider.Name].GetType() != provider.GetType())
-                    throw new InvalidOperationException("Command is provided by a provider with a name equal to a different-type already registered provider.");
+                    throw new ArgumentException("Command is provided by a provider with a name equal to a different-type already registered provider.");
 
                 _providers.TryAdd(provider.Name, provider);
                 _providerMap.TryAdd(provider.Name, new List<string>());
@@ -103,7 +103,7 @@ namespace AsitLib.CommandLine
 
         public CommandEngine RemoveCommand(string id)
         {
-            if (!_commands.ContainsKey(id)) throw new InvalidOperationException($"Command with Id '{id}' was not found.");
+            if (!_commands.ContainsKey(id)) throw new KeyNotFoundException($"Command with Id '{id}' was not found.");
 
             CommandInfo commandToRemove = _commands[id];
 
@@ -140,7 +140,7 @@ namespace AsitLib.CommandLine
         {
             CommandInfo[] commands = provider.GetCommands(DefaultInfoFactory);
 
-            if (commands.Length == 0) throw new InvalidOperationException("Cannot add empty command provider, GetCommands() returned an empty array.");
+            if (commands.Length == 0) throw new ArgumentException("Cannot add empty command provider, GetCommands() returned an empty array.");
 
             foreach (CommandInfo command in commands)
                 AddCommand(command);
@@ -190,8 +190,6 @@ namespace AsitLib.CommandLine
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        /// <exception cref="CommandException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
         public CallInfo Parse(string[] tokens)
         {
             if (tokens.Length == 0) throw new CommandException("No command provided.");
@@ -211,7 +209,7 @@ namespace AsitLib.CommandLine
                 if (callsGenericFlag)
                 {
                     if (Commands.ContainsKey(commandId.TrimStart('-')))
-                        throw new InvalidOperationException($"Command with id '{commandId.TrimStart('-')}' cannot be used as generic flag.");
+                        throw new CommandArgumentException($"Command with id '{commandId.TrimStart('-')}' cannot be used as generic flag.");
                     else
                         throw new CommandNotFoundException($"Generic flag '{commandId}' not found.", commandId);
                 }

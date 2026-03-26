@@ -24,7 +24,7 @@
                 }
             }
 
-            throw new InvalidOperationException("Unexpected error in weighted random selection.");
+            throw new ArgumentException("Unexpected error in weighted random selection.");
         }
     }
 }

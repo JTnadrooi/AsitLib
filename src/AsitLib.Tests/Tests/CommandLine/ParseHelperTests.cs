@@ -185,7 +185,7 @@
         [DataRow("-h")]
         public void GetGenericFlagSignature_AlreadyFlag_ThrowsEx(string input)
         {
-            Invoking(() => ParseHelpers.GetGenericFlagSignature(input)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => ParseHelpers.GetGenericFlagSignature(input)).Should().ThrowExactly<ArgumentException>();
         }
     }
 }

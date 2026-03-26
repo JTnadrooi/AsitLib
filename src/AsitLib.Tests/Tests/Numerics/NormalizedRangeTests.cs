@@ -15,7 +15,7 @@
         [TestMethod]
         public void StartEndConstructor_InvalidRange()
         {
-            Invoking(() => new NormalizedRange(5, 1)).Should().ThrowExactly<InvalidOperationException>();
+            Invoking(() => new NormalizedRange(5, 1)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]

@@ -32,7 +32,7 @@ namespace AsitLib.CommandLine
 
         public static string GetGenericFlagSignature(string signature)
         {
-            if (IsValidGenericFlagCall(signature)) throw new InvalidOperationException("'signature' is already a valid generic flag signature.");
+            if (IsValidGenericFlagCall(signature)) throw new ArgumentException("'signature' is already a valid generic flag signature.", nameof(signature));
 
             if (signature.Length == 1) return "-" + signature;
             else return "--" + signature;
@@ -40,7 +40,7 @@ namespace AsitLib.CommandLine
 
         public static string GetSignature(ParameterInfo parameterInfo)
         {
-            if (parameterInfo.Name is null) throw new InvalidOperationException("Cannot get signature from return parameter.");
+            if (parameterInfo.Name is null) throw new ArgumentException("Cannot get signature from return parameter.", nameof(parameterInfo));
 
             SignatureAttribute? a = parameterInfo.GetCustomAttribute<SignatureAttribute>();
             return a is null ? GetSignature(parameterInfo.Name) : a.Name;
