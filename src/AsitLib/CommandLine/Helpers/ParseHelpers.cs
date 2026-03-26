@@ -148,11 +148,11 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Extracts the <see cref="GlobalOption"/> instances that listen to the specified <paramref name="call"/>.
+        /// Extracts the <see cref="GlobalOption"/> instances that listen to the <paramref name="arguments"/>.
         /// </summary>
-        /// <param name="call">The call information containing arguments to evaluate. This parameter is updated to remove arguments that target global options.</param>
-        /// <param name="globalOptions">The array of global option handlers to check against the call arguments.</param>
-        /// <returns>An array of unique <see cref="GlobalOption"/> instances that are targeted by the named arguments in the call.</returns>
+        /// <param name="arguments">The list of <see cref="Argument"/> to extract the matching <see cref="GlobalOption"/> instances from. Used arguments will be consumed.</param>
+        /// <param name="globalOptions">The array of global option handlers to check against the <paramref name="arguments"/>.</param>
+        /// <returns>An array of unique <see cref="GlobalOption"/> instances that are targeted by the input <paramref name="arguments"/>.</returns>
         public static GlobalOption[] ExtractGlobalOptions(List<Argument> arguments, ReadOnlySpan<GlobalOption> globalOptions)
         {
             HashSet<GlobalOption> result = new HashSet<GlobalOption>();
@@ -160,18 +160,12 @@ namespace AsitLib.CommandLine
 
             foreach (Argument arg in arguments.Where(a => a.Target.Id is not null))
                 for (int i = 0; i < globalOptions.Length; i++)
-                {
                     if (arg.Target.IsMatchFor(globalOptions[i]))
                         if (!validArguments.Add(arg) || !result.Add(globalOptions[i]))
-                        {
                             throw new CommandArgumentException("Duplicate argument to GlobalOption mapping.");
-                        }
-                }
 
             foreach (Argument validArgument in validArguments)
-            {
                 arguments.Remove(validArgument);
-            }
 
             return result.ToArray();
         }
@@ -179,7 +173,7 @@ namespace AsitLib.CommandLine
         /// <summary>
         /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
         /// </summary>
-        /// <param name="arguments">The list of <see cref="Argument"/> to parse to the specified <paramref name="options"/>. Used options will be consumed.</param>
+        /// <param name="arguments">The list of <see cref="Argument"/> to parse to the specified <paramref name="options"/>. Used arguments will be consumed.</param>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
         /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
         public static object?[] Conform(List<Argument> arguments, ReadOnlySpan<OptionInfo> options)
