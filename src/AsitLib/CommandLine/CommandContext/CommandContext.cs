@@ -86,11 +86,11 @@
             return this;
         }
 
-        public T? GetGlobalOptionValue<T>(GlobalOption globalOption)
+        public object? GetGlobalOptionValue(GlobalOption globalOption)
         {
             foreach (Argument argument in Call.Arguments)
                 if (argument.Target.IsMatchFor(globalOption))
-                    return (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());
+                    return globalOption.Option.Conform(argument.Tokens.AsSpan());
             throw new KeyNotFoundException($"No option provided for GlobalOption '{globalOption.Id}'.");
         }
     }
