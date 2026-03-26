@@ -27,25 +27,6 @@ namespace AsitLib.CommandLine
             }
         }
 
-        public ImmutableArray<string> Groups
-        {
-            get
-            {
-                if (Group is null)
-                    return ImmutableArray<string>.Empty;
-
-                var groups = new List<string>();
-                var parts = Group.Split(' ');
-
-                for (int i = 1; i <= parts.Length; i++)
-                {
-                    groups.Add(string.Join(" ", parts.Take(i)));
-                }
-
-                return groups.ToImmutableArray();
-            }
-        }
-
         private string _name;
         public string Name
         {
@@ -58,6 +39,9 @@ namespace AsitLib.CommandLine
                 _name = value;
             }
         }
+
+        private bool _isGenericFlag;
+        public bool IsGenericFlag => _isGenericFlag;
 
         public CommandIdentifier(string source)
         {
@@ -75,13 +59,25 @@ namespace AsitLib.CommandLine
                 _name = split.Last();
                 _group = split[..^1].ToJoinedString(' ');
             }
+
+            _isGenericFlag = _name.StartsWith('-');
         }
 
-        public static implicit operator CommandIdentifier(string source)
-            => new CommandIdentifier(source);
+        public string[] GetGroups()
+        {
+            if (Group is null)
+                return Array.Empty<string>();
 
-        public static implicit operator string(CommandIdentifier id)
-            => id.ToString();
+            List<string> groups = new List<string>();
+            string[] parts = Group.Split(' ');
+
+            for (int i = 1; i <= parts.Length; i++)
+            {
+                groups.Add(string.Join(" ", parts.Take(i)));
+            }
+
+            return groups.ToArray();
+        }
 
         public override bool Equals(object? obj)
             => obj switch
@@ -104,5 +100,11 @@ namespace AsitLib.CommandLine
         {
             return Group is null ? Name : $"{Group} {Name}";
         }
+
+        public static implicit operator CommandIdentifier(string source)
+            => new CommandIdentifier(source);
+
+        public static implicit operator string(CommandIdentifier id)
+            => id.ToString();
     }
 }

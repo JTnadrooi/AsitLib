@@ -34,8 +34,6 @@
         }
 
         [TestMethod]
-        [DataRow("group1 group2 cmd")]
-        [DataRow("group cmd")]
         [DataRow("cmd")]
         [DataRow("--globaloption")]
         [DataRow("-weird-but-ok")]

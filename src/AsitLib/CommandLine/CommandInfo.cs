@@ -136,11 +136,11 @@ namespace AsitLib.CommandLine
 
                 CommandIdentifier commandIdInfo = new CommandIdentifier(id);
 
-                if (commandIdInfo.Groups.Length > 0)
+                if (commandIdInfo.GetGroups().Length > 0)
                 {
-                    if (commandIdInfo.Groups.Length > 0)
-                        for (int i = 0; i < commandIdInfo.Groups.Length; i++)
-                            seenGroups.Add(commandIdInfo.Groups[i]);
+                    if (commandIdInfo.GetGroups().Length > 0)
+                        for (int i = 0; i < commandIdInfo.GetGroups().Length; i++)
+                            seenGroups.Add(commandIdInfo.GetGroups()[i]);
                 }
                 else validGroup = false;
             }

@@ -28,9 +28,9 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Groups_NotNested()
+        public void GetGroups_NotNested()
         {
-            new CommandIdentifier("group cmd").Groups.Should().Equal(["group"]);
+            new CommandIdentifier("group cmd").GetGroups().Should().Equal(["group"]);
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace AsitLib.Tests
         [DataRow(3)]
         [DataRow(4)]
         [DataRow(5)]
-        public void Groups_NestedGroup(int depth)
+        public void GetGroups_NestedGroup(int depth)
         {
             string[] commandParts = Enumerable.Range(1, depth).Select(i => $"group{i}").Concat(["cmd"]).ToArray();
 
@@ -52,13 +52,46 @@ namespace AsitLib.Tests
                 expectedGroups.Add(string.Join(" ", groupParts));
             }
 
-            new CommandIdentifier(fullCommandId).Groups.Should().Equal(expectedGroups);
+            new CommandIdentifier(fullCommandId).GetGroups().Should().Equal(expectedGroups);
         }
 
         [TestMethod]
-        public void Groups_NoGroup_ReturnsNull()
+        public void GetGroups_NoGroup_ReturnsNull()
         {
-            new CommandIdentifier("cmd").Groups.Should().BeEmpty();
+            new CommandIdentifier("cmd").GetGroups().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        [DataRow("--cmd")]
+        [DataRow("-c")]
+        [DataRow("--c-m-d")]
+        [DataRow("-cmd")] // should be allowed if someone wants to add a shorthand-combination like command.
+        [DataRow("-----cmd")] // allowed.
+        public void IsGenericFlag_GenericFlagSource_ReturnsTrue(string source)
+        {
+            new CommandIdentifier(source).IsGenericFlag.Should().BeTrue();
+        }
+
+        [TestMethod]
+        [DataRow("cmd")]
+        [DataRow("c-")]
+        [DataRow("cmd--")]
+        [DataRow("cmd-")]
+        public void IsGenericFlag_NotGenericFlagSource_ReturnsFalse(string source)
+        {
+            new CommandIdentifier(source).IsGenericFlag.Should().BeFalse();
+        }
+
+        [TestMethod]
+        [DataRow("group1 group2 cmd")]
+        [DataRow("group1 cmd")]
+        [DataRow("cmd")]
+        [DataRow("-cmd")]
+        [DataRow("--cmd")]
+        [DataRow("---cmd")]
+        public void ToString_ReturnsSource(string source)
+        {
+            new CommandIdentifier(source).ToString().Should().Be(source);
         }
 
         [TestMethod]
@@ -73,6 +106,7 @@ namespace AsitLib.Tests
         [DataRow("group -cmd")]
         [DataRow("group1 group2 -cmd")]
         [DataRow("   ")]
+        [DataRow("-group cmd")]
         public void Ctor_InvalidSource_ThrowsEx(string invalidSource)
         {
             Invoking(() => new CommandIdentifier(invalidSource)).Should().ThrowExactly<ArgumentException>();
