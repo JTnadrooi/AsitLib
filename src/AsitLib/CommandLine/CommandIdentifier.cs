@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
+    /// <summary>
+    /// Represents a command identifier consisting of an optional group and a name.
+    /// </summary>
     public sealed class CommandIdentifier
     {
         private string? _group;
+        /// <summary>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       1
+        /// Gets or sets the group portion of the command identifier.
+        /// </summary>
         public string? Group
         {
             get => _group;
@@ -28,6 +34,9 @@ namespace AsitLib.CommandLine
         }
 
         private string _name;
+        /// <summary>
+        /// Gets or sets the name of the command.
+        /// </summary>
         public string Name
         {
             get => _name;
@@ -41,8 +50,14 @@ namespace AsitLib.CommandLine
         }
 
         private bool _isGenericFlag;
+        /// <summary>
+        /// Gets a value indicating whether the command represents a generic flag (<see cref="Name"/> starts with '-').
+        /// </summary>
         public bool IsGenericFlag => _isGenericFlag;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandIdentifier"/> class from a string representation.
+        /// </summary>
         public CommandIdentifier(string source)
         {
             ThrowHelpers.ThrowIfInvalidCommandId(source);
@@ -63,6 +78,13 @@ namespace AsitLib.CommandLine
             _isGenericFlag = _name.StartsWith('-');
         }
 
+        /// <summary>
+        /// Gets all hierarchical group combinations for this identifier.
+        /// </summary>
+        /// <returns>
+        /// An array of group paths, ordered from shortest to longest.
+        /// Returns an empty array if no group is defined.
+        /// </returns>
         public string[] GetGroups()
         {
             if (Group is null)
@@ -96,6 +118,12 @@ namespace AsitLib.CommandLine
         public static bool operator !=(CommandIdentifier a, CommandIdentifier b)
             => !(a == b);
 
+        /// <summary>
+        /// Returns the string representation of the command identifier.
+        /// </summary>
+        /// <returns>
+        /// The full identifier in the format "group name" or just "name" if no group is defined.
+        /// </returns>
         public override string ToString()
         {
             return Group is null ? Name : $"{Group} {Name}";

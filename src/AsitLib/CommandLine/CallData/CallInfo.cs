@@ -2,8 +2,14 @@
 
 namespace AsitLib.CommandLine
 {
+    /// <summary>
+    /// Represents a call made to a command. See <see cref="CommandEngine.Parse(string[])"/>.
+    /// </summary>
     public sealed class CallInfo
     {
+        /// <summary>
+        /// Gets the arguments passed to the command.
+        /// </summary>
         public ImmutableArray<Argument> Arguments { get; }
 
         public object?[] Conformed { get; }

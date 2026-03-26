@@ -1,11 +1,35 @@
 ﻿namespace AsitLib.CommandLine
 {
+    /// <summary>
+    /// Provides contextual information and behavior for a command during execution.
+    /// </summary>
     public sealed class CommandContext
     {
+        /// <summary>
+        /// Gets information about the current command call.
+        /// </summary>
         public CallInfo Call { get; }
+
+        /// <summary>
+        /// Gets the <see cref="CommandEngine"/> executing the command.
+        /// </summary>
         public CommandEngine Engine { get; }
-        public ExecutingContextFlags Flags { get; set; }
-        internal bool PreCommand { get; set; }
+
+        private ExecutingContextFlags _flags;
+        /// <summary>
+        /// Gets or sets execution flags that influence command behavior.
+        /// </summary>
+        public ExecutingContextFlags Flags
+        {
+            get => _flags;
+            set
+            {
+                ThrowIfNotPreCommand();
+                _flags = value;
+            }
+        }
+
+        internal bool PreCommand;
 
         private List<Func<object?>> _funcs;
 
@@ -42,14 +66,12 @@
             if (!PreCommand) throw new ArgumentException("This operaton is invalid after the command has already executed.");
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="ExecutingContextFlags"/> flag is set.
+        /// </summary>
+        /// <param name="flag">The flag to check.</param>
+        /// <returns><see langword="true"/> if the flag is set; otherwise, <see langword="false"/>.</returns>
         public bool HasFlag(ExecutingContextFlags flag) => Flags.HasFlag(flag);
-
-        public CommandContext AddFlag(ExecutingContextFlags flag)
-        {
-            ThrowIfNotPreCommand();
-            Flags |= flag;
-            return this;
-        }
 
         public CommandContext AddAction(Action action) => AddFunction(() =>
             {

@@ -112,14 +112,14 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Converts a token to the option's type.
+        /// Converts a token to the option's <see cref="OptionType"/>.
         /// </summary>
         /// <param name="token">The token to convert.</param>
         /// <returns>The converted value, or <see cref="ImplicitValue"/> if <paramref name="token"/> is empty.</returns>
         public object? Conform(string token) => Conform([token]);
 
         /// <summary>
-        /// Converts a token list to the option's type.
+        /// Converts a token list to the option's <see cref="OptionType"/>.
         /// </summary>
         /// <param name="tokens">The tokens to convert.</param>
         /// <returns>The converted value, or <see cref="ImplicitValue"/> if <paramref name="tokens"/> is empty.</returns>

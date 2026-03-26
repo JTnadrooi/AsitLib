@@ -33,9 +33,6 @@ namespace AsitLib.CommandLine
 
             return commands.ToArray();
         }
-
-        //public override string ToString()
-        //    => $"{{Namespace: {Namespace}{(NameOfMainCommandMethod is null ? string.Empty : $", NameOfMainCommandMethod: {NameOfMainCommandMethod}")}}}";
     }
 
     public abstract class CommandGroup : CommandProvider

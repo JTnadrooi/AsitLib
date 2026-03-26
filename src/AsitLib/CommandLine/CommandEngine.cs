@@ -68,8 +68,6 @@ namespace AsitLib.CommandLine
 
         #region ADD_REMOVE
 
-        //public CommandEngine AddCommand(MethodInfo method, string description, string[]? aliases = null)
-        //    => AddCommand(MethodCommandInfo);
         public CommandEngine AddCommand(Delegate @delegate, string id, string description, string[]? aliases = null)
             => AddCommand(new DelegateCommandInfo((aliases ?? Enumerable.Empty<string>()).Prepend(id).ToArray(), description, @delegate));
         public CommandEngine AddCommand(CommandInfo info)
@@ -182,14 +180,15 @@ namespace AsitLib.CommandLine
 
         #endregion
 
-        //public CallInfo Parse(string args) => Parse(ParseHelpers.GetTokens(args));
-
         /// <summary>
-        /// Parses a array of tokens to a <see cref="CallInfo"/> call. There is no guarantee the call arguments will be valid but the target command is guaranteed to exist and be enabled.
+        /// Parses a array of <paramref name="tokens"/> to a <see cref="CallInfo"/> call.
         /// See also; <see cref="ParseHelpers.GetTokens(string)"/>.
         /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
+        /// <param name="tokens">
+        /// An array of strings representing the command and its arguments.
+        /// These tokens are typically produced by <see cref="ParseHelpers.GetTokens(string)"/>.
+        /// </param>
+        /// <returns>A valid <see cref="CallInfo"/> instance representing the input tokens.</returns>
         public CallInfo Parse(string[] tokens)
         {
             if (tokens.Length == 0) throw new CommandException("No command provided.");
@@ -295,7 +294,7 @@ namespace AsitLib.CommandLine
 
             CallInfo result;
 
-            if (_groupMap.ContainsKey(commandId) && outArguments.Count > 0 && outArguments[0].CanTargetSubcommand && Commands.ContainsKey($"{tokens[0]} {tokens[1]}"))
+            if (_groupMap.ContainsKey(commandId) && outArguments.Count > 0 && outArguments[0].CanTargetChildCommand && Commands.ContainsKey($"{tokens[0]} {tokens[1]}"))
             {
                 result = Parse(ArrayHelpers.Combine($"{tokens[0]} {tokens[1]}", tokens[2..]));
             }
@@ -313,6 +312,10 @@ namespace AsitLib.CommandLine
             return result;
         }
 
+        /// <summary>
+        /// Gets all commands from sourced from a provider with the specified <paramref name="name"/>.
+        /// </summary>
+        /// <returns>A array of <see cref="CommandInfo"/> instances sourced from the provider with the specified <paramref name="name"/>.</returns>
         public CommandInfo[] GetProviderCommands(string name)
         {
             List<CommandInfo> providerCommands = new List<CommandInfo>();
@@ -324,15 +327,41 @@ namespace AsitLib.CommandLine
             return providerCommands.ToArray();
         }
 
-        public CommandResult Execute(string args) => Execute(ParseHelpers.GetTokens(args));
-        public CommandResult Execute(string[] args)
+        /// <summary>
+        /// Executes a command based on the specified command-line input.
+        /// </summary>
+        /// <param name="cmdLine">
+        /// A string containing the command and its arguments in command-line format.
+        /// This value is tokenized using <see cref="ParseHelpers.GetTokens(string)"/> before execution.
+        /// </param>
+        /// <returns>
+        /// A <see cref="CommandResult"/> that contains the result of the command execution.
+        /// Use <see cref="CommandResult.ToOutputString()"/> to obtain a formatted string suitable for console output.
+        /// </returns>
+        /// <remarks>
+        /// This method is a convenience overload that parses the input string into tokens
+        /// and delegates execution to <see cref="Execute(string[])"/>.
+        /// </remarks>
+        public CommandResult Execute(string cmdLine) => Execute(ParseHelpers.GetTokens(cmdLine));
+
+        /// <summary>
+        /// Executes a command based on the specified tokenized input.
+        /// </summary>
+        /// <param name="tokens">
+        /// An array of strings representing the command and its arguments.
+        /// These tokens are typically produced by <see cref="ParseHelpers.GetTokens(string)"/>.
+        /// </param>
+        /// <returns>
+        /// A <see cref="CommandResult"/> that contains the result of the command execution.
+        /// Use <see cref="CommandResult.ToOutputString()"/> to obtain a formatted string suitable for console output.
+        /// </returns>
+        public CommandResult Execute(string[] tokens)
         {
-            CallInfo call = Parse(args);
+            CallInfo call = Parse(tokens);
 
             CommandContext context = new CommandContext(this, call, true);
 
             List<ActionHook> toRunHooks = new List<ActionHook>(call.GlobalOptions.Concat(_hooks.Values));
-
 
             foreach (ActionHook hook in toRunHooks) hook.PreCommand(context);
 
@@ -355,14 +384,6 @@ namespace AsitLib.CommandLine
 
             return new CommandResult(this, returned);
         }
-
-        /// <summary>
-        /// Gets the instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.
-        /// </summary>
-        /// <typeparam name="TProvider">The <see cref="CommandProvider"/> type.</typeparam>
-        /// <returns>The instance of a <see cref="CommandProvider"/> of the specified <typeparamref name="TProvider"/> type.</returns>
-        public TProvider GetProvider<TProvider>() where TProvider : CommandProvider
-            => (TProvider)Providers.Values.First(p => p.GetType() == typeof(TProvider));
 
         public CommandEngine Populate(
             Assembly? assembly = null,

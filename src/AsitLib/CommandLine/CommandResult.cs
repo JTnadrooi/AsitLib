@@ -2,10 +2,19 @@
 
 namespace AsitLib.CommandLine
 {
+    /// <summary>
+    /// Represents the result of a command execution.
+    /// </summary>
     public sealed class CommandResult
     {
         private object? _rawValue; // can be DBNull.Value.
 
+        /// <summary>
+        /// Gets the result value.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the result represents a void return.
+        /// </exception>
         public object? Value
         {
             get
@@ -18,8 +27,14 @@ namespace AsitLib.CommandLine
 
         public CommandEngine Engine { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the command returned no value.
+        /// </summary>
         public bool IsVoid => _rawValue is DBNull;
 
+        /// <summary>
+        /// Gets the raw result value, which may be <see cref="DBNull.Value"/> for void results.
+        /// </summary>
         public object? RawValue => _rawValue; // can be dbnull.
 
         internal CommandResult(CommandEngine engine, object? rawValue)
@@ -28,8 +43,10 @@ namespace AsitLib.CommandLine
             Engine = engine;
         }
 
-        public T? GetValue<T>() => (T?)Value;
-
+        /// <summary>
+        /// Converts the result to a string suitable for console output.
+        /// </summary>
+        /// <returns>A formatted string representation of the result.</returns>
         public string ToOutputString()
         {
             if (IsVoid) throw new InvalidOperationException("Cannot get output string from void return.");
@@ -71,16 +88,26 @@ namespace AsitLib.CommandLine
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Writes the result to <see cref="Console.Out"/>.
+        /// </summary>
         public void WriteToConsole() => WriteTo(Console.Out);
 
-        public void WriteTo(TextWriter to)
+        /// <summary>
+        /// Writes the result to the specified <see cref="TextWriter"/>.
+        /// </summary>
+        /// <param name="target">The target writer.</param>
+        public void WriteTo(TextWriter target)
         {
             if (IsVoid) return;
 
-            to.WriteLine(Value);
-            to.Flush();
+            target.WriteLine(ToOutputString());
+            target.Flush();
         }
 
+        /// <summary>
+        /// Returns a non-output-formatted string representation of the result.
+        /// </summary>
         public override string ToString()
         {
             return $"{{Value (as non-output ready): {(IsVoid ? "__void__" : (Value?.ToString() ?? StringHelpers.NULL_STRING))}}}";

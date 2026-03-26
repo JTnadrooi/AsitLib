@@ -7,7 +7,7 @@ namespace AsitLib.CommandLine
         public ArgumentTarget Target { get; }
         public ImmutableArray<string> Tokens { get; }
 
-        public bool CanTargetSubcommand => Target.Id is null && Tokens.Length == 1 && !ParseHelpers.IsQuoted(Tokens[0]);
+        public bool CanTargetChildCommand => Target.Id is null && Tokens.Length == 1 && !ParseHelpers.IsQuoted(Tokens[0]);
 
         public Argument(ArgumentTarget target, ReadOnlySpan<string> tokens)
         {

@@ -9,23 +9,23 @@ using System.Threading.Tasks;
 
 namespace AsitLib.CommandLine
 {
-    public static class ThrowHelpers
+    internal static class ThrowHelpers
     {
-        internal static ImmutableArray<char> s_invalidChars = [
+        private static ImmutableArray<char> s_invalidChars = [
             '"', ',',
             '\0', '\a', '\b', '\t', '\n', '\v', '\f', '\r', '\x1B',
         ];
 
-        internal static ImmutableArray<char> s_invalidNameStartOrEndChars = [
+        private static ImmutableArray<char> s_invalidNameStartOrEndChars = [
             '-',
         ];
 
-        internal static ImmutableArray<Type> s_invalidOptionTypes = [
+        private static ImmutableArray<Type> s_invalidOptionTypes = [
             typeof(void),
             typeof(DBNull),
         ];
 
-        internal static void ThrowIfInvalidCommandProviderId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
+        public static void ThrowIfInvalidCommandProviderId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (id.Contains(' ')) throw new ArgumentException($"'{valueName}' '{id}' contains a space.");
@@ -33,7 +33,7 @@ namespace AsitLib.CommandLine
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new ArgumentException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
         }
 
-        internal static void ThrowIfInvalidCommandId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
+        public static void ThrowIfInvalidCommandId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new ArgumentException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");
@@ -50,12 +50,12 @@ namespace AsitLib.CommandLine
             }
         }
 
-        internal static void ThrowIfInvalidOptionType(Type type)
+        public static void ThrowIfInvalidOptionType(Type type)
         {
             if (s_invalidOptionTypes.Contains(type)) throw new ArgumentException($"Invalid option type '{type}'.", "type");
         }
 
-        internal static void ThrowIfInvalidOptionId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
+        public static void ThrowIfInvalidOptionId(string id, [CallerArgumentExpression("id")] string? valueName = "Input")
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException($"'{valueName}' '{id}' is null or empty/whitespace.");
             if (s_invalidChars.TryGetFirst(c => id.Contains(c), out char invalidChar)) throw new ArgumentException($"{valueName} '{id}' contains invalid character '{invalidChar}'.");

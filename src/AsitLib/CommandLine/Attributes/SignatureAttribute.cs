@@ -4,6 +4,7 @@
     public class SignatureAttribute : Attribute
     {
         public string Name { get; }
+
         /// <summary>
         ///  Initializes an instance of <see cref="SignatureAttribute"/>.
         /// </summary>

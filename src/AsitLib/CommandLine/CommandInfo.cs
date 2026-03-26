@@ -82,7 +82,7 @@ namespace AsitLib.CommandLine
     }
 
     /// <summary>
-    /// Represents info for a specific command. See <see cref="CommandAttribute"/>.
+    /// Represents info for a specific command.
     /// </summary>
     public abstract class CommandInfo
     {
@@ -91,21 +91,24 @@ namespace AsitLib.CommandLine
         /// </summary>
         public ImmutableArray<string> Ids { get; }
 
+        /// <summary>
+        /// Gets all groups this command is in.
+        /// </summary>
         public ImmutableArray<string> Groups { get; }
 
         /// <summary>
-        /// Gets if the command represented by this instance has aliases. Generic flag ids count as aliases.
-        /// <code>Ids.Count > 1</code>
+        /// Gets if the command represented by this instance has aliases.
+        /// <code>Ids.Length > 1</code>
         /// </summary>
         public bool HasAliases => Ids.Length > 1;
 
         /// <summary>
-        /// Gets the main id. (The first one.)
+        /// Gets the main id. This will be the first entry from the <see cref="Ids"/> array.
         /// </summary>
         public string Id => Ids[0];
 
         /// <summary>
-        /// Gets the group this command belongs to.
+        /// Gets the group this command belongs to or <see langword="null"/> if the command is ungrouped.
         /// </summary>
         public string? Group { get; }
 
@@ -161,6 +164,14 @@ namespace AsitLib.CommandLine
 
         public abstract object? Invoke(object?[] parameters);
 
+        /// <summary>
+        /// When overridden, returns the options supported by this command.
+        /// </summary>
+        /// <returns>
+        /// An array of <see cref="OptionInfo"/> instances describing the available options.
+        /// The order of the options determines their positional mapping for arguments
+        /// that use <see cref="ArgumentTarget.Index"/>.
+        /// </returns>
         public abstract OptionInfo[] GetOptions();
 
         public virtual string GetHelpString()

@@ -171,11 +171,11 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Casts the <paramref name="call"/> arguments to the specified options. Casting is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
+        /// Conforms the <paramref name="arguments"/> to the specified <paramref name="options"/>. Conforming is done through <see cref="OptionInfo.Conform(ReadOnlySpan{string})"/>.
         /// </summary>
         /// <param name="arguments">The list of <see cref="Argument"/> to parse to the specified <paramref name="options"/>. Used arguments will be consumed.</param>
         /// <param name="options">The array of <see cref="OptionInfo"/> instances to conform the <see cref="CallInfo.Arguments"/> against.</param>
-        /// <returns>An array of values conformed to the specified options, in the same order as the <paramref name="options"/> array.</returns>
+        /// <returns>An array of values conformed to the specified options, in correct order.</returns>
         public static object?[] Conform(List<Argument> arguments, ReadOnlySpan<OptionInfo> options)
         {
             object?[] result = new object?[options.Length];
