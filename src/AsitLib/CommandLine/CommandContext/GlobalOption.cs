@@ -46,12 +46,30 @@
             => returned;
     }
 
+    /// <summary>
+    /// Controls what executes when a command gets called.
+    /// </summary>
     [Flags]
     public enum ExecutingContextFlags
     {
+        /// <summary>
+        /// No restrictions.
+        /// </summary>
         None = 0,
-        PreventCommand = 1,
-        PreventFlags = 2,
+
+        /// <summary>
+        /// Prevents the command itself from executing.
+        /// </summary>
+        PreventCommand = 1 << 0,
+
+        /// <summary>
+        /// Prevents flags (such as global options/hooks) from executing.
+        /// </summary>
+        PreventFlags = 1 << 1,
+
+        /// <summary>
+        /// Stops both command and flags execution.
+        /// </summary>
         FullStop = PreventCommand | PreventFlags,
     }
 }
