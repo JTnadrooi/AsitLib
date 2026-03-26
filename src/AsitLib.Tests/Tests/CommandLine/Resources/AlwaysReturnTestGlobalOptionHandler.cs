@@ -9,8 +9,7 @@
 
         public override object? OnReturned(CommandContext context, object? returned)
         {
-            if (context.TryGetGlobalOptionValue<string>(this, out string? value)) return value;
-            else return returned;
+            return context.GetGlobalOptionValue<string>(this);
         }
     }
 }

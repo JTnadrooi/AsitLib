@@ -66,20 +66,10 @@
 
         public T? GetGlobalOptionValue<T>(GlobalOption globalOption)
         {
-            if (TryGetGlobalOptionValue<T>(globalOption, out T? value)) return value;
-            else throw new KeyNotFoundException($"No option provided for GlobalOption '{globalOption.Id}'.");
-        }
-
-        public bool TryGetGlobalOptionValue<T>(GlobalOption globalOption, out T? value)
-        {
             foreach (Argument argument in Call.Arguments)
                 if (argument.Target.IsMatchFor(globalOption))
-                {
-                    value = (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());
-                    return true;
-                }
-            value = default;
-            return false;
+                    return (T?)globalOption.Option.Conform(argument.Tokens.AsSpan());
+            throw new KeyNotFoundException($"No option provided for GlobalOption '{globalOption.Id}'.");
         }
     }
 }
