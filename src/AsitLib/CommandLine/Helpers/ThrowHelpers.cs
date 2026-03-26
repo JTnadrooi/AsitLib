@@ -45,7 +45,7 @@ namespace AsitLib.CommandLine
 
                 if (part == string.Empty) throw new ArgumentException($"part in {valueName} '{id}' has invalid spaces.");
 
-                if (i != 0)
+                if (parts.Length != 1)
                     if (s_invalidNameStartOrEndChars.TryGetFirst(c => part.StartsOrEndsWith(c), out char startChar)) throw new ArgumentException($"{valueName} '{part}' starts with invalid character '{startChar}'.");
             }
         }
