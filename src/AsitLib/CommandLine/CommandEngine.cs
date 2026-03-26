@@ -359,7 +359,7 @@ namespace AsitLib.CommandLine
         {
             CallInfo call = Parse(tokens);
 
-            CommandContext context = new CommandContext(this, call, true);
+            CommandContext context = new CommandContext(this, call);
 
             List<ActionHook> toRunHooks = new List<ActionHook>(call.GlobalOptions.Concat(_hooks.Values));
 

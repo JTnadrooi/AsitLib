@@ -33,14 +33,14 @@
 
         private List<Func<object?>> _funcs;
 
-        internal CommandContext(CommandEngine engine, CallInfo argumentsInfo, bool preCommand)
+        internal CommandContext(CommandEngine engine, CallInfo argumentsInfo)
         {
             Call = argumentsInfo;
             Engine = engine;
             Flags = ExecutingContextFlags.None;
 
             _funcs = new List<Func<object?>>();
-            PreCommand = preCommand;
+            PreCommand = true;
         }
 
         internal object? RunAll()
