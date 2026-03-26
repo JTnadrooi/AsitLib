@@ -4,7 +4,7 @@
     public class StringExtensionsTests
     {
         [TestMethod]
-        public void FirstLine_ShouldReturnFirstLineOfString()
+        public void FirstLine_Multiline_ReturnsFirstLine()
         {
             string input = "First line\nSecond line\nThird line";
 
@@ -12,13 +12,13 @@
         }
 
         [TestMethod]
-        public void FirstLine_EmptyString_ReturnsEmptyString()
+        public void FirstLine_EmptyString_ReturnsEmpty()
         {
             string.Empty.FirstLine().Should().Be(string.Empty);
         }
 
         [TestMethod]
-        public void Between_ShouldReturnStringBetweenFirstStrings()
+        public void Between_FirstFirst_ReturnsStringBetweenFirstStrings()
         {
             string input = "Hello [start]Content[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.FirstFirst);
@@ -27,7 +27,7 @@
         }
 
         [TestMethod]
-        public void Between_ShouldReturnStringBetweenFirstAndLastStrings()
+        public void Between_FirstLast_ReturnsStringBetweenFirstAndLastStrings()
         {
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.FirstLast);
@@ -36,7 +36,7 @@
         }
 
         [TestMethod]
-        public void Between_ShouldReturnStringBetweenLastStrings()
+        public void Between_LastLast_ReturnsStringBetweenLastStrings()
         {
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string result = input.Between("[start]", "[end]", BetweenMethod.LastLast);
@@ -45,16 +45,16 @@
         }
 
         [TestMethod]
-        public void Betweens_ShouldReturnMultipleMatches()
+        public void Betweens_MultipleMatches_ReturnsAllMatches()
         {
             string input = "Hello [start]Content1[end] More [start]Content2[end] World!";
             string[] result = input.Betweens("[start]", "[end]");
 
-            result.Should().Equal(["Content1", "Content2"]);
+            result.Should().Equal(new[] { "Content1", "Content2" });
         }
 
         [TestMethod]
-        public void ReplaceFirst_ShouldReplaceFirstOccurrence()
+        public void ReplaceFirst_Found_ReplacesFirstOccurrence()
         {
             string input = "Hello [start]Content[end] World!";
             string result = input.ReplaceFirst("[start]", "[begin]");
@@ -63,7 +63,7 @@
         }
 
         [TestMethod]
-        public void ReplaceFirst_ShouldNotReplace_WhenSubstringNotFound()
+        public void ReplaceFirst_NotFound_DoesNotReplace()
         {
             string input = "Hello Content World!";
             string result = input.ReplaceFirst("[start]", "[begin]");
@@ -72,7 +72,7 @@
         }
 
         [TestMethod]
-        public void SafeIntParse_ShouldReturnValidInt()
+        public void SafeIntParse_ValidInteger_ReturnsParsedValue()
         {
             string input = "123";
 
@@ -82,7 +82,7 @@
         }
 
         [TestMethod]
-        public void SafeIntParse_ShouldReturnMinusOne_WhenParseFails()
+        public void SafeIntParse_InvalidInteger_ReturnsMinusOne()
         {
             string input = "abc";
 
@@ -90,7 +90,7 @@
         }
 
         [TestMethod]
-        public void SafeNullIntParse_ShouldReturnValidInt()
+        public void SafeNullIntParse_ValidInteger_ReturnsParsedValue()
         {
             string input = "123";
 
@@ -98,7 +98,7 @@
         }
 
         [TestMethod]
-        public void SafeNullIntParse_ShouldReturnNull_WhenParseFails()
+        public void SafeNullIntParse_InvalidInteger_ReturnsNull()
         {
             string input = "abc";
 
@@ -106,7 +106,7 @@
         }
 
         [TestMethod]
-        public void SafeNullBoolParse_ShouldReturnTrue_WhenTrueString()
+        public void SafeNullBoolParse_TrueString_ReturnsTrue()
         {
             string input = "true";
 
@@ -114,7 +114,7 @@
         }
 
         [TestMethod]
-        public void SafeNullBoolParse_ShouldReturnFalse_WhenFalseString()
+        public void SafeNullBoolParse_FalseString_ReturnsFalse()
         {
             string input = "false";
 
@@ -122,7 +122,7 @@
         }
 
         [TestMethod]
-        public void SafeNullBoolParse_ShouldReturnNull_WhenInvalidString()
+        public void SafeNullBoolParse_InvalidString_ReturnsNull()
         {
             string input = "invalid";
 
