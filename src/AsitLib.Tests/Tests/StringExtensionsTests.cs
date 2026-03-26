@@ -12,9 +12,9 @@
         }
 
         [TestMethod]
-        public void FirstLine_ShouldReturnNull_WhenStringIsEmpty()
+        public void FirstLine_EmptyString_ReturnsEmptyString()
         {
-            Invoking(() => string.Empty.FirstLine()).Should().ThrowExactly<InvalidOperationException>();
+            string.Empty.FirstLine().Should().Be(string.Empty);
         }
 
         [TestMethod]

@@ -31,8 +31,16 @@ namespace AsitLib
 
         public static string FirstLine(this string str)
         {
-            using StringReader reader = new StringReader(str);
-            return reader.ReadLine() ?? throw new InvalidOperationException("End of reader reached.");
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                if (c == '\r' || c == '\n')
+                {
+                    return str.Substring(0, i);
+                }
+            }
+
+            return str;
         }
 
         public static string Between(this string str, string FirstString, string LastString, BetweenMethod method = BetweenMethod.FirstFirst)
