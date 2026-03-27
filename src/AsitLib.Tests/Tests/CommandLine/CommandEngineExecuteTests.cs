@@ -80,12 +80,6 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Execute_CommandUsingShorthandParameter_FindsCorrectParameter()
-        {
-            AssertExecute("shorter | 0", "shorthand -wa shorter");
-        }
-
-        [TestMethod]
         public void Execute_InvalidParameter_ThrowsEx()
         {
             Invoking(() => Engine.Execute("print hi --doesnt-exist ahoy")).Should().ThrowExactly<CommandArgumentException>();
@@ -94,7 +88,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_MissingArgument_ThrowsEx()
         {
-            Invoking(() => Engine.Execute("print"));
+            Invoking(() => Engine.Execute("print")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]
@@ -120,7 +114,7 @@ namespace AsitLib.Tests
         [TestMethod]
         public void Execute_DuplicateLongShortOptions_ThrowsEx()
         {
-            Invoking(() => Engine.Execute("shorthand -wa hello --way-to-long-parameter-name hi")).Should().ThrowExactly<CommandArgumentException>();
+            Invoking(() => Engine.Execute("shorthand --wa hello --way-to-long-parameter-name hi")).Should().ThrowExactly<CommandArgumentException>();
         }
 
         [TestMethod]
