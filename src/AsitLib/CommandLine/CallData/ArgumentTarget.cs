@@ -2,30 +2,30 @@
 {
     public readonly struct ArgumentTarget : IEquatable<ArgumentTarget>
     {
-        public readonly string? Id { get; } // rename to Token
+        public readonly string? Token { get; }
 
         public readonly int? Index { get; }
 
-        public readonly bool IsShorthand => Id is not null && !Id.StartsWith("--");
+        public readonly bool IsShorthand => Token is not null && !Token.StartsWith("--");
 
-        public readonly bool IsLongForm => Id is not null && Id!.StartsWith("--");
+        public readonly bool IsLongForm => Token is not null && Token!.StartsWith("--");
 
-        public readonly string? SanitizedId => Id?.TrimStart('-'); // rename to Id
+        public readonly string? Id => Token?.TrimStart('-');
 
         public readonly bool IsAntiTarget
         {
             get
             {
-                if (Id is null) return false;
+                if (Token is null) return false;
 
-                string sanitizedId = SanitizedId!; // copy to prevent error.
+                string sanitizedId = Id!; // copy to prevent error.
                 return ParseHelpers.s_antiPrefixes.Any(p => sanitizedId.StartsWith(p + "-"));
             }
         }
 
-        public ArgumentTarget(string id)
+        public ArgumentTarget(string token)
         {
-            Id = id;
+            Token = token;
             Index = null;
         }
 
@@ -33,15 +33,15 @@
         {
             ArgumentOutOfRangeException.ThrowIfNegative(index);
 
-            Id = null;
+            Token = null;
             Index = index;
         }
 
         public bool IsMatchFor(OptionInfo option, int optionIndex)
         {
             bool matchesPositional = Index == optionIndex;
-            bool matchesNamed = option.Ids.Contains(SanitizedId);
-            bool matchesAnti = option.AntiIds.Contains(SanitizedId);
+            bool matchesNamed = option.Ids.Contains(Id);
+            bool matchesAnti = option.AntiIds.Contains(Id);
 
             return matchesPositional || matchesNamed || matchesAnti;
         }
@@ -49,11 +49,11 @@
         public bool IsMatchFor(GlobalOption globalOption)
             => IsMatchFor(globalOption.Option, -1);
 
-        public override string ToString() => Id is null ? Index!.ToString()! : Id;
+        public override string ToString() => Token is null ? Index!.ToString()! : Token;
 
         public bool Equals(ArgumentTarget other)
         {
-            return Id == other.Id && Index == other.Index;
+            return Token == other.Token && Index == other.Index;
         }
 
         public override bool Equals(object? obj)
@@ -66,7 +66,7 @@
             unchecked
             {
                 int hashCode = 17;
-                if (Id is not null) hashCode = hashCode * 23 + Id.GetHashCode();
+                if (Token is not null) hashCode = hashCode * 23 + Token.GetHashCode();
                 if (Index.HasValue) hashCode = hashCode * 23 + Index.GetHashCode();
                 return hashCode;
             }

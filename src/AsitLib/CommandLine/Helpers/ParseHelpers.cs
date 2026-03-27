@@ -164,7 +164,7 @@ namespace AsitLib.CommandLine
             HashSet<GlobalOption> result = new HashSet<GlobalOption>();
             HashSet<Argument> validArguments = new HashSet<Argument>();
 
-            foreach (Argument arg in arguments.Where(a => a.Target.Id is not null))
+            foreach (Argument arg in arguments.Where(a => a.Target.Token is not null))
                 for (int i = 0; i < globalOptions.Length; i++)
                     if (arg.Target.IsMatchFor(globalOptions[i]))
                         if (!validArguments.Add(arg) || !result.Add(globalOptions[i]))

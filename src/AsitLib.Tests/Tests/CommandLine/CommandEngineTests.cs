@@ -102,7 +102,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments.Should().AllSatisfy(a => a.Tokens.Should().ContainSingle());
 
-            parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().BeNull());
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.Token.Should().BeNull());
 
             parsed.Command.Id.Should().Be("cmd");
         }
@@ -123,7 +123,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Arguments[0].Tokens[0].Should().Be("val1");
 
-            parsed.Arguments.Should().AllSatisfy(a => a.Target.Id.Should().NotBeNull());
+            parsed.Arguments.Should().AllSatisfy(a => a.Target.Token.Should().NotBeNull());
 
             parsed.Command.Id.Should().Be("cmd");
         }
@@ -146,9 +146,9 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[1].Tokens.Should().ContainSingle("val2");
 
             parsed.Arguments[0].Target.Index.Should().Be(0, because: "it's passed positionally");
-            parsed.Arguments[0].Target.Id.Should().BeNull();
+            parsed.Arguments[0].Target.Token.Should().BeNull();
             parsed.Arguments[1].Target.Index.Should().BeNull(because: "it's passed named-ly");
-            parsed.Arguments[1].Target.Id.Should().NotBeNull(); // same as above.
+            parsed.Arguments[1].Target.Token.Should().NotBeNull(); // same as above.
 
             parsed.Command.Id.Should().Be("cmd", because: "'val1' a argument, not a childcommand");
         }
@@ -202,7 +202,7 @@ namespace AsitLib.Tests.Tests.CommandLine
 
             parsed.Command.Id.Should().Be("cmdg");
 
-            parsed.Arguments.Should().ContainSingle().Which.Target.SanitizedId.Should().Be("arg1");
+            parsed.Arguments.Should().ContainSingle().Which.Target.Id.Should().Be("arg1");
         }
 
         [TestMethod]
@@ -261,7 +261,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[0].Target.Index.Should().Be(0);
 
             parsed.Arguments[1].Tokens.Should().Equal(["hi"]);
-            parsed.Arguments[1].Target.SanitizedId.Should().Be("arg2");
+            parsed.Arguments[1].Target.Id.Should().Be("arg2");
         }
 
         [TestMethod]
@@ -295,7 +295,7 @@ namespace AsitLib.Tests.Tests.CommandLine
             parsed.Arguments[0].Tokens.Should().Equal(["hi"]);
 
             parsed.Arguments[1].Tokens.Should().Equal(["a", "b", "c"]);
-            parsed.Arguments[1].Target.SanitizedId.Should().Be("arg2");
+            parsed.Arguments[1].Target.Id.Should().Be("arg2");
         }
 
         [TestMethod]
