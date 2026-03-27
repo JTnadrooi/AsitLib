@@ -63,13 +63,13 @@
         PreventCommand = 1,
 
         /// <summary>
-        /// Prevents flags (such as global options/hooks) from executing.
+        /// Prevents action hooks (and global options) from executing.
         /// </summary>
-        PreventFlags = 2,
+        PreventActionHooks = 2,
 
         /// <summary>
         /// Stops both command and flags execution.
         /// </summary>
-        FullStop = PreventCommand | PreventFlags,
+        FullStop = PreventCommand | PreventActionHooks,
     }
 }

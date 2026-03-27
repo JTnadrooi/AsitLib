@@ -375,7 +375,7 @@ namespace AsitLib.CommandLine
                 returned = contextResult;
             }
 
-            if (!context.HasFlag(ExecutingContextFlags.PreventFlags))
+            if (!context.HasFlag(ExecutingContextFlags.PreventActionHooks))
                 foreach (ActionHook hook in toRunHooks)
                 {
                     returned = hook.OnReturned(context, returned);
