@@ -6,10 +6,6 @@
 
         public readonly int? Index { get; }
 
-        public readonly bool IsShorthand => Token is not null && !Token.StartsWith("--");
-
-        public readonly bool IsLongForm => Token is not null && Token!.StartsWith("--");
-
         public readonly string? Id => Token?.TrimStart('-');
 
         public readonly bool IsAntiTarget
