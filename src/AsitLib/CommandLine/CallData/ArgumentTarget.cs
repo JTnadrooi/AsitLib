@@ -21,6 +21,18 @@
 
         public ArgumentTarget(string token)
         {
+            if (token == "--" || token == "-")
+                throw new ArgumentException(nameof(token));
+
+            bool isShort = token.Length == 2 && token.StartsWith("-");
+
+            bool isLong = token.StartsWith("--") &&
+                          !token.StartsWith("---") &&
+                          token.Length > 3;
+
+            if (!isShort && !isLong)
+                throw new ArgumentException($"Invalid token '{token}'.", nameof(token));
+
             Token = token;
             Index = null;
         }
