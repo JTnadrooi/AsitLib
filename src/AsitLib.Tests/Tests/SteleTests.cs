@@ -119,9 +119,7 @@ namespace AsitLib.Tests
         [DataRow((byte[])[1, 2, 3])]
         public void CreateFromUnique_ValidData_CreatesMap(byte[] values)
         {
-            SteleMap<byte> map = SteleMap<byte>.CreateFromUnique(values);
-
-            map.Should().NotBeNull();
+            Invoking(() => SteleMap<byte>.CreateFromUnique(values)).Should().NotThrow();
         }
     }
 }

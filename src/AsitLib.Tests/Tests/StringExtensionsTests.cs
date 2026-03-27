@@ -84,49 +84,37 @@
         [TestMethod]
         public void SafeIntParse_InvalidInteger_ReturnsMinusOne()
         {
-            string input = "abc";
-
-            input.SafeIntParse().Should().Be(-1);
+            "abc".SafeIntParse().Should().Be(-1);
         }
 
         [TestMethod]
         public void SafeNullIntParse_ValidInteger_ReturnsParsedValue()
         {
-            string input = "123";
-
-            input.SafeNullIntParse().Should().Be(123);
+            "123".SafeNullIntParse().Should().Be(123);
         }
 
         [TestMethod]
         public void SafeNullIntParse_InvalidInteger_ReturnsNull()
         {
-            string input = "abc";
-
-            input.SafeNullIntParse().Should().BeNull();
+            "abc".SafeNullIntParse().Should().BeNull();
         }
 
         [TestMethod]
         public void SafeNullBoolParse_TrueString_ReturnsTrue()
         {
-            string input = "true";
-
-            input.SafeNullBoolParse().Should().BeTrue();
+            "true".SafeNullBoolParse().Should().BeTrue();
         }
 
         [TestMethod]
         public void SafeNullBoolParse_FalseString_ReturnsFalse()
         {
-            string input = "false";
-
-            input.SafeNullBoolParse().Should().BeFalse();
+            "false".SafeNullBoolParse().Should().BeFalse();
         }
 
         [TestMethod]
         public void SafeNullBoolParse_InvalidString_ReturnsNull()
         {
-            string input = "invalid";
-
-            input.SafeNullBoolParse().Should().BeNull();
+            "invalid".SafeNullBoolParse().Should().BeNull();
         }
     }
 }

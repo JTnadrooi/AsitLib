@@ -12,21 +12,12 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Invert_InvalidValueNaN_ThrowsEx()
+        [DataRow(float.NaN)]
+        [DataRow(float.PositiveInfinity)]
+        [DataRow(float.NegativeInfinity)]
+        public void Invert_InvalidValue_ThrowsEx(float invalidValue)
         {
-            Invoking(() => MathAL.Invert(float.NaN, 0f)).Should().ThrowExactly<ArgumentException>();
-        }
-
-        [TestMethod]
-        public void Invert_InvalidValueInf_ThrowsEx()
-        {
-            Invoking(() => MathAL.Invert(float.PositiveInfinity, 0f)).Should().ThrowExactly<ArgumentException>();
-        }
-
-        [TestMethod]
-        public void Invert_InvalidValueNegInf_ThrowsEx()
-        {
-            Invoking(() => MathAL.Invert(float.NegativeInfinity, 0f)).Should().ThrowExactly<ArgumentException>();
+            Invoking(() => MathAL.Invert(invalidValue, 0f)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
@@ -54,39 +45,56 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void Average_InvalidValueNaN_ThrowsEx()
+        [DataRow(float.NaN)]
+        [DataRow(float.PositiveInfinity)]
+        [DataRow(float.NegativeInfinity)]
+        public void Average_InvalidValueNaN_ThrowsEx(float invalidValue)
         {
-            Invoking(() => MathAL.Average(10f, 20f, float.NaN)).Should().ThrowExactly<ArgumentException>();
+            Invoking(() => MathAL.Average(10f, 20f, invalidValue)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
-        public void Average_InvalidValueInf_ThrowsEx()
+        [DataRow(typeof(int))]
+        [DataRow(typeof(float))]
+        [DataRow(typeof(long))]
+        [DataRow(typeof(BigInteger))]
+        [DataRow(typeof(Int128))]
+        [DataRow(typeof(Half))]
+        [DataRow(typeof(Nullable<int>))]
+        public void IsNumberic_NumericType_ReturnsTrue(Type type)
         {
-            Invoking(() => MathAL.Average(10f, float.PositiveInfinity, 20f)).Should().ThrowExactly<ArgumentException>();
+            MathHelperAL.IsNumberic(type).Should().BeTrue();
         }
 
         [TestMethod]
-        public void IsNumberic_TypeValid()
+        [DataRow(typeof(string))]
+        [DataRow(typeof(DataRowAttribute))]
+        [DataRow(typeof(char))]
+        public void IsNumberic_NotNumericType_ReturnsFalse(Type type)
         {
-            MathHelperAL.IsNumberic(typeof(int)).Should().BeTrue();
+            MathHelperAL.IsNumberic(type).Should().BeFalse();
         }
 
         [TestMethod]
-        public void IsNumberic_TypeInvalid()
+        [DataRow(0)]
+        [DataRow(-1)]
+        [DataRow(0.1f)]
+        [DataRow(0.1d)]
+        [DataRow(10000000000L)]
+        [DataRow(10000000000d)]
+        public void IsNumeric_NumericValue_ReturnsTrue(object? numericValue)
         {
-            MathHelperAL.IsNumberic(typeof(string)).Should().BeFalse();
+            MathHelperAL.IsNumberic(numericValue).Should().BeTrue();
         }
 
         [TestMethod]
-        public void IsNumberic_ObjectValid()
+        [DataRow("string")]
+        [DataRow(new int[] { 1, 1 })]
+        [DataRow('c')]
+        [DataRow(null)]
+        public void IsNumberic_NotNumericValue_ReturnsFalse(object? notNumericValue)
         {
-            MathHelperAL.IsNumberic(10).Should().BeTrue();
-        }
-
-        [TestMethod]
-        public void IsNumberic_ObjectInvalid()
-        {
-            MathHelperAL.IsNumberic("test").Should().BeFalse();
+            MathHelperAL.IsNumberic(notNumericValue).Should().BeFalse();
         }
 
         [TestMethod]
@@ -116,15 +124,20 @@ namespace AsitLib.Tests
         }
 
         [TestMethod]
-        public void IsNear_True()
+        [DataRow(5.05f)]
+        [DataRow(5.01f)]
+        [DataRow(5.09f)]
+        public void IsNear_NearValue_ReturnsTrue(float value)
         {
-            MathHelperAL.IsNear(5f, 5.05f, 0.1f).Should().BeTrue();
+            MathHelperAL.IsNear(5f, value, 0.1f).Should().BeTrue();
         }
 
         [TestMethod]
-        public void IsNear_False()
+        [DataRow(59f)]
+        [DataRow(6f)]
+        public void IsNear_NotNearValue_ReturnsFalse(float value)
         {
-            MathHelperAL.IsNear(5f, 6f, 0.1f).Should().BeFalse();
+            MathHelperAL.IsNear(5f, value, 0.1f).Should().BeFalse();
         }
 
         [TestMethod]

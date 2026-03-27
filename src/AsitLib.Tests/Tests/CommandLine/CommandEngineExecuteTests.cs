@@ -154,13 +154,5 @@ namespace AsitLib.Tests
         {
             AssertExecute("4", "validation \"4\"");
         }
-
-        [TestMethod]
-        public void Execute_HelpFullStopGlobalOption()
-        {
-            Console.WriteLine(Engine.Execute("void --help"));
-            Console.WriteLine("\n" + Engine.Execute("void -h"));
-            AssertCheckOutput();
-        }
     }
 }

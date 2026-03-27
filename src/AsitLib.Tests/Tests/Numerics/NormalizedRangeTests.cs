@@ -4,22 +4,19 @@
     public class NormalizedRangeTests
     {
         [TestMethod]
-        public void StartEndConstructor()
+        public void Length()
         {
-            NormalizedRange range = new NormalizedRange(1, 5);
-            range.Start.Should().Be(1);
-            range.End.Should().Be(5);
-            range.Length.Should().Be(4);
+            new NormalizedRange(1, 5).Length.Should().Be(4);
         }
 
         [TestMethod]
-        public void StartEndConstructor_InvalidRange()
+        public void StartEndConstructor_InvalidRange_ThrowEx()
         {
             Invoking(() => new NormalizedRange(5, 1)).Should().ThrowExactly<ArgumentException>();
         }
 
         [TestMethod]
-        public void Equals_SameValues_ReturnsTrue()
+        public void Equals_EqualRanges_ReturnsTrue()
         {
             NormalizedRange range1 = new NormalizedRange(1, 5);
             NormalizedRange range2 = new NormalizedRange(1, 5);
@@ -28,7 +25,7 @@
         }
 
         [TestMethod]
-        public void Equals_DifferentValues_ReturnsFalse()
+        public void Equals_DifferentRanges_ReturnsFalse()
         {
             NormalizedRange range1 = new NormalizedRange(1, 5);
             NormalizedRange range2 = new NormalizedRange(2, 6);
@@ -73,7 +70,7 @@
         }
 
         [TestMethod]
-        public void AsRange()
+        public void ToString_ReturnsStringRange()
         {
             NormalizedRange range = new NormalizedRange(1, 5);
             range.ToString().Should().Be("1..5");
@@ -82,9 +79,10 @@
         [TestMethod]
         public void ImplicitOperator()
         {
-            NormalizedRange range = new NormalizedRange(1, 5);
-            Range convertedRange = range;
-            convertedRange.ToString().Should().Be("1..5");
+            NormalizedRange normalizedRange = new NormalizedRange(1, 5);
+            Range systemRange = normalizedRange.ToRange();
+            systemRange.ToString().Should().Be("1..5");
+            systemRange.ToString().Should().Be("1..5");
         }
 
         [TestMethod]

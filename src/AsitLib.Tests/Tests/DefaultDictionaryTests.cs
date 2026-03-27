@@ -4,7 +4,7 @@
     public class DefaultDictionaryTests
     {
         [TestMethod]
-        public void TryGetValue_FoundKey()
+        public void TryGetValue_FoundKey_ReturnsTrueAndGetsValueFromKey()
         {
             DefaultDictionary<int, string> dictionary = new DefaultDictionary<int, string>(() => "default");
             dictionary[1] = "custom value";
@@ -15,7 +15,7 @@
         }
 
         [TestMethod]
-        public void TryGetValue_NotFoundKey_AlwaysSucceeds()
+        public void TryGetValue_NotFoundKey_ReturnsTrueAndGetsDefaultValue()
         {
             DefaultDictionary<int, string> dictionary = new DefaultDictionary<int, string>(() => "default");
             bool result = dictionary.TryGetValue(1, out string value);
@@ -25,7 +25,7 @@
         }
 
         [TestMethod]
-        public void GetValue_FoundKey()
+        public void IndexerGet_FoundKey_ReturnsValueFromKey()
         {
             DefaultDictionary<int, string> dictionary = new DefaultDictionary<int, string>(() => "default");
             dictionary[1] = "custom value";
@@ -34,7 +34,7 @@
         }
 
         [TestMethod]
-        public void GetValue_NotFoundKey()
+        public void IndexerGet_NotFoundKey_ReturnsDefaultValue()
         {
             DefaultDictionary<int, string> dictionary = new DefaultDictionary<int, string>(() => "default");
 
