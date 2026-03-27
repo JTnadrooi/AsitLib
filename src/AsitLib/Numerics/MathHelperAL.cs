@@ -28,7 +28,7 @@ namespace AsitLib.Numerics
         /// Determines whether the specified type is a numeric type. See <see cref="NumericTypes"/>.
         /// </summary>
         /// <param name="t">The type to check.</param>
-        /// <returns><see langword="true"/> if the specified type is numeric; otherwise, <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if the specified type is numeric; otherwise, <see langword="true"/>.</returns>
         public static bool IsNumberic(Type t)
             => NumericTypes.Contains(Nullable.GetUnderlyingType(t) ?? t);
 
@@ -36,11 +36,11 @@ namespace AsitLib.Numerics
         /// Determines whether the specified object is of a numeric type.
         /// </summary>
         /// <param name="value">The object to check.</param>
-        /// <returns><see langword="true"/> if the object is of a numeric type; otherwise, <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if the object is of a numeric type; otherwise, <see langword="true"/>.</returns>
         public static bool IsNumberic(object? value) => value is not null && IsNumberic(value.GetType());
 
         /// <summary>
-        /// Converts the specified numeric value to a <see cref="BigInteger"/>.S
+        /// Converts the specified numeric value to a <see cref="BigInteger"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>The <see cref="BigInteger"/> representation of the value.</returns>
