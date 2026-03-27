@@ -20,6 +20,11 @@ namespace AsitLib.CommandLine
             "no"
         ];
 
+        private static readonly Regex s_signatureRegex = new Regex(
+            "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])",
+            RegexOptions.Compiled
+        );
+
         /// <summary>
         /// Determines whether the specified <paramref name="signature"/> is valid as a generic flag.
         /// </summary>
@@ -52,7 +57,8 @@ namespace AsitLib.CommandLine
             return a is null ? GetSignature(memberInfo.Name) : a.Name;
         }
 
-        public static string GetSignature(string str) => Regex.Replace(str, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", "-$1", RegexOptions.Compiled).Trim().ToLower();
+        public static string GetSignature(string str) =>
+            s_signatureRegex.Replace(str, "-$1").Trim().ToLower();
 
         public static string[] GetTokens(string str)
         {
