@@ -11,6 +11,8 @@ namespace AsitLib.CommandLine
 
         public Argument(ArgumentTarget target, ReadOnlySpan<string> tokens)
         {
+            if (target.Index is not null && tokens.Length == 0) throw new ArgumentException("Tokens cannot be empty when target is positional.", nameof(tokens));
+
             Target = target;
             Tokens = tokens.ToImmutableArray();
         }
