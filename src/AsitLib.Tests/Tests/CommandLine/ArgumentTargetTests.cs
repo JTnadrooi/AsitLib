@@ -97,9 +97,9 @@ namespace AsitLib.Tests
         [DataRow("-t")]
         [DataRow("--token")]
         [DataRow("--token-token")]
-        public void Ctor_ValidToken(string invalidToken)
+        public void Ctor_ValidToken(string validToken)
         {
-            Invoking(() => new ArgumentTarget(invalidToken)).Should().NotThrow();
+            Invoking(() => new ArgumentTarget(validToken)).Should().NotThrow();
         }
     }
 }
