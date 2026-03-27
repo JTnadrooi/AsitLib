@@ -328,9 +328,9 @@ namespace AsitLib.CommandLine
         }
 
         /// <summary>
-        /// Executes a command based on the specified command-line input.
+        /// Executes a command based on the specified command-line <paramref name="input"/>.
         /// </summary>
-        /// <param name="cmdLine">
+        /// <param name="input">
         /// A string containing the command and its arguments in command-line format.
         /// This value is tokenized using <see cref="ParseHelpers.GetTokens(string)"/> before execution.
         /// </param>
@@ -342,10 +342,10 @@ namespace AsitLib.CommandLine
         /// This method is a convenience overload that parses the input string into tokens
         /// and delegates execution to <see cref="Execute(string[])"/>.
         /// </remarks>
-        public CommandResult Execute(string cmdLine) => Execute(ParseHelpers.GetTokens(cmdLine));
+        public CommandResult Execute(string input) => Execute(ParseHelpers.GetTokens(input));
 
         /// <summary>
-        /// Executes a command based on the specified tokenized input.
+        /// Executes a command based on the specified <paramref name="tokens"/>.
         /// </summary>
         /// <param name="tokens">
         /// An array of strings representing the command and its arguments.
@@ -376,11 +376,13 @@ namespace AsitLib.CommandLine
             }
 
             if (!context.HasFlag(ExecutingContextFlags.PreventActionHooks))
+            {
                 foreach (ActionHook hook in toRunHooks)
-                {
                     returned = hook.OnReturned(context, returned);
+
+                foreach (ActionHook hook in toRunHooks)
                     hook.PostCommand(context);
-                }
+            }
 
             return new CommandResult(this, returned);
         }
